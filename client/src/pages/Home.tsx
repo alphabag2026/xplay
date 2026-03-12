@@ -1,25 +1,34 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
-
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
+/*
+ * XPLAY Revenue Structure Analysis — Main Page
+ * Design: Cyberpunk Data Terminal
+ * Colors: Deep Navy (#0a0e1a) + Neon Cyan (#00f5ff) + Purple (#a855f7)
+ * Typography: Space Grotesk (display) + DM Sans (body)
  */
-export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
 
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import BusinessSection from "@/components/sections/BusinessSection";
+import FlywheelSection from "@/components/sections/FlywheelSection";
+import GameSection from "@/components/sections/GameSection";
+import HeroSection from "@/components/sections/HeroSection";
+import ReferralSection from "@/components/sections/ReferralSection";
+import StakingSection from "@/components/sections/StakingSection";
+import TeamSection from "@/components/sections/TeamSection";
+import TokenomicsSection from "@/components/sections/TokenomicsSection";
+
+export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div className="min-h-screen" style={{ background: "#0a0e1a" }}>
+      <Navbar />
+      <HeroSection />
+      <BusinessSection />
+      <GameSection />
+      <StakingSection />
+      <ReferralSection />
+      <TeamSection />
+      <TokenomicsSection />
+      <FlywheelSection />
+      <Footer />
     </div>
   );
 }
