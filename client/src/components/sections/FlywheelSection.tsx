@@ -6,7 +6,7 @@ import ShareModal from "@/components/ShareModal";
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Rocket, Share2, Check, Link2 } from "lucide-react";
+import { Rocket, Share2, Check, Link2, Copy } from "lucide-react";
 import { useState } from "react";
 
 export default function FlywheelSection() {
@@ -168,11 +168,21 @@ export default function FlywheelSection() {
 
           {/* CTA Buttons: 시작하기 + 공유하기 */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-            <a
-              href={ctaLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
+            <button
+              onClick={() => {
+                const url = ctaLink;
+                const isMob = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMob) {
+                  const params = JSON.stringify({ url, chain: "Polygon", source: "XPLAY" });
+                  const tpLink = `tpdapp://open?params=${encodeURIComponent(params)}`;
+                  const start = Date.now();
+                  window.location.href = tpLink;
+                  setTimeout(() => { if (Date.now() - start < 2000) window.open(url, "_blank"); }, 1500);
+                } else {
+                  window.open(url, "_blank");
+                }
+              }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase"
               style={{
                 background: "linear-gradient(135deg, #00f5ff, #a855f7)",
                 color: "#0a0e1a",
@@ -182,7 +192,7 @@ export default function FlywheelSection() {
             >
               <Rocket size={16} />
               {t("fly.cta")}
-            </a>
+            </button>
             <button
               onClick={() => setShowShareModal(true)}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase transition-all"

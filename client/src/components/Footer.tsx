@@ -1,7 +1,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import ShareModal from "@/components/ShareModal";
-import { Send, Link2, Rocket, Share2, Check } from "lucide-react";
+import { Send, Link2, Rocket, Share2, Check, Copy } from "lucide-react";
 import { useState } from "react";
 
 export default function Footer() {
@@ -71,10 +71,20 @@ export default function Footer() {
 
           {/* CTA + Share buttons */}
           <div className="flex gap-2 mb-2">
-            <a
-              href={ctaLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                const url = ctaLink;
+                const isMob = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMob) {
+                  const params = JSON.stringify({ url, chain: "Polygon", source: "XPLAY" });
+                  const tpLink = `tpdapp://open?params=${encodeURIComponent(params)}`;
+                  const start = Date.now();
+                  window.location.href = tpLink;
+                  setTimeout(() => { if (Date.now() - start < 2000) window.open(url, "_blank"); }, 1500);
+                } else {
+                  window.open(url, "_blank");
+                }
+              }}
               className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase"
               style={{
                 background: "linear-gradient(135deg, #00f5ff, #a855f7)",
@@ -85,7 +95,7 @@ export default function Footer() {
             >
               <Rocket size={14} />
               {t("fly.cta")}
-            </a>
+            </button>
             <button
               onClick={() => setShowShareModal(true)}
               className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase"

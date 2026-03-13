@@ -12,6 +12,7 @@ const NAV_KEYS = [
   { id: "referral", key: "nav.referral" },
   { id: "team", key: "nav.team" },
   { id: "tokenomics", key: "nav.tokenomics" },
+  { id: "roadmap", key: "nav.roadmap" },
   { id: "simulator", key: "nav.simulator" },
   { id: "resources", key: "nav.resources" },
 ];

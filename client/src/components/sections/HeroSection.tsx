@@ -2,57 +2,77 @@ import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import ShareModal from "@/components/ShareModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Rocket, Share2, Check, AlertTriangle, Link2, ExternalLink } from "lucide-react";
+import { ChevronDown, Rocket, Share2, Copy, Check, Link2, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
-type FlowStep = "idle" | "check" | "warning" | "input" | "confirmed";
+const DEFAULT_CTA = "https://app.xplaybot.com/";
+
+function getTokenPocketDeepLink(url: string) {
+  const params = JSON.stringify({ url, chain: "Polygon", source: "XPLAY" });
+  return `tpdapp://open?params=${encodeURIComponent(params)}`;
+}
+
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
 
 export default function HeroSection() {
   const { t, ctaLink, referralLink, setReferralLink } = useApp();
-  const [flowStep, setFlowStep] = useState<FlowStep>("idle");
-  const [newRefInput, setNewRefInput] = useState("");
+  const [showRefModal, setShowRefModal] = useState(false);
+  const [refInput, setRefInput] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
+  // TokenPocket 또는 브라우저로 열기
+  const openXplay = (url: string) => {
+    if (isMobile()) {
+      const tpLink = getTokenPocketDeepLink(url);
+      const start = Date.now();
+      window.location.href = tpLink;
+      setTimeout(() => {
+        if (Date.now() - start < 2000) {
+          window.open(url, "_blank");
+        }
+      }, 1500);
+    } else {
+      window.open(url, "_blank");
+    }
+  };
+
+  // "XPLAY 시작하기" 클릭
   const handleStartClick = () => {
     if (!referralLink) {
-      setFlowStep("check");
+      setShowRefModal(true);
     } else {
-      window.open(ctaLink, "_blank");
+      openXplay(ctaLink);
     }
   };
 
-  const handleConfirmRef = () => {
-    setFlowStep("confirmed");
+  // 레퍼럴 저장 후 이동
+  const handleSaveAndGo = () => {
+    if (refInput.trim()) {
+      setReferralLink(refInput.trim());
+      setShowRefModal(false);
+      openXplay(refInput.trim());
+    }
   };
 
-  const handleShareWithWarning = () => {
+  // 레퍼럴 없이 시작
+  const handleSkipAndGo = () => {
+    setShowRefModal(false);
+    openXplay(DEFAULT_CTA);
+  };
+
+  // 레퍼럴 링크 복사
+  const handleCopyRef = () => {
     if (referralLink) {
-      // 이미 다른 사람의 추천링크가 등록된 상태 → 경고
-      setFlowStep("warning");
-    } else {
-      setShowShareModal(true);
+      navigator.clipboard.writeText(referralLink).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
     }
-  };
-
-  const handleChangeToMine = () => {
-    setFlowStep("input");
-  };
-
-  const handleSaveMyRef = () => {
-    if (newRefInput.trim()) {
-      setReferralLink(newRefInput.trim());
-      setFlowStep("confirmed");
-    }
-  };
-
-  const handleGoXplay = () => {
-    window.open(ctaLink, "_blank");
-    setFlowStep("idle");
-  };
-
-  const handleShareNow = () => {
-    setFlowStep("idle");
-    setShowShareModal(true);
   };
 
   return (
@@ -169,7 +189,7 @@ export default function HeroSection() {
             {t("hero.start.with.referral")}
           </button>
           <button
-            onClick={referralLink ? handleShareWithWarning : () => setShowShareModal(true)}
+            onClick={() => setShowShareModal(true)}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase"
             style={{
               background: "rgba(168,85,247,0.12)",
@@ -184,22 +204,38 @@ export default function HeroSection() {
           </button>
         </motion.div>
 
-        {/* 현재 레퍼럴 표시 */}
+        {/* 현재 레퍼럴 표시 + 복사 버튼 */}
         {referralLink && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{
-              background: "rgba(0,245,255,0.06)",
-              border: "1px solid rgba(0,245,255,0.15)",
-            }}
+            className="mt-3 flex items-center justify-center gap-2"
           >
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
-            <p className="text-[10px] truncate max-w-[200px]" style={{ color: "rgba(0,245,255,0.7)" }}>
-              {referralLink}
-            </p>
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+              style={{
+                background: "rgba(0,245,255,0.06)",
+                border: "1px solid rgba(0,245,255,0.15)",
+              }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+              <p className="text-[10px] truncate max-w-[180px]" style={{ color: "rgba(0,245,255,0.7)" }}>
+                {referralLink}
+              </p>
+            </div>
+            <button
+              onClick={handleCopyRef}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-medium active:scale-95"
+              style={{
+                background: copied ? "rgba(34,197,94,0.15)" : "rgba(0,245,255,0.08)",
+                border: copied ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(0,245,255,0.2)",
+                color: copied ? "#22c55e" : "#00f5ff",
+              }}
+            >
+              {copied ? <Check size={10} /> : <Copy size={10} />}
+              {copied ? t("ref.copy.done") : t("ref.copy.btn")}
+            </button>
           </motion.div>
         )}
       </div>
@@ -212,16 +248,16 @@ export default function HeroSection() {
         <ChevronDown size={24} style={{ color: "rgba(0,245,255,0.5)" }} />
       </motion.div>
 
-      {/* === Referral Flow Modal === */}
+      {/* === 단순화된 레퍼럴 입력 모달 === */}
       <AnimatePresence>
-        {flowStep !== "idle" && (
+        {showRefModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
             style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
-            onClick={() => setFlowStep("idle")}
+            onClick={() => setShowRefModal(false)}
           >
             <motion.div
               initial={{ y: 100, opacity: 0 }}
@@ -237,240 +273,75 @@ export default function HeroSection() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Step: Check — 추천링크를 확인하세요 */}
-              {flowStep === "check" && (
-                <div className="text-center">
-                  <div
-                    className="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full"
-                    style={{ background: "rgba(0,245,255,0.1)", border: "1px solid rgba(0,245,255,0.3)" }}
-                  >
-                    <Link2 size={24} style={{ color: "#00f5ff" }} />
-                  </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-10 h-10 flex items-center justify-center rounded-lg shrink-0"
+                  style={{ background: "rgba(0,245,255,0.1)", border: "1px solid rgba(0,245,255,0.2)" }}
+                >
+                  <Link2 size={18} style={{ color: "#00f5ff" }} />
+                </div>
+                <div>
                   <h3
-                    className="text-lg font-bold mb-2"
+                    className="text-base font-bold"
                     style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
                   >
-                    {t("ref.flow.check")}
+                    {t("ref.simple.title")}
                   </h3>
-                  <p className="text-sm mb-6" style={{ color: "rgba(226,232,240,0.6)" }}>
-                    {t("ref.flow.check.desc")}
+                  <p className="text-xs" style={{ color: "rgba(226,232,240,0.5)" }}>
+                    {t("ref.simple.desc")}
                   </p>
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleConfirmRef}
-                      className="w-full py-3 text-sm font-semibold"
-                      style={{
-                        background: "linear-gradient(135deg, #00f5ff, #a855f7)",
-                        color: "#0a0e1a",
-                        borderRadius: "8px",
-                        fontFamily: "'Space Grotesk', sans-serif",
-                      }}
-                    >
-                      {t("ref.flow.confirmed")}
-                    </button>
-                    <button
-                      onClick={() => setFlowStep("input")}
-                      className="w-full py-3 text-sm"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        color: "rgba(226,232,240,0.7)",
-                      }}
-                    >
-                      {t("ref.flow.enter")}
-                    </button>
-                    <button
-                      onClick={() => setFlowStep("idle")}
-                      className="w-full py-3 text-sm"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        color: "rgba(226,232,240,0.5)",
-                      }}
-                    >
-                      {t("referral.modal.reset")}
-                    </button>
-                  </div>
                 </div>
-              )}
+              </div>
 
-              {/* Step: Warning — 다른 사람의 추천링크로 등록되어 있습니다 */}
-              {flowStep === "warning" && (
-                <div className="text-center">
-                  <div
-                    className="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full"
-                    style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.3)" }}
-                  >
-                    <AlertTriangle size={24} style={{ color: "#eab308" }} />
-                  </div>
-                  <h3
-                    className="text-base font-bold mb-3"
-                    style={{ color: "#eab308", fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {t("ref.flow.warning").split("\n")[0]}
-                  </h3>
-                  <p className="text-sm mb-2" style={{ color: "rgba(226,232,240,0.6)" }}>
-                    {t("ref.flow.warning").split("\n")[1]}
-                  </p>
-                  <div
-                    className="mb-5 px-3 py-2 rounded-lg"
-                    style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.15)" }}
-                  >
-                    <p className="text-xs truncate" style={{ color: "rgba(234,179,8,0.7)" }}>
-                      {t("referral.modal.tokenpocket")}
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleChangeToMine}
-                      className="w-full py-3 text-sm font-semibold"
-                      style={{
-                        background: "linear-gradient(135deg, #eab308, #f97316)",
-                        color: "#0a0e1a",
-                        borderRadius: "8px",
-                        fontFamily: "'Space Grotesk', sans-serif",
-                      }}
-                    >
-                      {t("ref.flow.change.mine")}
-                    </button>
-                    <button
-                      onClick={handleConfirmRef}
-                      className="w-full py-3 text-sm"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        color: "rgba(226,232,240,0.5)",
-                      }}
-                    >
-                      {t("ref.flow.confirmed")}
-                    </button>
-                  </div>
-                </div>
-              )}
+              <input
+                type="url"
+                value={refInput}
+                onChange={(e) => setRefInput(e.target.value)}
+                placeholder={t("referral.modal.placeholder")}
+                className="w-full px-4 py-3 text-sm outline-none mb-2"
+                style={{
+                  background: "rgba(0,0,0,0.4)",
+                  border: "1px solid rgba(0,245,255,0.2)",
+                  borderRadius: "8px",
+                  color: "#e2e8f0",
+                }}
+                autoFocus
+              />
+              <p className="text-[10px] mb-4" style={{ color: "rgba(226,232,240,0.35)" }}>
+                {t("referral.modal.tokenpocket")}
+              </p>
 
-              {/* Step: Input — 추천링크 입력 */}
-              {flowStep === "input" && (
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className="w-10 h-10 flex items-center justify-center rounded-lg shrink-0"
-                      style={{ background: "rgba(0,245,255,0.1)", border: "1px solid rgba(0,245,255,0.2)" }}
-                    >
-                      <Link2 size={18} style={{ color: "#00f5ff" }} />
-                    </div>
-                    <h3
-                      className="text-base font-bold"
-                      style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
-                    >
-                      {t("ref.flow.change.mine")}
-                    </h3>
-                  </div>
-                  <input
-                    type="url"
-                    value={newRefInput}
-                    onChange={(e) => setNewRefInput(e.target.value)}
-                    placeholder={t("referral.modal.placeholder")}
-                    className="w-full px-4 py-3 text-sm outline-none mb-2"
-                    style={{
-                      background: "rgba(0,0,0,0.4)",
-                      border: "1px solid rgba(0,245,255,0.2)",
-                      borderRadius: "8px",
-                      color: "#e2e8f0",
-                    }}
-                    autoFocus
-                  />
-                  <p className="text-[10px] mb-4" style={{ color: "rgba(226,232,240,0.35)" }}>
-                    {t("referral.modal.tokenpocket")}
-                  </p>
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleSaveMyRef}
-                      className="w-full py-3 text-sm font-semibold"
-                      style={{
-                        background: newRefInput.trim() ? "linear-gradient(135deg, #00f5ff, #a855f7)" : "rgba(255,255,255,0.1)",
-                        color: newRefInput.trim() ? "#0a0e1a" : "rgba(226,232,240,0.3)",
-                        borderRadius: "8px",
-                        fontFamily: "'Space Grotesk', sans-serif",
-                      }}
-                      disabled={!newRefInput.trim()}
-                    >
-                      {t("fly.referral.save")}
-                    </button>
-                    <button
-                      onClick={() => setFlowStep("idle")}
-                      className="w-full py-3 text-sm"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        color: "rgba(226,232,240,0.5)",
-                      }}
-                    >
-                      {t("referral.modal.reset")}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Step: Confirmed — 추천링크 확인 완료 → 바로 전송 */}
-              {flowStep === "confirmed" && (
-                <div className="text-center">
-                  <div
-                    className="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full"
-                    style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)" }}
-                  >
-                    <Check size={24} style={{ color: "#22c55e" }} />
-                  </div>
-                  <h3
-                    className="text-lg font-bold mb-2"
-                    style={{ color: "#22c55e", fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {t("ref.flow.confirmed")}
-                  </h3>
-                  {referralLink && (
-                    <div
-                      className="mb-5 px-3 py-2 rounded-lg"
-                      style={{ background: "rgba(0,245,255,0.05)" }}
-                    >
-                      <p className="text-xs truncate" style={{ color: "rgba(0,245,255,0.7)" }}>
-                        {referralLink}
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleGoXplay}
-                      className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold"
-                      style={{
-                        background: "linear-gradient(135deg, #00f5ff, #a855f7)",
-                        color: "#0a0e1a",
-                        borderRadius: "8px",
-                        fontFamily: "'Space Grotesk', sans-serif",
-                      }}
-                    >
-                      <ExternalLink size={16} />
-                      {t("ref.flow.go")}
-                    </button>
-                    <button
-                      onClick={handleShareNow}
-                      className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold"
-                      style={{
-                        background: "rgba(168,85,247,0.12)",
-                        border: "1px solid rgba(168,85,247,0.3)",
-                        color: "#c084fc",
-                        borderRadius: "8px",
-                        fontFamily: "'Space Grotesk', sans-serif",
-                      }}
-                    >
-                      <Share2 size={16} />
-                      {t("ref.flow.share.now")}
-                    </button>
-                  </div>
-                </div>
-              )}
+              <div className="space-y-3">
+                <button
+                  onClick={handleSaveAndGo}
+                  className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold"
+                  style={{
+                    background: refInput.trim()
+                      ? "linear-gradient(135deg, #00f5ff, #a855f7)"
+                      : "rgba(255,255,255,0.1)",
+                    color: refInput.trim() ? "#0a0e1a" : "rgba(226,232,240,0.3)",
+                    borderRadius: "8px",
+                    fontFamily: "'Space Grotesk', sans-serif",
+                  }}
+                  disabled={!refInput.trim()}
+                >
+                  <Rocket size={16} />
+                  {t("ref.simple.save.go")}
+                </button>
+                <button
+                  onClick={handleSkipAndGo}
+                  className="w-full flex items-center justify-center gap-2 py-3 text-sm"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "8px",
+                    color: "rgba(226,232,240,0.5)",
+                  }}
+                >
+                  <ExternalLink size={14} />
+                  {t("ref.simple.skip")}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

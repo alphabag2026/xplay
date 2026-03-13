@@ -16,6 +16,7 @@ import ResourcesSection from "@/components/sections/ResourcesSection";
 import StakingSection from "@/components/sections/StakingSection";
 import TeamSection from "@/components/sections/TeamSection";
 import SimulatorSection from "@/components/sections/SimulatorSection";
+import RoadmapSection from "@/components/sections/RoadmapSection";
 import TokenomicsSection from "@/components/sections/TokenomicsSection";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
       <ReferralSection />
       <TeamSection />
       <TokenomicsSection />
+      <RoadmapSection />
       <FlywheelSection />
       <SimulatorSection />
       <ResourcesSection />
