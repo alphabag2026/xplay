@@ -1,13 +1,12 @@
 /*
  * XPLAY Revenue Structure Analysis — Main Page
- * Design: Cyberpunk Data Terminal
+ * Design: Cyberpunk Data Terminal — Mobile-first
  * Colors: Deep Navy (#0a0e1a) + Neon Cyan (#00f5ff) + Purple (#a855f7)
  * Typography: Space Grotesk (display) + DM Sans (body)
  */
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import ReferralModal from "@/components/ReferralModal";
 import BusinessSection from "@/components/sections/BusinessSection";
 import FlywheelSection from "@/components/sections/FlywheelSection";
 import GameSection from "@/components/sections/GameSection";
@@ -18,15 +17,11 @@ import StakingSection from "@/components/sections/StakingSection";
 import TeamSection from "@/components/sections/TeamSection";
 import SimulatorSection from "@/components/sections/SimulatorSection";
 import TokenomicsSection from "@/components/sections/TokenomicsSection";
-import { useState } from "react";
 
 export default function Home() {
-  const [referralOpen, setReferralOpen] = useState(false);
-
   return (
     <div className="min-h-screen" style={{ background: "#0a0e1a" }}>
-      <Navbar onOpenReferral={() => setReferralOpen(true)} />
-      <ReferralModal open={referralOpen} onClose={() => setReferralOpen(false)} />
+      <Navbar />
       <HeroSection />
       <BusinessSection />
       <GameSection />
