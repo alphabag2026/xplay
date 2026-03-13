@@ -1,8 +1,11 @@
+import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 export default function HeroSection() {
+  const { t, ctaLink } = useApp();
+
   return (
     <section
       id="hero"
@@ -13,13 +16,9 @@ export default function HeroSection() {
         backgroundPosition: "center",
       }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e1a]/60 via-[#0a0e1a]/50 to-[#0a0e1a]/95" />
-
-      {/* Grid pattern */}
       <div className="absolute inset-0 grid-bg opacity-30" />
 
-      {/* Content */}
       <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -45,10 +44,10 @@ export default function HeroSection() {
             textShadow: "0 0 40px rgba(0,245,255,0.3)",
           }}
         >
-          XPLAY{" "}
-          <span style={{ color: "#00f5ff" }}>수익 구조</span>
+          {t("hero.title1")}
+          <span style={{ color: "#00f5ff" }}>{t("hero.title2")}</span>
           <br />
-          완전 분석
+          {t("hero.title3")}
         </motion.h1>
 
         <motion.p
@@ -58,7 +57,7 @@ export default function HeroSection() {
           className="text-base sm:text-lg lg:text-xl mb-3 max-w-2xl mx-auto"
           style={{ color: "rgba(226,232,240,0.8)" }}
         >
-          AI 자동 수익 엔진 × GameFi 듀얼 엔진
+          {t("hero.subtitle")}
         </motion.p>
 
         <motion.p
@@ -68,10 +67,9 @@ export default function HeroSection() {
           className="text-sm sm:text-base mb-10 max-w-xl mx-auto"
           style={{ color: "rgba(226,232,240,0.5)" }}
         >
-          프로젝트 팀 수익, 개인 수익, 회사 수익 구조를 투자자 관점에서 한눈에 비교합니다
+          {t("hero.desc")}
         </motion.p>
 
-        {/* Key stats row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -79,9 +77,9 @@ export default function HeroSection() {
           className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-12"
         >
           {[
-            { label: "일 최대 수익률", value: "1.8%" },
-            { label: "직추천 보상", value: "10%" },
-            { label: "팀 수익 배분", value: "80%" },
+            { label: t("hero.stat1"), value: "1.8%" },
+            { label: t("hero.stat2"), value: "10%" },
+            { label: t("hero.stat3"), value: "80%" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <p
@@ -101,9 +99,8 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
-        {/* CTA */}
         <motion.a
-          href="https://app.xplaybot.com/"
+          href={ctaLink}
           target="_blank"
           rel="noopener noreferrer"
           initial={{ opacity: 0, y: 20 }}
@@ -121,7 +118,6 @@ export default function HeroSection() {
         </motion.a>
       </div>
 
-      {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
         animate={{ y: [0, 8, 0] }}

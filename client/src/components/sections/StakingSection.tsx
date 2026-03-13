@@ -2,19 +2,21 @@ import DataTable from "@/components/DataTable";
 import GlassCard from "@/components/GlassCard";
 import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
+import { useApp } from "@/contexts/AppContext";
 import { STAKING_BOTS } from "@/lib/data";
 import { motion } from "framer-motion";
 
 export default function StakingSection() {
+  const { t } = useApp();
+
   return (
     <SectionWrapper id="staking" className="grid-bg">
       <SectionTitle
-        badge="Personal Revenue"
-        title="AI 스테이킹 봇으로 매일 자동 수익"
-        subtitle="5가지 봇 중 투자 기간에 맞는 봇을 선택하면, AI가 자동으로 수익을 창출합니다"
+        badge={t("staking.badge")}
+        title={t("staking.title")}
+        subtitle={t("staking.subtitle")}
       />
 
-      {/* Bot cards - horizontal scroll on mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
         {STAKING_BOTS.map((bot, i) => (
           <motion.div
@@ -52,7 +54,7 @@ export default function StakingSection() {
               {bot.dailyReturn}
             </p>
             <p className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(226,232,240,0.4)" }}>
-              일일 수익률
+              {t("staking.daily")}
             </p>
             <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${bot.color}15` }}>
               <p className="text-xs" style={{ color: "rgba(226,232,240,0.5)" }}>
@@ -63,22 +65,20 @@ export default function StakingSection() {
         ))}
       </div>
 
-      {/* Fee structure explanation */}
       <GlassCard className="mb-10">
         <h3
           className="text-lg font-bold mb-4"
           style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          5 USDT 자동 입금 구조 — 수수료 20%는 이렇게 작동합니다
+          {t("staking.fee.title")}
         </h3>
-
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-6">
           {[
-            { step: "1", text: "AI 봇이\n수익 창출", color: "#22d3ee" },
+            { step: "1", text: t("staking.step1"), color: "#22d3ee" },
             { step: "→", text: "", color: "rgba(226,232,240,0.3)" },
-            { step: "2", text: "20% 수수료\n차감", color: "#a855f7" },
+            { step: "2", text: t("staking.step2"), color: "#a855f7" },
             { step: "→", text: "", color: "rgba(226,232,240,0.3)" },
-            { step: "3", text: "5 USDT 도달 시\n자동 입금", color: "#00f5ff" },
+            { step: "3", text: t("staking.step3"), color: "#00f5ff" },
           ].map((item, i) =>
             item.text ? (
               <div
@@ -108,7 +108,6 @@ export default function StakingSection() {
             )
           )}
         </div>
-
         <div
           className="p-4"
           style={{
@@ -118,32 +117,30 @@ export default function StakingSection() {
           }}
         >
           <p className="text-sm" style={{ color: "rgba(226,232,240,0.8)" }}>
-            여러분이 받는 <strong style={{ color: "#00f5ff" }}>5 USDT는 이미 수수료가 빠진 순수익</strong>입니다.
-            차감된 20%가 바로 플랫폼의 핵심 수익원입니다.
+            {t("staking.fee.note")}
           </p>
         </div>
       </GlassCard>
 
-      {/* Simulation table */}
       <GlassCard glowColor="purple">
         <h3
           className="text-lg font-bold mb-4"
           style={{ color: "#a855f7", fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          개인 수익 시뮬레이션 — 10,000 USDT × Quantum Bot (360일)
+          {t("staking.sim.title")}
         </h3>
         <DataTable
-          headers={["항목", "수치"]}
+          headers={[t("staking.sim.h1"), t("staking.sim.h2")]}
           rows={[
-            ["투자금", "10,000 USDT"],
-            ["일평균 수익률", "1.3% ~ 1.8%"],
-            ["연간 예상 수익률 (APY)", "2,640% ~ 17,145%"],
-            ["360일 예상 순이익", "264,000 U ~ 1,714,500 U"],
+            [t("staking.sim.r1"), "10,000 USDT"],
+            [t("staking.sim.r2"), "1.3% ~ 1.8%"],
+            [t("staking.sim.r3"), "2,640% ~ 17,145%"],
+            [t("staking.sim.r4"), "264,000 U ~ 1,714,500 U"],
           ]}
           highlightRow={3}
         />
         <p className="text-xs mt-4" style={{ color: "rgba(226,232,240,0.4)" }}>
-          * 시뮬레이션이며, 실제 수익은 시장 상황에 따라 달라질 수 있습니다.
+          {t("staking.sim.note")}
         </p>
       </GlassCard>
     </SectionWrapper>

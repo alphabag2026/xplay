@@ -7,19 +7,25 @@
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import ReferralModal from "@/components/ReferralModal";
 import BusinessSection from "@/components/sections/BusinessSection";
 import FlywheelSection from "@/components/sections/FlywheelSection";
 import GameSection from "@/components/sections/GameSection";
 import HeroSection from "@/components/sections/HeroSection";
 import ReferralSection from "@/components/sections/ReferralSection";
+import ResourcesSection from "@/components/sections/ResourcesSection";
 import StakingSection from "@/components/sections/StakingSection";
 import TeamSection from "@/components/sections/TeamSection";
 import TokenomicsSection from "@/components/sections/TokenomicsSection";
+import { useState } from "react";
 
 export default function Home() {
+  const [referralOpen, setReferralOpen] = useState(false);
+
   return (
     <div className="min-h-screen" style={{ background: "#0a0e1a" }}>
-      <Navbar />
+      <Navbar onOpenReferral={() => setReferralOpen(true)} />
+      <ReferralModal open={referralOpen} onClose={() => setReferralOpen(false)} />
       <HeroSection />
       <BusinessSection />
       <GameSection />
@@ -28,6 +34,7 @@ export default function Home() {
       <TeamSection />
       <TokenomicsSection />
       <FlywheelSection />
+      <ResourcesSection />
       <Footer />
     </div>
   );

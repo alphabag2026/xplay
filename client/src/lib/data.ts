@@ -132,8 +132,8 @@ export const GAME_PREDICTION = {
   targetUsers: 80_000,
   bettorsPerRound: 100,
   simulations: [
-    { betSize: 5, label: "$5 베팅 (최소)", dailyRevenue: 72_000 },
-    { betSize: 100, label: "$100 베팅", dailyRevenue: 1_440_000 },
+    { betSize: 5, label: "$5 Bet (Min)", dailyRevenue: 72_000 },
+    { betSize: 100, label: "$100 Bet", dailyRevenue: 1_440_000 },
   ],
 };
 
@@ -141,17 +141,6 @@ export const LOTTO_DISTRIBUTION = [
   { label: "1등 (Winner)", amount: 7_300, pct: 73 },
   { label: "2~10등", amount: 1_800, pct: 18 },
   { label: "플랫폼 수수료", amount: 900, pct: 9 },
-];
-
-export const NAV_ITEMS = [
-  { id: "hero", label: "소개" },
-  { id: "business", label: "비즈니스 모델" },
-  { id: "game", label: "BTC 예측 게임" },
-  { id: "staking", label: "AI 스테이킹" },
-  { id: "referral", label: "직추천 수익" },
-  { id: "team", label: "팀 수익" },
-  { id: "tokenomics", label: "토큰 이코노믹" },
-  { id: "flywheel", label: "플라이휠" },
 ];
 
 export const REVENUE_SUMMARY = [

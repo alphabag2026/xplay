@@ -1,6 +1,10 @@
+import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
+import { Send } from "lucide-react";
 
 export default function Footer() {
+  const { t, ctaLink } = useApp();
+
   return (
     <footer
       className="py-12 px-4 text-center"
@@ -17,27 +21,40 @@ export default function Footer() {
           style={{ filter: "drop-shadow(0 0 15px rgba(0,245,255,0.3))" }}
         />
         <p
-          className="text-sm font-bold mb-2"
+          className="text-sm font-bold mb-3"
           style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          XPLAY — AI 자동 수익 × GameFi 듀얼 엔진
+          {t("footer.tagline")}
         </p>
-        <p className="text-xs mb-4" style={{ color: "rgba(226,232,240,0.4)" }}>
-          공식 사이트:{" "}
-          <a
-            href="https://app.xplaybot.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#00f5ff" }}
-          >
-            APP.XPLAYBOT.COM
-          </a>
-        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-3">
+          <p className="text-xs" style={{ color: "rgba(226,232,240,0.4)" }}>
+            {t("footer.site")}{" "}
+            <a
+              href={ctaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#00f5ff" }}
+            >
+              APP.XPLAYBOT.COM
+            </a>
+          </p>
+          <span className="hidden sm:inline text-xs" style={{ color: "rgba(226,232,240,0.2)" }}>|</span>
+          <p className="text-xs flex items-center gap-1" style={{ color: "rgba(226,232,240,0.4)" }}>
+            <Send size={10} style={{ color: "#00f5ff" }} />
+            {t("footer.telegram")}{" "}
+            <a
+              href="https://t.me/xplayplatform_official"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#00f5ff" }}
+            >
+              @xplayplatform_official
+            </a>
+          </p>
+        </div>
         <div className="h-px w-20 mx-auto mb-4" style={{ background: "rgba(0,245,255,0.15)" }} />
         <p className="text-[10px]" style={{ color: "rgba(226,232,240,0.25)" }}>
-          본 웹사이트는 XPLAY 프로젝트의 수익 구조를 분석한 정보성 콘텐츠입니다.
-          <br />
-          모든 투자에는 리스크가 따르며, 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.
+          {t("footer.disclaimer")}
         </p>
       </div>
     </footer>
