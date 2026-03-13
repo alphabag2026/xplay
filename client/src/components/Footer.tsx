@@ -1,9 +1,30 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
-import { Send } from "lucide-react";
+import { Send, Link2, Rocket, Share2, Check } from "lucide-react";
+import { useState } from "react";
 
 export default function Footer() {
-  const { t, ctaLink } = useApp();
+  const { t, ctaLink, referralLink, setReferralLink } = useApp();
+  const [refInput, setRefInput] = useState(referralLink);
+  const [saved, setSaved] = useState(false);
+  const [pageCopied, setPageCopied] = useState(false);
+
+  const handleSaveRef = () => {
+    setReferralLink(refInput.trim());
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleSharePage = () => {
+    const url = new URL(window.location.href);
+    if (referralLink) {
+      url.searchParams.set("ref", referralLink);
+    }
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setPageCopied(true);
+      setTimeout(() => setPageCopied(false), 2000);
+    });
+  };
 
   return (
     <footer
@@ -14,6 +35,89 @@ export default function Footer() {
       }}
     >
       <div className="max-w-4xl mx-auto">
+        {/* Referral + CTA Area */}
+        <div
+          className="mb-8 p-5 mx-auto max-w-md"
+          style={{
+            background: "rgba(0,245,255,0.03)",
+            border: "1px solid rgba(0,245,255,0.12)",
+            borderRadius: "12px",
+          }}
+        >
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Link2 size={14} style={{ color: "#00f5ff" }} />
+            <p className="text-sm font-semibold" style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}>
+              {t("fly.referral.input.title")}
+            </p>
+          </div>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="url"
+              value={refInput}
+              onChange={(e) => setRefInput(e.target.value)}
+              placeholder={t("fly.referral.input.placeholder")}
+              className="flex-1 px-3 py-2.5 text-sm outline-none"
+              style={{
+                background: "rgba(0,0,0,0.4)",
+                border: "1px solid rgba(0,245,255,0.2)",
+                borderRadius: "6px",
+                color: "#e2e8f0",
+              }}
+            />
+            <button
+              onClick={handleSaveRef}
+              className="px-4 py-2.5 text-sm font-semibold"
+              style={{
+                background: saved ? "rgba(34,197,94,0.2)" : "linear-gradient(135deg, #00f5ff, #a855f7)",
+                color: saved ? "#22c55e" : "#0a0e1a",
+                borderRadius: "6px",
+                border: saved ? "1px solid rgba(34,197,94,0.3)" : "none",
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
+              {saved ? t("fly.referral.saved") : t("fly.referral.save")}
+            </button>
+          </div>
+
+          {/* CTA + Share buttons */}
+          <div className="flex gap-2 mb-2">
+            <a
+              href={ctaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase"
+              style={{
+                background: "linear-gradient(135deg, #00f5ff, #a855f7)",
+                color: "#0a0e1a",
+                borderRadius: "6px",
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
+              <Rocket size={14} />
+              {t("fly.cta")}
+            </a>
+            <button
+              onClick={handleSharePage}
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase"
+              style={{
+                background: "rgba(168,85,247,0.12)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                color: "#c084fc",
+                borderRadius: "6px",
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
+              {pageCopied ? <Check size={14} /> : <Share2 size={14} />}
+              {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+            </button>
+          </div>
+
+          {/* TokenPocket 안내 */}
+          <p className="text-[10px]" style={{ color: "rgba(226,232,240,0.3)" }}>
+            {t("referral.modal.tokenpocket")}
+          </p>
+        </div>
+
         <img
           src={IMAGES.logo}
           alt="XPLAY"

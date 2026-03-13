@@ -1,5 +1,5 @@
 import { useApp } from "@/contexts/AppContext";
-import { Link2, X, Copy, Check, RotateCcw } from "lucide-react";
+import { Link2, X, Copy, Check, RotateCcw, Share2 } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -11,6 +11,7 @@ export default function ReferralModal({ open, onClose }: Props) {
   const { t, referralLink, setReferralLink } = useApp();
   const [input, setInput] = useState(referralLink);
   const [copied, setCopied] = useState(false);
+  const [pageCopied, setPageCopied] = useState(false);
 
   if (!open) return null;
 
@@ -23,14 +24,21 @@ export default function ReferralModal({ open, onClose }: Props) {
     setReferralLink("");
   };
 
-  const handleShare = () => {
+  const handleCopyReferral = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleSharePage = () => {
     const url = new URL(window.location.href);
     if (referralLink) {
       url.searchParams.set("ref", referralLink);
     }
     navigator.clipboard.writeText(url.toString()).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setPageCopied(true);
+      setTimeout(() => setPageCopied(false), 2000);
     });
   };
 
@@ -122,28 +130,51 @@ export default function ReferralModal({ open, onClose }: Props) {
         </div>
 
         {referralLink && (
-          <button
-            onClick={handleShare}
-            className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium"
-            style={{
-              background: "rgba(0,245,255,0.08)",
-              border: "1px solid rgba(0,245,255,0.2)",
-              borderRadius: "8px",
-              color: "#00f5ff",
-            }}
-          >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? t("referral.modal.copied") : t("referral.modal.share")}
-          </button>
+          <div className="space-y-2 mb-3">
+            {/* Copy referral link */}
+            <button
+              onClick={handleCopyReferral}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium"
+              style={{
+                background: "rgba(0,245,255,0.08)",
+                border: "1px solid rgba(0,245,255,0.2)",
+                borderRadius: "8px",
+                color: "#00f5ff",
+              }}
+            >
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? t("referral.modal.copied") : t("referral.modal.share")}
+            </button>
+
+            {/* Share this page with referral */}
+            <button
+              onClick={handleSharePage}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium"
+              style={{
+                background: "rgba(168,85,247,0.1)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                borderRadius: "8px",
+                color: "#c084fc",
+              }}
+            >
+              {pageCopied ? <Check size={16} /> : <Share2 size={16} />}
+              {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+            </button>
+          </div>
         )}
 
         {referralLink && (
-          <div className="mt-3 px-3 py-2 rounded-lg" style={{ background: "rgba(0,245,255,0.05)" }}>
+          <div className="mb-3 px-3 py-2 rounded-lg" style={{ background: "rgba(0,245,255,0.05)" }}>
             <p className="text-xs truncate" style={{ color: "rgba(0,245,255,0.7)" }}>
               {referralLink}
             </p>
           </div>
         )}
+
+        {/* TokenPocket 안내 문구 */}
+        <p className="text-[11px] text-center" style={{ color: "rgba(226,232,240,0.35)" }}>
+          {t("referral.modal.tokenpocket")}
+        </p>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useApp } from "@/contexts/AppContext";
-import { LANG_LABELS, type Lang } from "@/lib/i18n";
+import { LANG_LABELS, LANG_ORDER, type Lang } from "@/lib/i18n";
 import { Globe } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -16,7 +16,7 @@ export default function LangSelector() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const langs: Lang[] = ["ko", "zh", "ja", "en"];
+  const langs = LANG_ORDER;
 
   return (
     <div ref={ref} className="relative">

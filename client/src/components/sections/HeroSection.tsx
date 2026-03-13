@@ -1,10 +1,24 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Link2, Rocket, Share2, Check, Copy } from "lucide-react";
+import { useState } from "react";
 
 export default function HeroSection() {
-  const { t, ctaLink } = useApp();
+  const { t, ctaLink, referralLink } = useApp();
+  const [showRefInput, setShowRefInput] = useState(false);
+  const [pageCopied, setPageCopied] = useState(false);
+
+  const handleSharePage = () => {
+    const url = new URL(window.location.href);
+    if (referralLink) {
+      url.searchParams.set("ref", referralLink);
+    }
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setPageCopied(true);
+      setTimeout(() => setPageCopied(false), 2000);
+    });
+  };
 
   return (
     <section
@@ -74,7 +88,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-12"
+          className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto mb-10"
         >
           {[
             { label: t("hero.stat1"), value: "1.8%" },
@@ -99,23 +113,62 @@ export default function HeroSection() {
           ))}
         </motion.div>
 
-        <motion.a
-          href={ctaLink}
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* CTA Buttons */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
-          style={{
-            background: "linear-gradient(135deg, #00f5ff, #a855f7)",
-            color: "#0a0e1a",
-            borderRadius: "4px",
-            fontFamily: "'Space Grotesk', sans-serif",
-          }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
         >
-          APP.XPLAYBOT.COM
-        </motion.a>
+          <a
+            href={ctaLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
+            style={{
+              background: "linear-gradient(135deg, #00f5ff, #a855f7)",
+              color: "#0a0e1a",
+              borderRadius: "4px",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
+            <Rocket size={16} />
+            {t("hero.start.with.referral")}
+          </a>
+          <button
+            onClick={handleSharePage}
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
+            style={{
+              background: "rgba(168,85,247,0.12)",
+              border: "1px solid rgba(168,85,247,0.3)",
+              color: "#c084fc",
+              borderRadius: "4px",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
+            {pageCopied ? <Check size={16} /> : <Share2 size={16} />}
+            {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+          </button>
+        </motion.div>
+
+        {/* 현재 레퍼럴 표시 */}
+        {referralLink && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full"
+            style={{
+              background: "rgba(0,245,255,0.06)",
+              border: "1px solid rgba(0,245,255,0.15)",
+            }}
+          >
+            <div className="w-2 h-2 rounded-full" style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+            <p className="text-xs truncate max-w-[250px]" style={{ color: "rgba(0,245,255,0.7)" }}>
+              {referralLink}
+            </p>
+          </motion.div>
+        )}
       </div>
 
       <motion.div

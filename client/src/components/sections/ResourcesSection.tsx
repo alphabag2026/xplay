@@ -2,7 +2,7 @@ import GlassCard from "@/components/GlassCard";
 import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
 import { useApp } from "@/contexts/AppContext";
-import { FileText, Download, ExternalLink, Play } from "lucide-react";
+import { FileText, Download, ExternalLink, Play, BookOpen } from "lucide-react";
 
 const NOTION_URL = "https://frill-tuck-900.notion.site/X-PLAY-31f95eaa77f680d885a3c215497e3dc5";
 
@@ -32,14 +32,20 @@ const VIDEOS = [
   },
 ];
 
+const BLOG_POSTS = [
+  {
+    title: "XPLAY 수익 구조 완전 분석",
+    url: "https://blog.naver.com/brodao/224215133571",
+    platform: "Naver Blog",
+  },
+];
+
 export default function ResourcesSection() {
   const { t, lang } = useApp();
 
-  // Filter docs by language relevance (show all, but highlight matching)
-  const langTagMap: Record<string, string> = { ko: "KO", zh: "ZH", ja: "JP", en: "EN" };
+  const langTagMap: Record<string, string> = { ko: "KO", zh: "ZH", ja: "JP", en: "EN", vi: "EN", th: "EN" };
   const currentTag = langTagMap[lang] || "EN";
 
-  // Sort: current language first
   const sortedDocs = [...DOCS].sort((a, b) => {
     if (a.langTag === currentTag && b.langTag !== currentTag) return -1;
     if (a.langTag !== currentTag && b.langTag === currentTag) return 1;
@@ -121,6 +127,52 @@ export default function ResourcesSection() {
           <ExternalLink size={14} />
           {t("res.notion")}
         </a>
+      </GlassCard>
+
+      {/* Blog */}
+      <GlassCard className="mb-8">
+        <h3
+          className="text-lg font-bold mb-5 flex items-center gap-2"
+          style={{ color: "#22d3ee", fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          <BookOpen size={20} />
+          {t("res.blog")}
+        </h3>
+        <div className="space-y-3">
+          {BLOG_POSTS.map((post, i) => (
+            <a
+              key={i}
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 transition-all group"
+              style={{
+                background: "rgba(34,211,238,0.06)",
+                border: "1px solid rgba(34,211,238,0.2)",
+                borderRadius: "8px",
+              }}
+            >
+              <div
+                className="w-10 h-10 flex items-center justify-center rounded-lg shrink-0"
+                style={{
+                  background: "rgba(34,211,238,0.15)",
+                  border: "1px solid rgba(34,211,238,0.3)",
+                }}
+              >
+                <BookOpen size={18} style={{ color: "#22d3ee" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium" style={{ color: "rgba(226,232,240,0.9)" }}>
+                  {post.title}
+                </p>
+                <span className="text-[11px]" style={{ color: "rgba(226,232,240,0.4)" }}>
+                  {post.platform}
+                </span>
+              </div>
+              <ExternalLink size={16} className="shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" style={{ color: "#22d3ee" }} />
+            </a>
+          ))}
+        </div>
       </GlassCard>
 
       {/* Video */}
