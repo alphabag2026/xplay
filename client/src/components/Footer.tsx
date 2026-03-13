@@ -25,12 +25,12 @@ export default function Footer() {
         <p className="text-xs mb-4" style={{ color: "rgba(226,232,240,0.4)" }}>
           공식 사이트:{" "}
           <a
-            href="https://www.xplay.io"
+            href="https://app.xplaybot.com/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#00f5ff" }}
           >
-            WWW.XPLAY.IO
+            APP.XPLAYBOT.COM
           </a>
         </p>
         <div className="h-px w-20 mx-auto mb-4" style={{ background: "rgba(0,245,255,0.15)" }} />

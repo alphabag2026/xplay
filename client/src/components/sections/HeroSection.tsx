@@ -103,7 +103,7 @@ export default function HeroSection() {
 
         {/* CTA */}
         <motion.a
-          href="https://www.xplay.io"
+          href="https://app.xplaybot.com/"
           target="_blank"
           rel="noopener noreferrer"
           initial={{ opacity: 0, y: 20 }}
@@ -117,7 +117,7 @@ export default function HeroSection() {
             fontFamily: "'Space Grotesk', sans-serif",
           }}
         >
-          WWW.XPLAY.IO
+          APP.XPLAYBOT.COM
         </motion.a>
       </div>
 

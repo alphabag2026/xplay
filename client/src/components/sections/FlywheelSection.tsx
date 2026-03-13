@@ -147,7 +147,7 @@ export default function FlywheelSection() {
             높아진 가치가 다시 사용자에게 더 큰 보상으로 돌아가는 무한 확장형 생태계
           </p>
           <a
-            href="https://www.xplay.io"
+            href="https://app.xplaybot.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
