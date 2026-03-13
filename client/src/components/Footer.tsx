@@ -1,5 +1,6 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
+import ShareModal from "@/components/ShareModal";
 import { Send, Link2, Rocket, Share2, Check } from "lucide-react";
 import { useState } from "react";
 
@@ -7,23 +8,12 @@ export default function Footer() {
   const { t, ctaLink, referralLink, setReferralLink } = useApp();
   const [refInput, setRefInput] = useState(referralLink);
   const [saved, setSaved] = useState(false);
-  const [pageCopied, setPageCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleSaveRef = () => {
     setReferralLink(refInput.trim());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleSharePage = () => {
-    const url = new URL(window.location.href);
-    if (referralLink) {
-      url.searchParams.set("ref", referralLink);
-    }
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setPageCopied(true);
-      setTimeout(() => setPageCopied(false), 2000);
-    });
   };
 
   return (
@@ -97,7 +87,7 @@ export default function Footer() {
               {t("fly.cta")}
             </a>
             <button
-              onClick={handleSharePage}
+              onClick={() => setShowShareModal(true)}
               className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase"
               style={{
                 background: "rgba(168,85,247,0.12)",
@@ -107,8 +97,8 @@ export default function Footer() {
                 fontFamily: "'Space Grotesk', sans-serif",
               }}
             >
-              {pageCopied ? <Check size={14} /> : <Share2 size={14} />}
-              {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+              <Share2 size={14} />
+              {t("fly.share.btn")}
             </button>
           </div>
 
@@ -161,6 +151,9 @@ export default function Footer() {
           {t("footer.disclaimer")}
         </p>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal open={showShareModal} onClose={() => setShowShareModal(false)} />
     </footer>
   );
 }

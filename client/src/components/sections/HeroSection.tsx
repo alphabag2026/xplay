@@ -1,5 +1,6 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
+import ShareModal from "@/components/ShareModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Rocket, Share2, Check, AlertTriangle, Link2, ExternalLink } from "lucide-react";
 import { useState } from "react";
@@ -8,25 +9,14 @@ type FlowStep = "idle" | "check" | "warning" | "input" | "confirmed";
 
 export default function HeroSection() {
   const { t, ctaLink, referralLink, setReferralLink } = useApp();
-  const [pageCopied, setPageCopied] = useState(false);
   const [flowStep, setFlowStep] = useState<FlowStep>("idle");
   const [newRefInput, setNewRefInput] = useState("");
-
-  const handleSharePage = () => {
-    const url = new URL(window.location.href);
-    if (referralLink) url.searchParams.set("ref", referralLink);
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setPageCopied(true);
-      setTimeout(() => setPageCopied(false), 2000);
-    });
-  };
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleStartClick = () => {
     if (!referralLink) {
-      // 추천링크가 없으면 확인 요청
       setFlowStep("check");
     } else {
-      // 추천링크가 있으면 바로 이동
       window.open(ctaLink, "_blank");
     }
   };
@@ -40,7 +30,7 @@ export default function HeroSection() {
       // 이미 다른 사람의 추천링크가 등록된 상태 → 경고
       setFlowStep("warning");
     } else {
-      handleSharePage();
+      setShowShareModal(true);
     }
   };
 
@@ -61,13 +51,8 @@ export default function HeroSection() {
   };
 
   const handleShareNow = () => {
-    const url = new URL(window.location.href);
-    if (referralLink) url.searchParams.set("ref", referralLink);
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setPageCopied(true);
-      setTimeout(() => setPageCopied(false), 2000);
-    });
     setFlowStep("idle");
+    setShowShareModal(true);
   };
 
   return (
@@ -184,7 +169,7 @@ export default function HeroSection() {
             {t("hero.start.with.referral")}
           </button>
           <button
-            onClick={referralLink ? handleShareWithWarning : handleSharePage}
+            onClick={referralLink ? handleShareWithWarning : () => setShowShareModal(true)}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase"
             style={{
               background: "rgba(168,85,247,0.12)",
@@ -194,8 +179,8 @@ export default function HeroSection() {
               fontFamily: "'Space Grotesk', sans-serif",
             }}
           >
-            {pageCopied ? <Check size={16} /> : <Share2 size={16} />}
-            {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+            <Share2 size={16} />
+            {t("fly.share.btn")}
           </button>
         </motion.div>
 
@@ -248,20 +233,16 @@ export default function HeroSection() {
                 background: "rgba(15,15,35,0.98)",
                 border: "1px solid rgba(0,245,255,0.2)",
                 borderRadius: "16px 16px 0 0",
-                borderBottomLeftRadius: "0",
-                borderBottomRightRadius: "0",
                 boxShadow: "0 -10px 60px rgba(0,245,255,0.1)",
               }}
               onClick={(e) => e.stopPropagation()}
-              // On desktop, use regular rounded corners
-              // On mobile, bottom sheet style
             >
               {/* Step: Check — 추천링크를 확인하세요 */}
               {flowStep === "check" && (
                 <div className="text-center">
                   <div
                     className="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full"
-                    style={{ background: "rgba(0,245,255,0.1)", border: "1px solid rgba(0,245,255,0.2)" }}
+                    style={{ background: "rgba(0,245,255,0.1)", border: "1px solid rgba(0,245,255,0.3)" }}
                   >
                     <Link2 size={24} style={{ color: "#00f5ff" }} />
                   </div>
@@ -276,13 +257,25 @@ export default function HeroSection() {
                   </p>
                   <div className="space-y-3">
                     <button
-                      onClick={() => setFlowStep("input")}
+                      onClick={handleConfirmRef}
                       className="w-full py-3 text-sm font-semibold"
                       style={{
                         background: "linear-gradient(135deg, #00f5ff, #a855f7)",
                         color: "#0a0e1a",
                         borderRadius: "8px",
                         fontFamily: "'Space Grotesk', sans-serif",
+                      }}
+                    >
+                      {t("ref.flow.confirmed")}
+                    </button>
+                    <button
+                      onClick={() => setFlowStep("input")}
+                      className="w-full py-3 text-sm"
+                      style={{
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "8px",
+                        color: "rgba(226,232,240,0.7)",
                       }}
                     >
                       {t("ref.flow.enter")}
@@ -482,6 +475,9 @@ export default function HeroSection() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Share Modal — 메신저 선택 */}
+      <ShareModal open={showShareModal} onClose={() => setShowShareModal(false)} />
     </section>
   );
 }

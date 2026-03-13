@@ -2,33 +2,23 @@ import DataTable from "@/components/DataTable";
 import GlassCard from "@/components/GlassCard";
 import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
+import ShareModal from "@/components/ShareModal";
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Rocket, Share2, Check, Copy, Link2 } from "lucide-react";
+import { Rocket, Share2, Check, Link2 } from "lucide-react";
 import { useState } from "react";
 
 export default function FlywheelSection() {
   const { t, ctaLink, referralLink, setReferralLink } = useApp();
   const [refInput, setRefInput] = useState(referralLink);
   const [saved, setSaved] = useState(false);
-  const [pageCopied, setPageCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleSaveRef = () => {
     setReferralLink(refInput.trim());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleSharePage = () => {
-    const url = new URL(window.location.href);
-    if (referralLink) {
-      url.searchParams.set("ref", referralLink);
-    }
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setPageCopied(true);
-      setTimeout(() => setPageCopied(false), 2000);
-    });
   };
 
   const wheelItems = [
@@ -182,11 +172,11 @@ export default function FlywheelSection() {
               href={ctaLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
               style={{
                 background: "linear-gradient(135deg, #00f5ff, #a855f7)",
                 color: "#0a0e1a",
-                borderRadius: "4px",
+                borderRadius: "8px",
                 fontFamily: "'Space Grotesk', sans-serif",
               }}
             >
@@ -194,18 +184,18 @@ export default function FlywheelSection() {
               {t("fly.cta")}
             </a>
             <button
-              onClick={handleSharePage}
-              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
+              onClick={() => setShowShareModal(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold tracking-wider uppercase transition-all"
               style={{
                 background: "rgba(168,85,247,0.12)",
                 border: "1px solid rgba(168,85,247,0.3)",
                 color: "#c084fc",
-                borderRadius: "4px",
+                borderRadius: "8px",
                 fontFamily: "'Space Grotesk', sans-serif",
               }}
             >
-              {pageCopied ? <Check size={16} /> : <Share2 size={16} />}
-              {pageCopied ? t("fly.share.copied") : t("fly.share.btn")}
+              <Share2 size={16} />
+              {t("fly.share.btn")}
             </button>
           </div>
 
@@ -255,6 +245,9 @@ export default function FlywheelSection() {
           </div>
         </div>
       </GlassCard>
+
+      {/* Share Modal */}
+      <ShareModal open={showShareModal} onClose={() => setShowShareModal(false)} />
     </SectionWrapper>
   );
 }

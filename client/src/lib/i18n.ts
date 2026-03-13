@@ -457,5 +457,13 @@ export const T: Record<string, Record<Lang, string>> = {
   "ref.flow.change.mine": { ko: "자신의 추천링크 넣기", en: "Enter my referral link", zh: "输入我的推荐链接", ja: "自分の紹介リンクを入力", vi: "Nhập liên kết giới thiệu của tôi", th: "กรอกลิงก์แนะนำของฉัน" },
   "ref.flow.go": { ko: "XPLAY 바로가기", en: "Go to XPLAY", zh: "前往XPLAY", ja: "XPLAYへ移動", vi: "Đi đến XPLAY", th: "ไปที่ XPLAY" },
   "ref.flow.share.now": { ko: "지금 공유하기", en: "Share Now", zh: "立即分享", ja: "今すぐ共有", vi: "Chia sẻ ngay", th: "แชร์เลย" },
+  "share.select": { ko: "공유 방법 선택", en: "Choose how to share", zh: "选择分享方式", ja: "共有方法を選択", vi: "Chọn cách chia sẻ", th: "เลือกวิธีแชร์" },
+  "share.copy.link": { ko: "링크 복사", en: "Copy Link", zh: "复制链接", ja: "リンクをコピー", vi: "Sao chép liên kết", th: "คัดลอกลิงก์" },
+  "share.kakao": { ko: "카카오톡", en: "KakaoTalk", zh: "KakaoTalk", ja: "KakaoTalk", vi: "KakaoTalk", th: "KakaoTalk" },
+  "share.telegram": { ko: "텔레그램", en: "Telegram", zh: "Telegram", ja: "Telegram", vi: "Telegram", th: "Telegram" },
+  "share.line": { ko: "라인", en: "LINE", zh: "LINE", ja: "LINE", vi: "LINE", th: "LINE" },
+  "share.whatsapp": { ko: "왓츠앱", en: "WhatsApp", zh: "WhatsApp", ja: "WhatsApp", vi: "WhatsApp", th: "WhatsApp" },
+  "share.twitter": { ko: "X (트위터)", en: "X (Twitter)", zh: "X (Twitter)", ja: "X (Twitter)", vi: "X (Twitter)", th: "X (Twitter)" },
+  "share.msg": { ko: "XPLAY - AI 자동 수익 × GameFi 듀얼 엔진! 지금 시작하세요.", en: "XPLAY - AI Auto Revenue × GameFi Dual Engine! Start now.", zh: "XPLAY - AI自动收益 × GameFi双引擎！立即开始。", ja: "XPLAY - AI自動収益 × GameFiデュアルエンジン！今すぐ始めましょう。", vi: "XPLAY - AI tự động thu nhập × GameFi Dual Engine! Bắt đầu ngay.", th: "XPLAY - AI รายได้อัตโนมัติ × GameFi Dual Engine! เริ่มเลย" },
   "footer.disclaimer": { ko: "본 웹사이트는 XPLAY 프로젝트의 수익 구조를 분석한 정보성 콘텐츠입니다. 모든 투자에는 리스크가 따르며, 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.", en: "This website is informational content analyzing XPLAY project's revenue structure. All investments carry risks, and investment decisions should be made at your own judgment and responsibility.", zh: "本网站是分析XPLAY项目收益结构的信息性内容。所有投资都有风险，投资决策应在您自己的判断和责任下做出。", ja: "本ウェブサイトはXPLAYプロジェクトの収益構造を分析した情報性コンテンツです。すべての投資にはリスクが伴い、投資決定はご自身の判断と責任のもとで行ってください。", vi: "Trang web này là nội dung thông tin phân tích cấu trúc doanh thu dự án XPLAY. Mọi đầu tư đều có rủi ro, quyết định đầu tư phải dựa trên phán đoán và trách nhiệm của bạn.", th: "เว็บไซต์นี้เป็นเนื้อหาข้อมูลวิเคราะห์โครงสร้างรายได้โครงการ XPLAY การลงทุนทุกอย่างมีความเสี่ยง การตัดสินใจลงทุนควรอยู่ภายใต้วิจารณญาณและความรับผิดชอบของคุณเอง" },
 };
