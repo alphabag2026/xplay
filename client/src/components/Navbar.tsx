@@ -13,6 +13,7 @@ const NAV_KEYS = [
   { id: "team", key: "nav.team" },
   { id: "tokenomics", key: "nav.tokenomics" },
   { id: "flywheel", key: "nav.flywheel" },
+  { id: "simulator", key: "nav.simulator" },
   { id: "resources", key: "nav.resources" },
 ];
 

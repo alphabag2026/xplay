@@ -16,6 +16,7 @@ import ReferralSection from "@/components/sections/ReferralSection";
 import ResourcesSection from "@/components/sections/ResourcesSection";
 import StakingSection from "@/components/sections/StakingSection";
 import TeamSection from "@/components/sections/TeamSection";
+import SimulatorSection from "@/components/sections/SimulatorSection";
 import TokenomicsSection from "@/components/sections/TokenomicsSection";
 import { useState } from "react";
 
@@ -34,6 +35,7 @@ export default function Home() {
       <TeamSection />
       <TokenomicsSection />
       <FlywheelSection />
+      <SimulatorSection />
       <ResourcesSection />
       <Footer />
     </div>

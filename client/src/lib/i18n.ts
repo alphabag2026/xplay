@@ -417,6 +417,33 @@ export const T: Record<string, Record<Lang, string>> = {
   "fly.sum.r5.content": { ko: "극단적 디플레이션 모델", en: "Extreme Deflation Model", zh: "极端通缩模型", ja: "極端デフレモデル", vi: "Mô hình giảm phát cực đoan", th: "โมเดลเงินฝืดสุดขีด" },
   "fly.sum.r5.rate": { ko: "21M → 1M 소각", en: "21M → 1M Burn", zh: "21M → 1M 销毁", ja: "21M → 1M バーン", vi: "21M → 1M Đốt", th: "21M → 1M เผา" },
 
+  // Simulator
+  "sim.badge": { ko: "수익 시뮬레이터", en: "Revenue Simulator", zh: "收益模拟器", ja: "収益シミュレーター", vi: "Mô phỏng lợi nhuận", th: "จำลองรายได้" },
+  "sim.title": { ko: "수익 시뮬레이터", en: "Revenue Simulator", zh: "收益模拟器", ja: "収益シミュレーター", vi: "Mô phỏng lợi nhuận", th: "จำลองรายได้" },
+  "sim.subtitle": { ko: "투자금액을 입력하면 봇별 예상 수익과 세금을 자동으로 계산합니다", en: "Enter your investment amount to calculate estimated returns and taxes by bot", zh: "输入投资金额，自动计算各机器人的预期收益和税款", ja: "投資額を入力すると、ボット別の予想収益と税金を自動計算します", vi: "Nhập số tiền đầu tư để tính lợi nhuận và thuế ước tính theo bot", th: "กรอกจำนวนเงินลงทุนเพื่อคำนวณผลตอบแทนและภาษีโดยประมาณ" },
+  "sim.input.label": { ko: "투자금액 (USDT)", en: "Investment Amount (USDT)", zh: "投资金额 (USDT)", ja: "投資額 (USDT)", vi: "Số tiền đầu tư (USDT)", th: "จำนวนเงินลงทุน (USDT)" },
+  "sim.bot.label": { ko: "AI 스테이킹 봇 선택", en: "Select AI Staking Bot", zh: "选择AI质押机器人", ja: "AIステーキングボット選択", vi: "Chọn AI Staking Bot", th: "เลือก AI Staking Bot" },
+  "sim.result.daily": { ko: "일일 예상 수익", en: "Est. Daily Return", zh: "预计日收益", ja: "予想日次収益", vi: "Lợi nhuận hàng ngày", th: "ผลตอบแทนรายวัน" },
+  "sim.result.monthly": { ko: "월 예상 수익", en: "Est. Monthly Return", zh: "预计月收益", ja: "予想月次収益", vi: "Lợi nhuận hàng tháng", th: "ผลตอบแทนรายเดือน" },
+  "sim.result.total": { ko: "총 예상 수익", en: "Est. Total Return", zh: "预计总收益", ja: "予想総収益", vi: "Tổng lợi nhuận", th: "ผลตอบแทนรวม" },
+  "sim.result.days": { ko: "일", en: " days", zh: "天", ja: "日", vi: " ngày", th: " วัน" },
+  "sim.detail.title": { ko: "상세 수익 분석", en: "Detailed Revenue Analysis", zh: "详细收益分析", ja: "詳細収益分析", vi: "Phân tích chi tiết", th: "วิเคราะห์รายละเอียด" },
+  "sim.detail.item": { ko: "항목", en: "Item", zh: "项目", ja: "項目", vi: "Hạng mục", th: "รายการ" },
+  "sim.detail.min": { ko: "최소", en: "Min", zh: "最低", ja: "最小", vi: "Tối thiểu", th: "ต่ำสุด" },
+  "sim.detail.max": { ko: "최대", en: "Max", zh: "最高", ja: "最大", vi: "Tối đa", th: "สูงสุด" },
+  "sim.detail.invest": { ko: "투자금", en: "Investment", zh: "投资金额", ja: "投資額", vi: "Đầu tư", th: "เงินลงทุน" },
+  "sim.detail.dailyNet": { ko: "일일 순수익", en: "Daily Net Return", zh: "日净收益", ja: "日次純収益", vi: "Lợi nhuận ròng/ngày", th: "ผลตอบแทนสุทธิ/วัน" },
+  "sim.detail.monthlyNet": { ko: "월 순수익", en: "Monthly Net Return", zh: "月净收益", ja: "月次純収益", vi: "Lợi nhuận ròng/tháng", th: "ผลตอบแทนสุทธิ/เดือน" },
+  "sim.detail.periodTotal": { ko: "기간 총 수익", en: "Period Total Return", zh: "期间总收益", ja: "期間総収益", vi: "Tổng lợi nhuận kỳ hạn", th: "ผลตอบแทนรวมตามระยะเวลา" },
+  "sim.tax.title": { ko: "세금 예상 (한국 기준)", en: "Tax Estimation (Korea)", zh: "税务估算（韩国标准）", ja: "税金予想（韓国基準）", vi: "Ước tính thuế (Hàn Quốc)", th: "ประมาณการภาษี (เกาหลี)" },
+  "sim.tax.gain": { ko: "예상 총 수익 (KRW)", en: "Est. Total Gain (KRW)", zh: "预计总收益 (KRW)", ja: "予想総収益 (KRW)", vi: "Tổng lợi nhuận (KRW)", th: "กำไรรวม (KRW)" },
+  "sim.tax.amount": { ko: "예상 세금 (22%)", en: "Est. Tax (22%)", zh: "预计税款 (22%)", ja: "予想税金 (22%)", vi: "Thuế ước tính (22%)", th: "ภาษีโดยประมาณ (22%)" },
+  "sim.tax.afterTax": { ko: "세후 순수익", en: "After-Tax Net Gain", zh: "税后净收益", ja: "税引後純利益", vi: "Lợi nhuận sau thuế", th: "กำไรสุทธิหลังหักภาษี" },
+  "sim.tax.note": { ko: "한국 가상자산 과세 기준: 연간 수익 250만원 기본공제 후 22%(소득세 20% + 지방세 2%) 적용. 환율 1 USD = 1,350 KRW 기준. 실제 세금은 개인 상황과 세법 변경에 따라 달라질 수 있으므로 세무 전문가와 상담하시기 바랍니다.", en: "Based on Korean crypto tax: 22% (20% income tax + 2% local tax) on gains exceeding 2.5M KRW basic deduction. Exchange rate: 1 USD = 1,350 KRW. Actual taxes may vary based on individual circumstances and tax law changes. Please consult a tax professional.", zh: "基于韩国加密货币税：超过250万韩元基本扣除后按22%（20%所得税+2%地方税）征收。汇率：1 USD = 1,350 KRW。实际税款可能因个人情况和税法变更而异，请咨询税务专家。", ja: "韓国の仮想資産課税基準：年間収益250万ウォン基本控除後22%（所得税20%+地方税2%）適用。為替レート1 USD = 1,350 KRW基準。実際の税金は個人の状況や税法の変更により異なる場合があります。税務専門家にご相談ください。", vi: "Dựa trên thuế tiền điện tử Hàn Quốc: 22% (20% thuế thu nhập + 2% thuế địa phương) trên lợi nhuận vượt quá 2.5 triệu KRW khấu trừ cơ bản. Tỷ giá: 1 USD = 1,350 KRW. Thuế thực tế có thể thay đổi. Vui lòng tham khảo chuyên gia thuế.", th: "ตามภาษีคริปโตเกาหลี: 22% (ภาษีเงินได้ 20% + ภาษีท้องถิ่น 2%) สำหรับกำไรที่เกิน 2.5 ล้านวอนหักลดหย่อนพื้นฐาน อัตราแลกเปลี่ยน: 1 USD = 1,350 KRW ภาษีจริงอาจแตกต่างกัน กรุณาปรึกษาผู้เชี่ยวชาญด้านภาษี" },
+
+  // Nav simulator
+  "nav.simulator": { ko: "시뮬레이터", en: "Simulator", zh: "模拟器", ja: "シミュレーター", vi: "Mô phỏng", th: "จำลอง" },
+
   // Footer
   "footer.tagline": { ko: "XPLAY — AI 자동 수익 × GameFi 듀얼 엔진", en: "XPLAY — AI Auto Revenue × GameFi Dual Engine", zh: "XPLAY — AI自动收益 × GameFi双引擎", ja: "XPLAY — AI自動収益 × GameFiデュアルエンジン", vi: "XPLAY — AI Thu nhập tự động × GameFi Dual Engine", th: "XPLAY — AI รายได้อัตโนมัติ × GameFi Dual Engine" },
   "footer.site": { ko: "공식 사이트:", en: "Official Site:", zh: "官方网站：", ja: "公式サイト：", vi: "Trang chính thức:", th: "เว็บไซต์อย่างเป็นทางการ:" },
