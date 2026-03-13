@@ -35,7 +35,7 @@ const VIDEOS = [
 const BLOG_POSTS = [
   {
     title: "XPLAY 수익 구조 완전 분석",
-    url: "https://blog.naver.com/brodao/224215133571",
+    url: "https://m.blog.naver.com/brodao/224215133571",
     platform: "Naver Blog",
   },
 ];

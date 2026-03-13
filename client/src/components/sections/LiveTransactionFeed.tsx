@@ -1,0 +1,404 @@
+/*
+ * LiveTransactionFeed — Global Revenue Live Feed
+ * Shows simulated real-time transactions from 100 countries
+ * Random intervals 5-20 seconds, amounts $100-$100,000
+ * Country flags + wallet hash + amount + timestamp
+ */
+
+import { useApp } from "@/contexts/AppContext";
+import SectionTitle from "@/components/SectionTitle";
+import SectionWrapper from "@/components/SectionWrapper";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Activity, TrendingUp, Globe, Zap } from "lucide-react";
+
+// 100 countries with flag emoji and name
+const COUNTRIES = [
+  { flag: "🇺🇸", code: "US", name: "United States" },
+  { flag: "🇰🇷", code: "KR", name: "South Korea" },
+  { flag: "🇨🇳", code: "CN", name: "China" },
+  { flag: "🇯🇵", code: "JP", name: "Japan" },
+  { flag: "🇬🇧", code: "GB", name: "United Kingdom" },
+  { flag: "🇩🇪", code: "DE", name: "Germany" },
+  { flag: "🇫🇷", code: "FR", name: "France" },
+  { flag: "🇮🇹", code: "IT", name: "Italy" },
+  { flag: "🇪🇸", code: "ES", name: "Spain" },
+  { flag: "🇧🇷", code: "BR", name: "Brazil" },
+  { flag: "🇮🇳", code: "IN", name: "India" },
+  { flag: "🇷🇺", code: "RU", name: "Russia" },
+  { flag: "🇨🇦", code: "CA", name: "Canada" },
+  { flag: "🇦🇺", code: "AU", name: "Australia" },
+  { flag: "🇲🇽", code: "MX", name: "Mexico" },
+  { flag: "🇮🇩", code: "ID", name: "Indonesia" },
+  { flag: "🇹🇷", code: "TR", name: "Turkey" },
+  { flag: "🇸🇦", code: "SA", name: "Saudi Arabia" },
+  { flag: "🇦🇪", code: "AE", name: "UAE" },
+  { flag: "🇹🇭", code: "TH", name: "Thailand" },
+  { flag: "🇻🇳", code: "VN", name: "Vietnam" },
+  { flag: "🇵🇭", code: "PH", name: "Philippines" },
+  { flag: "🇲🇾", code: "MY", name: "Malaysia" },
+  { flag: "🇸🇬", code: "SG", name: "Singapore" },
+  { flag: "🇳🇱", code: "NL", name: "Netherlands" },
+  { flag: "🇨🇭", code: "CH", name: "Switzerland" },
+  { flag: "🇸🇪", code: "SE", name: "Sweden" },
+  { flag: "🇳🇴", code: "NO", name: "Norway" },
+  { flag: "🇩🇰", code: "DK", name: "Denmark" },
+  { flag: "🇫🇮", code: "FI", name: "Finland" },
+  { flag: "🇵🇱", code: "PL", name: "Poland" },
+  { flag: "🇦🇹", code: "AT", name: "Austria" },
+  { flag: "🇧🇪", code: "BE", name: "Belgium" },
+  { flag: "🇵🇹", code: "PT", name: "Portugal" },
+  { flag: "🇬🇷", code: "GR", name: "Greece" },
+  { flag: "🇨🇿", code: "CZ", name: "Czech Republic" },
+  { flag: "🇷🇴", code: "RO", name: "Romania" },
+  { flag: "🇭🇺", code: "HU", name: "Hungary" },
+  { flag: "🇮🇪", code: "IE", name: "Ireland" },
+  { flag: "🇮🇱", code: "IL", name: "Israel" },
+  { flag: "🇿🇦", code: "ZA", name: "South Africa" },
+  { flag: "🇳🇬", code: "NG", name: "Nigeria" },
+  { flag: "🇪🇬", code: "EG", name: "Egypt" },
+  { flag: "🇰🇪", code: "KE", name: "Kenya" },
+  { flag: "🇬🇭", code: "GH", name: "Ghana" },
+  { flag: "🇲🇦", code: "MA", name: "Morocco" },
+  { flag: "🇹🇳", code: "TN", name: "Tunisia" },
+  { flag: "🇦🇷", code: "AR", name: "Argentina" },
+  { flag: "🇨🇱", code: "CL", name: "Chile" },
+  { flag: "🇨🇴", code: "CO", name: "Colombia" },
+  { flag: "🇵🇪", code: "PE", name: "Peru" },
+  { flag: "🇻🇪", code: "VE", name: "Venezuela" },
+  { flag: "🇪🇨", code: "EC", name: "Ecuador" },
+  { flag: "🇺🇾", code: "UY", name: "Uruguay" },
+  { flag: "🇵🇰", code: "PK", name: "Pakistan" },
+  { flag: "🇧🇩", code: "BD", name: "Bangladesh" },
+  { flag: "🇱🇰", code: "LK", name: "Sri Lanka" },
+  { flag: "🇳🇵", code: "NP", name: "Nepal" },
+  { flag: "🇲🇲", code: "MM", name: "Myanmar" },
+  { flag: "🇰🇭", code: "KH", name: "Cambodia" },
+  { flag: "🇱🇦", code: "LA", name: "Laos" },
+  { flag: "🇧🇳", code: "BN", name: "Brunei" },
+  { flag: "🇲🇳", code: "MN", name: "Mongolia" },
+  { flag: "🇰🇿", code: "KZ", name: "Kazakhstan" },
+  { flag: "🇺🇿", code: "UZ", name: "Uzbekistan" },
+  { flag: "🇬🇪", code: "GE", name: "Georgia" },
+  { flag: "🇦🇲", code: "AM", name: "Armenia" },
+  { flag: "🇦🇿", code: "AZ", name: "Azerbaijan" },
+  { flag: "🇶🇦", code: "QA", name: "Qatar" },
+  { flag: "🇰🇼", code: "KW", name: "Kuwait" },
+  { flag: "🇧🇭", code: "BH", name: "Bahrain" },
+  { flag: "🇴🇲", code: "OM", name: "Oman" },
+  { flag: "🇯🇴", code: "JO", name: "Jordan" },
+  { flag: "🇱🇧", code: "LB", name: "Lebanon" },
+  { flag: "🇮🇶", code: "IQ", name: "Iraq" },
+  { flag: "🇮🇷", code: "IR", name: "Iran" },
+  { flag: "🇭🇰", code: "HK", name: "Hong Kong" },
+  { flag: "🇹🇼", code: "TW", name: "Taiwan" },
+  { flag: "🇲🇴", code: "MO", name: "Macau" },
+  { flag: "🇳🇿", code: "NZ", name: "New Zealand" },
+  { flag: "🇫🇯", code: "FJ", name: "Fiji" },
+  { flag: "🇵🇬", code: "PG", name: "Papua New Guinea" },
+  { flag: "🇨🇷", code: "CR", name: "Costa Rica" },
+  { flag: "🇵🇦", code: "PA", name: "Panama" },
+  { flag: "🇩🇴", code: "DO", name: "Dominican Republic" },
+  { flag: "🇯🇲", code: "JM", name: "Jamaica" },
+  { flag: "🇹🇹", code: "TT", name: "Trinidad & Tobago" },
+  { flag: "🇮🇸", code: "IS", name: "Iceland" },
+  { flag: "🇱🇺", code: "LU", name: "Luxembourg" },
+  { flag: "🇲🇹", code: "MT", name: "Malta" },
+  { flag: "🇨🇾", code: "CY", name: "Cyprus" },
+  { flag: "🇪🇪", code: "EE", name: "Estonia" },
+  { flag: "🇱🇻", code: "LV", name: "Latvia" },
+  { flag: "🇱🇹", code: "LT", name: "Lithuania" },
+  { flag: "🇸🇰", code: "SK", name: "Slovakia" },
+  { flag: "🇸🇮", code: "SI", name: "Slovenia" },
+  { flag: "🇭🇷", code: "HR", name: "Croatia" },
+  { flag: "🇷🇸", code: "RS", name: "Serbia" },
+  { flag: "🇧🇬", code: "BG", name: "Bulgaria" },
+  { flag: "🇺🇦", code: "UA", name: "Ukraine" },
+];
+
+// Generate random wallet hash
+function randomHash(): string {
+  const chars = "0123456789abcdef";
+  let hash = "0x";
+  for (let i = 0; i < 40; i++) {
+    hash += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return hash;
+}
+
+// Generate random amount between $100 and $100,000
+function randomAmount(): number {
+  const tiers = [
+    { min: 100, max: 500, weight: 35 },
+    { min: 500, max: 1000, weight: 25 },
+    { min: 1000, max: 5000, weight: 20 },
+    { min: 5000, max: 10000, weight: 10 },
+    { min: 10000, max: 50000, weight: 7 },
+    { min: 50000, max: 100000, weight: 3 },
+  ];
+  const totalWeight = tiers.reduce((s, t) => s + t.weight, 0);
+  let r = Math.random() * totalWeight;
+  for (const tier of tiers) {
+    r -= tier.weight;
+    if (r <= 0) {
+      return Math.round(tier.min + Math.random() * (tier.max - tier.min));
+    }
+  }
+  return 500;
+}
+
+// Random interval between 5-20 seconds
+function randomInterval(): number {
+  return (Math.floor(Math.random() * 16) + 5) * 1000;
+}
+
+// Bot types
+const BOT_TYPES = ["Sprint", "Velocity", "Momentum", "Catalyst", "Quantum"];
+
+interface Transaction {
+  id: string;
+  country: typeof COUNTRIES[number];
+  hash: string;
+  amount: number;
+  bot: string;
+  timestamp: Date;
+}
+
+function formatAmount(n: number): string {
+  if (n >= 1000) return `$${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K`;
+  return `$${n.toLocaleString()}`;
+}
+
+function shortenHash(hash: string): string {
+  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
+}
+
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 5) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  return `${Math.floor(seconds / 60)}m ago`;
+}
+
+export default function LiveTransactionFeed() {
+  const { t } = useApp();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [totalVolume, setTotalVolume] = useState(0);
+  const [txCount, setTxCount] = useState(0);
+  const [activeCountries, setActiveCountries] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const seenCountries = useRef(new Set<string>());
+
+  const addTransaction = useCallback(() => {
+    const country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+    const amount = randomAmount();
+    const tx: Transaction = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      country,
+      hash: randomHash(),
+      amount,
+      bot: BOT_TYPES[Math.floor(Math.random() * BOT_TYPES.length)],
+      timestamp: new Date(),
+    };
+
+    seenCountries.current.add(country.code);
+
+    setTransactions((prev) => [tx, ...prev].slice(0, 20));
+    setTotalVolume((prev) => prev + amount);
+    setTxCount((prev) => prev + 1);
+    setActiveCountries(seenCountries.current.size);
+
+    // Schedule next transaction with random interval
+    timerRef.current = setTimeout(addTransaction, randomInterval());
+  }, []);
+
+  useEffect(() => {
+    // Start with a few initial transactions
+    const initial: Transaction[] = [];
+    for (let i = 0; i < 5; i++) {
+      const country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+      const amount = randomAmount();
+      seenCountries.current.add(country.code);
+      initial.push({
+        id: `init-${i}`,
+        country,
+        hash: randomHash(),
+        amount,
+        bot: BOT_TYPES[Math.floor(Math.random() * BOT_TYPES.length)],
+        timestamp: new Date(Date.now() - (5 - i) * 8000),
+      });
+    }
+    setTransactions(initial);
+    setTotalVolume(initial.reduce((s, tx) => s + tx.amount, 0));
+    setTxCount(initial.length);
+    setActiveCountries(seenCountries.current.size);
+
+    // Start the auto-feed
+    timerRef.current = setTimeout(addTransaction, randomInterval());
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [addTransaction]);
+
+  // Update "time ago" display
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <SectionWrapper id="live-feed">
+      <SectionTitle
+        badge={t("feed.badge")}
+        title={t("feed.title")}
+        subtitle={t("feed.subtitle")}
+      />
+
+      {/* Stats Bar */}
+      <div
+        className="grid grid-cols-3 gap-3 mb-8"
+      >
+        {[
+          { icon: <TrendingUp size={16} />, label: t("feed.stat.volume"), value: formatAmount(totalVolume) },
+          { icon: <Activity size={16} />, label: t("feed.stat.txcount"), value: txCount.toString() },
+          { icon: <Globe size={16} />, label: t("feed.stat.countries"), value: `${activeCountries}` },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            className="text-center py-4 px-2"
+            style={{
+              background: "rgba(0,245,255,0.04)",
+              border: "1px solid rgba(0,245,255,0.1)",
+              borderRadius: "10px",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1 mb-1" style={{ color: "#00f5ff" }}>
+              {stat.icon}
+            </div>
+            <div
+              className="text-xl font-bold"
+              style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              {stat.value}
+            </div>
+            <div className="text-[10px] mt-0.5" style={{ color: "rgba(226,232,240,0.5)" }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Live Indicator */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="relative flex items-center gap-2">
+          <span
+            className="w-2.5 h-2.5 rounded-full"
+            style={{
+              background: "#ef4444",
+              boxShadow: "0 0 8px #ef4444",
+              animation: "pulse 2s infinite",
+            }}
+          />
+          <span
+            className="text-xs font-bold tracking-wider uppercase"
+            style={{ color: "#ef4444", fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            {t("feed.live")}
+          </span>
+        </div>
+        <div className="flex-1 h-px" style={{ background: "rgba(239,68,68,0.2)" }} />
+      </div>
+
+      {/* Transaction Feed */}
+      <div
+        className="space-y-2 overflow-hidden"
+        style={{ maxHeight: "480px" }}
+      >
+        <AnimatePresence initial={false}>
+          {transactions.map((tx) => (
+            <motion.div
+              key={tx.id}
+              initial={{ opacity: 0, x: -40, height: 0 }}
+              animate={{ opacity: 1, x: 0, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              <div
+                className="flex items-center gap-3 p-3"
+                style={{
+                  background:
+                    tx.amount >= 50000
+                      ? "rgba(168,85,247,0.08)"
+                      : tx.amount >= 10000
+                      ? "rgba(0,245,255,0.06)"
+                      : "rgba(255,255,255,0.02)",
+                  border: `1px solid ${
+                    tx.amount >= 50000
+                      ? "rgba(168,85,247,0.2)"
+                      : tx.amount >= 10000
+                      ? "rgba(0,245,255,0.15)"
+                      : "rgba(255,255,255,0.06)"
+                  }`,
+                  borderRadius: "10px",
+                }}
+              >
+                {/* Flag */}
+                <span className="text-2xl shrink-0">{tx.country.flag}</span>
+
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-sm font-bold"
+                      style={{
+                        color: tx.amount >= 50000 ? "#a855f7" : tx.amount >= 10000 ? "#00f5ff" : "#22c55e",
+                        fontFamily: "'Space Grotesk', sans-serif",
+                      }}
+                    >
+                      {formatAmount(tx.amount)}
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
+                      background: "rgba(0,245,255,0.08)",
+                      color: "rgba(226,232,240,0.5)",
+                    }}>
+                      {tx.bot}
+                    </span>
+                    {tx.amount >= 10000 && (
+                      <Zap size={12} style={{ color: tx.amount >= 50000 ? "#a855f7" : "#00f5ff" }} />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span
+                      className="text-[11px] font-mono"
+                      style={{ color: "rgba(226,232,240,0.4)" }}
+                    >
+                      {shortenHash(tx.hash)}
+                    </span>
+                    <span className="text-[10px]" style={{ color: "rgba(226,232,240,0.3)" }}>
+                      {tx.country.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Time */}
+                <span className="text-[10px] shrink-0" style={{ color: "rgba(226,232,240,0.3)" }}>
+                  {timeAgo(tx.timestamp)}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Pulse animation CSS */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
+    </SectionWrapper>
+  );
+}

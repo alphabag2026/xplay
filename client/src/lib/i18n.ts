@@ -479,6 +479,9 @@ export const T: Record<string, Record<Lang, string>> = {
 
   // Roadmap Section
   "nav.roadmap": { ko: "로드맵", en: "Roadmap", zh: "路线图", ja: "ロードマップ", vi: "Lộ trình", th: "แผนงาน" },
+  "nav.livefeed": { ko: "실시간 매출", en: "Live Feed", zh: "实时动态", ja: "ライブフィード", vi: "Bảng tin trực tiếp", th: "ฟีดสด" },
+  "nav.media": { ko: "미디어", en: "Media", zh: "媒体", ja: "メディア", vi: "Media", th: "สื่อ" },
+  "nav.livechat": { ko: "라이브 채팅", en: "Live Chat", zh: "实时聊天", ja: "ライブチャット", vi: "Chat trực tiếp", th: "แชทสด" },
   "road.badge": { ko: "ROADMAP", en: "ROADMAP", zh: "ROADMAP", ja: "ROADMAP", vi: "ROADMAP", th: "ROADMAP" },
   "road.title": { ko: "XPLAY 로드맵", en: "XPLAY Roadmap", zh: "XPLAY 路线图", ja: "XPLAY ロードマップ", vi: "Lộ trình XPLAY", th: "แผนงาน XPLAY" },
   "road.subtitle": { ko: "예측 플랫폼에서 AI 에이전트, Web4까지 — XPLAY의 미래 비전", en: "From prediction platform to AI Agent & Web4 — XPLAY's future vision", zh: "从预测平台到AI代理和Web4 — XPLAY的未来愿景", ja: "予測プラットフォームからAIエージェント、Web4まで — XPLAYの未来ビジョン", vi: "Từ nền tảng dự đoán đến AI Agent & Web4 — Tầm nhìn tương lai XPLAY", th: "จากแพลตฟอร์มทำนายสู่ AI Agent & Web4 — วิสัยทัศน์อนาคต XPLAY" },
@@ -492,6 +495,32 @@ export const T: Record<string, Record<Lang, string>> = {
   "road.phase3.title": { ko: "Web4 플랫폼", en: "Web4 Platform", zh: "Web4平台", ja: "Web4プラットフォーム", vi: "Nền tảng Web4", th: "แพลตฟอร์ม Web4" },
   "road.phase3.desc": { ko: "AI + 블록체인이 결합된 Web4 플랫폼을 개발 중입니다. 완전한 탈중앙화와 AI 자동화가 융합된 차세대 인터넷 생태계를 구축합니다.", en: "Developing Web4 platform combining AI + Blockchain. Building a next-generation internet ecosystem fusing full decentralization with AI automation.", zh: "正在开发AI+区块链结合的Web4平台。构建完全去中心化与AI自动化融合的下一代互联网生态系统。", ja: "AI+ブロックチェーンが結合されたWeb4プラットフォームを開発中です。完全な分散化とAI自動化が融合した次世代インターネットエコシステムを構築します。", vi: "Đang phát triển nền tảng Web4 kết hợp AI + Blockchain. Xây dựng hệ sinh thái internet thế hệ tiếp theo kết hợp phi tập trung hoàn toàn với tự động hóa AI.", th: "กำลังพัฒนาแพลตฟอร์ม Web4 ที่รวม AI + Blockchain สร้างระบบนิเวศอินเทอร์เน็ตรุ่นถัดไปที่รวมการกระจายอำนาจกับ AI อัตโนมัติ" },
   "road.phase3.status": { ko: "개발중", en: "In Development", zh: "开发中", ja: "開発中", vi: "Đang phát triển", th: "กำลังพัฒนา" },
+
+  // Live Transaction Feed
+  "feed.badge": { ko: "GLOBAL REVENUE", en: "GLOBAL REVENUE", zh: "全球收益", ja: "グローバル収益", vi: "DOANH THU TOÀN CẦU", th: "รายได้ทั่วโลก" },
+  "feed.title": { ko: "실시간 글로벌 매출", en: "Live Global Revenue", zh: "实时全球收益", ja: "リアルタイムグローバル収益", vi: "Doanh thu toàn cầu trực tiếp", th: "รายได้ทั่วโลกแบบเรียลไทม์" },
+  "feed.subtitle": { ko: "전 세계 100개국에서 실시간으로 발생하는 XPLAY 투자 현황", en: "Real-time XPLAY investments from 100 countries worldwide", zh: "来自全球100个国家的XPLAY实时投资状况", ja: "世界100カ国からのXPLAYリアルタイム投資状況", vi: "Tình hình đầu tư XPLAY thời gian thực từ 100 quốc gia", th: "สถานะการลงทุน XPLAY แบบเรียลไทม์จาก 100 ประเทศ" },
+  "feed.live": { ko: "LIVE", en: "LIVE", zh: "直播", ja: "LIVE", vi: "TRỰC TIẾP", th: "สด" },
+  "feed.stat.volume": { ko: "누적 거래량", en: "Total Volume", zh: "累计交易量", ja: "累計取引量", vi: "Tổng khối lượng", th: "ปริมาณรวม" },
+  "feed.stat.txcount": { ko: "거래 수", en: "Transactions", zh: "交易数", ja: "取引数", vi: "Giao dịch", th: "ธุรกรรม" },
+  "feed.stat.countries": { ko: "참여 국가", en: "Countries", zh: "参与国家", ja: "参加国", vi: "Quốc gia", th: "ประเทศ" },
+
+  // Live Chat
+  "chat.badge": { ko: "GLOBAL COMMUNITY", en: "GLOBAL COMMUNITY", zh: "全球社区", ja: "グローバルコミュニティ", vi: "CỘNG ĐỒNG TOÀN CẦU", th: "ชุมชนทั่วโลก" },
+  "chat.title": { ko: "실시간 글로벌 채팅", en: "Live Global Chat", zh: "实时全球聊天", ja: "リアルタイムグローバルチャット", vi: "Chat toàn cầu trực tiếp", th: "แชทสดทั่วโลก" },
+  "chat.subtitle": { ko: "전 세계 XPLAY 커뮤니티와 실시간으로 소통하세요", en: "Connect with the global XPLAY community in real-time", zh: "与全球XPLAY社区实时交流", ja: "世界中のXPLAYコミュニティとリアルタイムで交流", vi: "Kết nối với cộng đồng XPLAY toàn cầu", th: "เชื่อมต่อกับชุมชน XPLAY ทั่วโลก" },
+  "chat.global": { ko: "XPLAY 글로벌 채팅", en: "XPLAY Global Chat", zh: "XPLAY全球聊天", ja: "XPLAYグローバルチャット", vi: "XPLAY Chat Toàn Cầu", th: "XPLAY แชททั่วโลก" },
+  "chat.online": { ko: "온라인", en: "online", zh: "在线", ja: "オンライン", vi: "trực tuyến", th: "ออนไลน์" },
+  "chat.placeholder": { ko: "메시지를 입력하세요...", en: "Type a message...", zh: "输入消息...", ja: "メッセージを入力...", vi: "Nhập tin nhắn...", th: "พิมพ์ข้อความ..." },
+  "chat.you": { ko: "나", en: "You", zh: "我", ja: "あなた", vi: "Bạn", th: "คุณ" },
+
+  // Media Gallery
+  "media.badge": { ko: "TELEGRAM MEDIA", en: "TELEGRAM MEDIA", zh: "电报媒体", ja: "テレグラムメディア", vi: "TELEGRAM MEDIA", th: "สื่อเทเลแกรม" },
+  "media.title": { ko: "텔레그램 미디어 갤러리", en: "Telegram Media Gallery", zh: "Telegram媒体画廊", ja: "テレグラムメディアギャラリー", vi: "Thư viện Media Telegram", th: "แกลเลอรีสื่อเทเลแกรม" },
+  "media.subtitle": { ko: "텔레그램 공식 채널에서 공유된 최신 영상과 이미지", en: "Latest videos and images shared from official Telegram channel", zh: "来自官方Telegram频道的最新视频和图片", ja: "公式テレグラムチャンネルから共有された最新の動画と画像", vi: "Video và hình ảnh mới nhất từ kênh Telegram chính thức", th: "วิดีโอและรูปภาพล่าสุดจากช่องเทเลแกรมอย่างเป็นทางการ" },
+  "media.telegram.desc": { ko: "공식 텔레그램 채널에서 최신 소식을 받아보세요", en: "Get the latest updates from our official Telegram channel", zh: "从我们的官方Telegram频道获取最新消息", ja: "公式テレグラムチャンネルで最新情報をチェック", vi: "Nhận cập nhật mới nhất từ kênh Telegram chính thức", th: "รับข่าวสารล่าสุดจากช่องเทเลแกรมอย่างเป็นทางการ" },
+  "media.telegram.join": { ko: "채널 참여", en: "Join Channel", zh: "加入频道", ja: "チャンネル参加", vi: "Tham gia kênh", th: "เข้าร่วมช่อง" },
+  "media.viewmore": { ko: "텔레그램에서 더 보기", en: "View More on Telegram", zh: "在Telegram查看更多", ja: "テレグラムでもっと見る", vi: "Xem thêm trên Telegram", th: "ดูเพิ่มเติมบนเทเลแกรม" },
 
   "footer.disclaimer": { ko: "본 웹사이트는 XPLAY 프로젝트의 수익 구조를 분석한 정보성 콘텐츠입니다. 모든 투자에는 리스크가 따르며, 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.", en: "This website is informational content analyzing XPLAY project's revenue structure. All investments carry risks, and investment decisions should be made at your own judgment and responsibility.", zh: "本网站是分析XPLAY项目收益结构的信息性内容。所有投资都有风险，投资决策应在您自己的判断和责任下做出。", ja: "本ウェブサイトはXPLAYプロジェクトの収益構造を分析した情報性コンテンツです。すべての投資にはリスクが伴い、投資決定はご自身の判断と責任のもとで行ってください。", vi: "Trang web này là nội dung thông tin phân tích cấu trúc doanh thu dự án XPLAY. Mọi đầu tư đều có rủi ro, quyết định đầu tư phải dựa trên phán đoán và trách nhiệm của bạn.", th: "เว็บไซต์นี้เป็นเนื้อหาข้อมูลวิเคราะห์โครงสร้างรายได้โครงการ XPLAY การลงทุนทุกอย่างมีความเสี่ยง การตัดสินใจลงทุนควรอยู่ภายใต้วิจารณญาณและความรับผิดชอบของคุณเอง" },
 };

@@ -18,12 +18,16 @@ import TeamSection from "@/components/sections/TeamSection";
 import SimulatorSection from "@/components/sections/SimulatorSection";
 import RoadmapSection from "@/components/sections/RoadmapSection";
 import TokenomicsSection from "@/components/sections/TokenomicsSection";
+import LiveTransactionFeed from "@/components/sections/LiveTransactionFeed";
+import LiveChatSection from "@/components/sections/LiveChatSection";
+import MediaGallerySection from "@/components/sections/MediaGallerySection";
 
 export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "#0a0e1a" }}>
       <Navbar />
       <HeroSection />
+      <LiveTransactionFeed />
       <BusinessSection />
       <GameSection />
       <StakingSection />
@@ -31,8 +35,10 @@ export default function Home() {
       <TeamSection />
       <TokenomicsSection />
       <RoadmapSection />
+      <MediaGallerySection />
       <FlywheelSection />
       <SimulatorSection />
+      <LiveChatSection />
       <ResourcesSection />
       <Footer />
     </div>
