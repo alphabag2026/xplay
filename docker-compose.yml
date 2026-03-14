@@ -1,0 +1,67 @@
+# ============================================
+# XPLAY Revenue Site - Docker Compose
+# Vultr + Cloudflare R2 배포 구성
+# ============================================
+version: "3.8"
+
+services:
+  # Main web application
+  xplay-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xplay-web
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - xplay-network
+
+  # Telegram Bot (runs alongside web server)
+  xplay-telegram-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xplay-telegram-bot
+    restart: always
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+    command: ["node", "telegram-bot.mjs"]
+    depends_on:
+      xplay-web:
+        condition: service_healthy
+    networks:
+      - xplay-network
+
+  # Nginx reverse proxy (optional, for SSL termination)
+  nginx:
+    image: nginx:alpine
+    container_name: xplay-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      xplay-web:
+        condition: service_healthy
+    networks:
+      - xplay-network
+
+networks:
+  xplay-network:
+    driver: bridge

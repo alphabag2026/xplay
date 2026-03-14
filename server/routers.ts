@@ -1,17 +1,23 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router, adminProcedure } from "./_core/trpc";
 import { z } from "zod";
 import {
   getAnnouncements, getAnnouncementById, getPinnedAnnouncement,
   searchAnnouncements, getPopularAnnouncements,
   toggleLike, getLikedIds,
-  createComment, getComments, getCommentCount,
+  createComment, getComments, getCommentCount, deleteComment,
   getNewsLinks, getNewsLinkById, updateNewsLinkTranslation,
   getPartners,
+  // Admin queries
+  createAnnouncement, updateAnnouncement, deleteAnnouncement, togglePinAnnouncement,
+  createNewsLink, updateNewsLink, deleteNewsLink,
+  createPartner, updatePartner, deletePartner, hardDeletePartner, getAllPartners,
+  getDashboardStats,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
 
 export const appRouter = router({
   system: systemRouter,
@@ -24,12 +30,12 @@ export const appRouter = router({
     }),
   }),
 
+  // ========== Public Announcements ==========
   announcements: router({
     list: publicProcedure
       .input(z.object({ limit: z.number().min(1).max(100).optional() }).optional())
       .query(async ({ input }) => {
-        const limit = input?.limit ?? 50;
-        return getAnnouncements(limit);
+        return getAnnouncements(input?.limit ?? 50);
       }),
 
     getById: publicProcedure
@@ -56,21 +62,18 @@ export const appRouter = router({
         return getPopularAnnouncements(input?.limit ?? 10);
       }),
 
-    // Like toggle
     toggleLike: publicProcedure
       .input(z.object({ announcementId: z.number(), visitorId: z.string().min(1) }))
       .mutation(async ({ input }) => {
         return toggleLike(input.announcementId, input.visitorId);
       }),
 
-    // Get liked IDs for a visitor
     likedIds: publicProcedure
       .input(z.object({ visitorId: z.string().min(1) }))
       .query(async ({ input }) => {
         return getLikedIds(input.visitorId);
       }),
 
-    // Comments
     comments: publicProcedure
       .input(z.object({ announcementId: z.number(), limit: z.number().min(1).max(100).optional() }))
       .query(async ({ input }) => {
@@ -95,25 +98,20 @@ export const appRouter = router({
           nickname: input.nickname,
           content: input.content,
         });
-
-        // Send Telegram notification for new comment
         try {
           const botToken = process.env.TELEGRAM_BOT_TOKEN;
-          const botSecret = process.env.TELEGRAM_BOT_SECRET;
-          if (botToken && botSecret) {
+          if (botToken) {
             const ann = await getAnnouncementById(input.announcementId);
             const text = `💬 새 댓글 알림\n\n📌 공지: ${ann?.title ?? `#${input.announcementId}`}\n👤 작성자: ${input.nickname}\n📝 내용: ${input.content.substring(0, 200)}`;
-            // We'll use the webhook URL to notify — but for simplicity, we store the notification
-            // The Telegram bot polls and can check for new comments
           }
         } catch (e) {
           console.error("[Comment Notification] Error:", e);
         }
-
         return { success: true, id };
       }),
   }),
 
+  // ========== Public News ==========
   news: router({
     list: publicProcedure
       .input(z.object({ limit: z.number().min(1).max(50).optional() }).optional())
@@ -128,14 +126,11 @@ export const appRouter = router({
         return result ?? null;
       }),
 
-    // Translate news content using LLM
     translate: publicProcedure
       .input(z.object({ id: z.number(), targetLang: z.string().min(2).max(5) }))
       .mutation(async ({ input }) => {
         const news = await getNewsLinkById(input.id);
         if (!news) return { success: false, error: "News not found" };
-
-        // Check if translation already exists
         let translations: Record<string, string> = {};
         if (news.translatedContent) {
           try { translations = JSON.parse(news.translatedContent); } catch {}
@@ -143,14 +138,11 @@ export const appRouter = router({
         if (translations[input.targetLang]) {
           return { success: true, translation: translations[input.targetLang] };
         }
-
-        // Translate using LLM
         const langNames: Record<string, string> = {
           ko: "Korean", en: "English", zh: "Chinese", ja: "Japanese", vi: "Vietnamese", th: "Thai",
         };
         const targetName = langNames[input.targetLang] || input.targetLang;
         const contentToTranslate = news.description || news.title;
-
         try {
           const response = await invokeLLM({
             messages: [
@@ -170,9 +162,232 @@ export const appRouter = router({
       }),
   }),
 
+  // ========== Public Partners ==========
   partners: router({
     list: publicProcedure.query(async () => {
       return getPartners();
+    }),
+  }),
+
+  // ========== Admin Back-Office ==========
+  admin: router({
+    // Dashboard stats
+    stats: adminProcedure.query(async () => {
+      return getDashboardStats();
+    }),
+
+    // R2 health check
+    r2Health: adminProcedure.query(async () => {
+      return r2HealthCheck();
+    }),
+
+    // ===== Announcement CRUD =====
+    announcements: router({
+      list: adminProcedure
+        .input(z.object({ limit: z.number().min(1).max(200).optional() }).optional())
+        .query(async ({ input }) => {
+          return getAnnouncements(input?.limit ?? 100);
+        }),
+
+      create: adminProcedure
+        .input(z.object({
+          title: z.string().min(1).max(500),
+          content: z.string().min(1),
+          imageUrl: z.string().nullable().optional(),
+          isPinned: z.boolean().optional(),
+          authorName: z.string().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const id = await createAnnouncement({
+            title: input.title,
+            content: input.content,
+            imageUrl: input.imageUrl ?? null,
+            isPinned: input.isPinned ?? false,
+            authorName: input.authorName ?? "XPLAY Admin",
+          });
+          return { success: true, id };
+        }),
+
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          title: z.string().min(1).max(500).optional(),
+          content: z.string().min(1).optional(),
+          imageUrl: z.string().nullable().optional(),
+          authorName: z.string().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          await updateAnnouncement(id, data);
+          return { success: true };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          await deleteAnnouncement(input.id);
+          return { success: true };
+        }),
+
+      togglePin: adminProcedure
+        .input(z.object({ id: z.number(), isPinned: z.boolean() }))
+        .mutation(async ({ input }) => {
+          await togglePinAnnouncement(input.id, input.isPinned);
+          return { success: true };
+        }),
+
+      deleteComment: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          await deleteComment(input.id);
+          return { success: true };
+        }),
+    }),
+
+    // ===== News CRUD =====
+    news: router({
+      list: adminProcedure
+        .input(z.object({ limit: z.number().min(1).max(200).optional() }).optional())
+        .query(async ({ input }) => {
+          return getNewsLinks(input?.limit ?? 100);
+        }),
+
+      create: adminProcedure
+        .input(z.object({
+          url: z.string().min(1),
+          title: z.string().min(1).max(500),
+          description: z.string().nullable().optional(),
+          imageUrl: z.string().nullable().optional(),
+          siteName: z.string().nullable().optional(),
+          originalContent: z.string().nullable().optional(),
+          authorName: z.string().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const id = await createNewsLink({
+            url: input.url,
+            title: input.title,
+            description: input.description ?? null,
+            imageUrl: input.imageUrl ?? null,
+            siteName: input.siteName ?? null,
+            originalContent: input.originalContent ?? null,
+            translatedContent: null,
+            authorName: input.authorName ?? "XPLAY Admin",
+          });
+          return { success: true, id };
+        }),
+
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          url: z.string().optional(),
+          title: z.string().max(500).optional(),
+          description: z.string().nullable().optional(),
+          imageUrl: z.string().nullable().optional(),
+          siteName: z.string().nullable().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          await updateNewsLink(id, data);
+          return { success: true };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          await deleteNewsLink(input.id);
+          return { success: true };
+        }),
+    }),
+
+    // ===== Partners CRUD =====
+    partners: router({
+      list: adminProcedure.query(async () => {
+        return getAllPartners();
+      }),
+
+      create: adminProcedure
+        .input(z.object({
+          name: z.string().min(1).max(200),
+          description: z.string().nullable().optional(),
+          phone: z.string().nullable().optional(),
+          telegram: z.string().nullable().optional(),
+          kakao: z.string().nullable().optional(),
+          whatsapp: z.string().nullable().optional(),
+          wechat: z.string().nullable().optional(),
+          avatarUrl: z.string().nullable().optional(),
+          sortOrder: z.number().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const id = await createPartner({
+            name: input.name,
+            description: input.description ?? null,
+            phone: input.phone ?? null,
+            telegram: input.telegram ?? null,
+            kakao: input.kakao ?? null,
+            whatsapp: input.whatsapp ?? null,
+            wechat: input.wechat ?? null,
+            avatarUrl: input.avatarUrl ?? null,
+            sortOrder: input.sortOrder ?? 0,
+          });
+          return { success: true, id };
+        }),
+
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          name: z.string().max(200).optional(),
+          description: z.string().nullable().optional(),
+          phone: z.string().nullable().optional(),
+          telegram: z.string().nullable().optional(),
+          kakao: z.string().nullable().optional(),
+          whatsapp: z.string().nullable().optional(),
+          wechat: z.string().nullable().optional(),
+          avatarUrl: z.string().nullable().optional(),
+          isActive: z.boolean().optional(),
+          sortOrder: z.number().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          await updatePartner(id, data);
+          return { success: true };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          await hardDeletePartner(input.id);
+          return { success: true };
+        }),
+    }),
+
+    // ===== Media / R2 Storage =====
+    media: router({
+      list: adminProcedure
+        .input(z.object({ prefix: z.string().optional(), maxKeys: z.number().min(1).max(500).optional() }).optional())
+        .query(async ({ input }) => {
+          return r2List(input?.prefix, input?.maxKeys ?? 100);
+        }),
+
+      upload: adminProcedure
+        .input(z.object({
+          fileName: z.string().min(1),
+          folder: z.string().default("media"),
+          contentType: z.string().default("application/octet-stream"),
+          base64Data: z.string().min(1),
+        }))
+        .mutation(async ({ input }) => {
+          const buffer = Buffer.from(input.base64Data, "base64");
+          const key = generateFileKey(input.folder, input.fileName);
+          const result = await r2Upload(key, buffer, input.contentType);
+          return { success: true, ...result };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ key: z.string().min(1) }))
+        .mutation(async ({ input }) => {
+          await r2Delete(input.key);
+          return { success: true };
+        }),
     }),
   }),
 });

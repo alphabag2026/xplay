@@ -48,3 +48,18 @@
 - [x] 백엔드: 소통 파트너 CRUD API
 - [x] 텔레그램 봇: /파트너, /파트너삭제 명령어로 등록/삭제
 - [x] 프론트엔드: 소통 파트너 카드 섹션 (연락처 버튼들)
+
+## 백오피스 + Cloudflare R2 + Vultr 자체 서버 배포
+- [x] Cloudflare R2 스토리지 연동 모듈 (이미지/영상 업로드)
+- [x] R2 환경변수 설정 (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL)
+- [x] 백오피스 백엔드 API (관리자 인증 + 공지/뉴스/파트너/미디어 CRUD)
+- [x] 백오피스 대시보드 UI (통계, 최근 활동)
+- [x] 백오피스 공지 관리 페이지 (목록/생성/수정/삭제/고정)
+- [x] 백오피스 뉴스 관리 페이지 (목록/생성/삭제)
+- [x] 백오피스 소통 파트너 관리 페이지 (목록/생성/수정/삭제)
+- [x] 백오피스 미디어 관리 페이지 (이미지/영상 R2 업로드/삭제)
+- [x] Vultr 자체 서버 배포 스크립트 (Docker Compose)
+- [x] Dockerfile + docker-compose.yml 작성
+- [x] Nginx 리버스 프록시 + SSL 설정
+- [x] 배포 가이드 문서 업데이트
+- [x] 전체 테스트 (14/14 통과)

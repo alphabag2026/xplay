@@ -27,12 +27,9 @@ export async function getDb() {
 // ========== User queries ==========
 
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
+  if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
   if (!db) { console.warn("[Database] Cannot upsert user: database not available"); return; }
-
   try {
     const values: InsertUser = { openId: user.openId };
     const updateSet: Record<string, unknown> = {};
@@ -87,15 +84,28 @@ export async function getAnnouncementById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateAnnouncement(id: number, data: Partial<InsertAnnouncement>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(announcements).set(data).where(eq(announcements.id, id));
+}
+
 export async function deleteAnnouncement(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  // Also delete related likes and comments
+  await db.delete(announcementLikes).where(eq(announcementLikes.announcementId, id));
+  await db.delete(announcementComments).where(eq(announcementComments.announcementId, id));
   await db.delete(announcements).where(eq(announcements.id, id));
 }
 
 export async function togglePinAnnouncement(id: number, isPinned: boolean) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  // Unpin all others first if pinning
+  if (isPinned) {
+    await db.update(announcements).set({ isPinned: false }).where(eq(announcements.isPinned, true));
+  }
   await db.update(announcements).set({ isPinned }).where(eq(announcements.id, id));
 }
 
@@ -129,21 +139,16 @@ export async function getPopularAnnouncements(limit = 10) {
 export async function toggleLike(announcementId: number, visitorId: string): Promise<{ liked: boolean; likeCount: number }> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
   const existing = await db.select().from(announcementLikes)
     .where(and(eq(announcementLikes.announcementId, announcementId), eq(announcementLikes.visitorId, visitorId)))
     .limit(1);
-
   if (existing.length > 0) {
-    // Unlike
     await db.delete(announcementLikes).where(eq(announcementLikes.id, existing[0].id));
     await db.update(announcements).set({ likeCount: sql`GREATEST(${announcements.likeCount} - 1, 0)` }).where(eq(announcements.id, announcementId));
   } else {
-    // Like
     await db.insert(announcementLikes).values({ announcementId, visitorId });
     await db.update(announcements).set({ likeCount: sql`${announcements.likeCount} + 1` }).where(eq(announcements.id, announcementId));
   }
-
   const ann = await db.select({ likeCount: announcements.likeCount }).from(announcements).where(eq(announcements.id, announcementId)).limit(1);
   return { liked: existing.length === 0, likeCount: ann[0]?.likeCount ?? 0 };
 }
@@ -210,6 +215,12 @@ export async function getNewsLinkById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateNewsLink(id: number, data: Partial<InsertNewsLink>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(newsLinks).set(data).where(eq(newsLinks.id, id));
+}
+
 export async function deleteNewsLink(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -239,14 +250,48 @@ export async function getPartners() {
     .orderBy(communicationPartners.sortOrder);
 }
 
+export async function getAllPartners() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(communicationPartners)
+    .orderBy(desc(communicationPartners.createdAt));
+}
+
 export async function deletePartner(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(communicationPartners).set({ isActive: false }).where(eq(communicationPartners.id, id));
 }
 
+export async function hardDeletePartner(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(communicationPartners).where(eq(communicationPartners.id, id));
+}
+
 export async function updatePartner(id: number, data: Partial<InsertCommunicationPartner>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(communicationPartners).set(data).where(eq(communicationPartners.id, id));
+}
+
+// ========== Dashboard Stats ==========
+
+export async function getDashboardStats() {
+  const db = await getDb();
+  if (!db) return { announcements: 0, news: 0, partners: 0, comments: 0, totalLikes: 0 };
+
+  const [annCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(announcements);
+  const [newsCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(newsLinks);
+  const [partnerCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(communicationPartners).where(eq(communicationPartners.isActive, true));
+  const [commentCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(announcementComments);
+  const [likeSum] = await db.select({ total: sql<number>`COALESCE(SUM(likeCount), 0)` }).from(announcements);
+
+  return {
+    announcements: annCount?.count ?? 0,
+    news: newsCount?.count ?? 0,
+    partners: partnerCount?.count ?? 0,
+    comments: commentCount?.count ?? 0,
+    totalLikes: likeSum?.total ?? 0,
+  };
 }
