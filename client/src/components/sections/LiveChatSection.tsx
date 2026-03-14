@@ -11,7 +11,7 @@ import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, Users, Globe2, ChevronDown, Languages } from "lucide-react";
+import { Send, Bot, Users, Globe2, ChevronDown, Languages, Pin, X, Megaphone } from "lucide-react";
 
 // Virtual users from around the world with their native language
 const VIRTUAL_USERS = [
@@ -200,6 +200,27 @@ export default function LiveChatSection() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Pinned announcement
+  const [pinnedMessage, setPinnedMessage] = useState<{
+    text: string;
+    translations: Record<string, string>;
+    timestamp: Date;
+    author: string;
+  } | null>({
+    text: "XPLAY 2.0 업데이트 안내: 새로운 AI 에이전트 봇과 Web4 플랫폼이 곧 출시됩니다. 자세한 내용은 공식 텔레그램 채널을 확인해주세요! 🚀",
+    translations: {
+      en: "XPLAY 2.0 Update: New AI Agent Bot and Web4 Platform launching soon. Check the official Telegram channel for details! \ud83d\ude80",
+      zh: "XPLAY 2.0 \u66f4\u65b0\uff1a\u65b0AI\u4ee3\u7406Bot\u548cWeb4\u5e73\u53f0\u5373\u5c06\u4e0a\u7ebf\u3002\u8bf7\u67e5\u770b\u5b98\u65b9Telegram\u9891\u9053\uff01\ud83d\ude80",
+      ja: "XPLAY 2.0\u30a2\u30c3\u30d7\u30c7\u30fc\u30c8\uff1a\u65b0AI\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8Bot\u3068Web4\u30d7\u30e9\u30c3\u30c8\u30d5\u30a9\u30fc\u30e0\u304c\u307e\u3082\u306a\u304f\u30ed\u30fc\u30f3\u30c1\u3002\u516c\u5f0fTelegram\u3092\u30c1\u30a7\u30c3\u30af\uff01\ud83d\ude80",
+      vi: "C\u1eadp nh\u1eadt XPLAY 2.0: AI Agent Bot v\u00e0 n\u1ec1n t\u1ea3ng Web4 s\u1eafp ra m\u1eaft. Ki\u1ec3m tra k\u00eanh Telegram ch\u00ednh th\u1ee9c! \ud83d\ude80",
+      th: "\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15 XPLAY 2.0: AI Agent Bot \u0e41\u0e25\u0e30 Web4 Platform \u0e40\u0e23\u0e47\u0e27\u0e46\u0e19\u0e35\u0e49 \u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e0a\u0e48\u0e2d\u0e07 Telegram! \ud83d\ude80",
+    },
+    timestamp: new Date(),
+    author: "XPLAY Admin",
+  });
+  const [pinnedExpanded, setPinnedExpanded] = useState(false);
+  const [pinnedDismissed, setPinnedDismissed] = useState(false);
 
   // User-selected preferred language (defaults to site language)
   const defaultLang = ["ko", "en", "zh", "ja", "vi", "th"].includes(lang) ? lang : "en";
@@ -566,11 +587,93 @@ export default function LiveChatSection() {
           </div>
         </div>
 
+        {/* Pinned Announcement */}
+        {pinnedMessage && !pinnedDismissed && (
+          <div
+            className="px-4 py-2.5"
+            style={{
+              background: "linear-gradient(90deg, rgba(234,179,8,0.08), rgba(0,245,255,0.06))",
+              borderBottom: "1px solid rgba(234,179,8,0.15)",
+            }}
+          >
+            <div className="flex items-start gap-2">
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                style={{
+                  background: "rgba(234,179,8,0.15)",
+                  border: "1px solid rgba(234,179,8,0.3)",
+                }}
+              >
+                <Pin size={11} style={{ color: "#eab308", transform: "rotate(45deg)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Megaphone size={12} style={{ color: "#eab308" }} />
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider"
+                    style={{ color: "#eab308", fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    {pinnedMessage.author}
+                  </span>
+                  <span
+                    className="px-1.5 py-0.5 text-[9px] font-bold rounded"
+                    style={{
+                      background: "rgba(234,179,8,0.15)",
+                      border: "1px solid rgba(234,179,8,0.25)",
+                      color: "#eab308",
+                    }}
+                  >
+                    PINNED
+                  </span>
+                </div>
+                <p
+                  className={`text-xs leading-relaxed ${!pinnedExpanded ? "line-clamp-2" : ""}`}
+                  style={{ color: "rgba(226,232,240,0.85)" }}
+                >
+                  {(() => {
+                    const translated = pinnedMessage.translations[preferredLang];
+                    if (preferredLang === "ko" || !translated) return pinnedMessage.text;
+                    return translated;
+                  })()}
+                </p>
+                {/* Show original if viewing translation */}
+                {preferredLang !== "ko" && pinnedMessage.translations[preferredLang] && (
+                  <p
+                    className="text-[10px] mt-1 italic"
+                    style={{ color: "rgba(226,232,240,0.4)" }}
+                  >
+                    {pinnedMessage.text}
+                  </p>
+                )}
+                {pinnedMessage.text.length > 80 && (
+                  <button
+                    onClick={() => setPinnedExpanded(!pinnedExpanded)}
+                    className="text-[10px] mt-1"
+                    style={{ color: "#eab308" }}
+                  >
+                    {pinnedExpanded ? "▲ 접기" : "▼ 더보기"}
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setPinnedDismissed(true)}
+                className="shrink-0 p-1 rounded transition-all mt-0.5"
+                style={{ color: "rgba(226,232,240,0.4)" }}
+                onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "rgba(226,232,240,0.8)"; }}
+                onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(226,232,240,0.4)"; }}
+                title="Dismiss"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Messages */}
         <div
           ref={chatRef}
           className="overflow-y-auto px-4 py-3 space-y-3"
-          style={{ height: "420px" }}
+          style={{ height: pinnedMessage && !pinnedDismissed ? "360px" : "420px" }}
         >
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
