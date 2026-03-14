@@ -3,6 +3,25 @@
  * Design: Cyberpunk Data Terminal — Mobile-first
  * Colors: Deep Navy (#0a0e1a) + Neon Cyan (#00f5ff) + Purple (#a855f7)
  * Typography: Space Grotesk (display) + DM Sans (body)
+ *
+ * Section Order:
+ * 1. Hero (title + stats + CTA)
+ * 2. About XPLAY (detail intro + intro video) — embedded in HeroSection
+ * 3. LiveTransactionFeed (global revenue live feed)
+ * 4. BusinessSection
+ * 5. GameSection
+ * 6. StakingSection
+ * 7. ReferralSection
+ * 8. TeamSection
+ * 9. TokenomicsSection
+ * 10. RoadmapSection
+ * 11. FlywheelSection
+ * 12. SimulatorSection
+ * 13. LiveChatSection
+ * 14. ResourcesSection (자료실)
+ * 15. TutorialSection (자료실 아래)
+ * 16. MediaGallerySection (자료실 아래)
+ * 17. Footer
  */
 
 import Footer from "@/components/Footer";
@@ -36,12 +55,12 @@ export default function Home() {
       <TeamSection />
       <TokenomicsSection />
       <RoadmapSection />
-      <TutorialSection />
-      <MediaGallerySection />
       <FlywheelSection />
       <SimulatorSection />
       <LiveChatSection />
       <ResourcesSection />
+      <TutorialSection />
+      <MediaGallerySection />
       <Footer />
     </div>
   );

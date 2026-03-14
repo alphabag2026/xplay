@@ -71,6 +71,17 @@ export const T: Record<string, Record<Lang, string>> = {
   "hero.stat2": { ko: "직추천 보상", en: "Referral Reward", zh: "直推奖励", ja: "直接紹介報酬", vi: "Thưởng giới thiệu", th: "รางวัลแนะนำ" },
   "hero.stat3": { ko: "팀 수익 배분", en: "Team Distribution", zh: "团队收益分配", ja: "チーム収益分配", vi: "Phân phối nhóm", th: "การแบ่งรายได้ทีม" },
 
+  // Hero detail intro
+  "hero.detail.badge": { ko: "ABOUT XPLAY", en: "ABOUT XPLAY", zh: "关于XPLAY", ja: "XPLAYについて", vi: "VỀ XPLAY", th: "เกี่ยวกับ XPLAY" },
+  "hero.detail.1.title": { ko: "AI 기반 자동 수익 엔진", en: "AI-Powered Auto Revenue Engine", zh: "AI驱动自动收益引擎", ja: "AI搭載自動収益エンジン", vi: "Công cụ doanh thu tự động AI", th: "เครื่องยนต์รายได้อัตโนมัติ AI" },
+  "hero.detail.1.desc": { ko: "토큰 믹싱, 퀀트 트레이딩, 마켓 메이킹 — 3가지 AI 엔진이 24시간 자동으로 수익을 창출합니다", en: "Token Mixing, Quant Trading, Market Making — 3 AI engines generate revenue 24/7 automatically", zh: "代币混合、量化交易、做市商 — 3个AI引擎24小时自动创造收益", ja: "トークンミキシング、クオンツ取引、マーケットメイキング — 3つのAIエンジンが24時間自動で収益を創出", vi: "Token Mixing, Quant Trading, Market Making — 3 AI engine tạo doanh thu 24/7", th: "Token Mixing, Quant Trading, Market Making — 3 AI engine สร้างรายได้ 24/7" },
+  "hero.detail.2.title": { ko: "BTC 초단타 예측 게임", en: "BTC Ultra-Short Prediction Game", zh: "BTC超短线预测游戏", ja: "BTC超短期予測ゲーム", vi: "Trò chơi dự đoán BTC siêu ngắn", th: "เกมทำนาย BTC ระยะสั้นมาก" },
+  "hero.detail.2.desc": { ko: "30초/1분/5분 라운드 — 5% 수수료가 회사의 핵심 매출원. 글로벌 80,000명 유저 목표", en: "30s/1m/5m rounds — 5% fee is the core revenue source. Targeting 80,000 global users", zh: "30秒/1分/5分回合 — 5%手续费是核心收入来源。目标全球80,000用户", ja: "30秒/1分/5分ラウンド — 5%手数料がコア収益源。グローバル80,000ユーザー目標", vi: "Vòng 30s/1p/5p — Phí 5% là nguồn doanh thu cốt lõi. Mục tiêu 80,000 người dùng", th: "รอบ 30วิ/1นาที/5นาที — ค่าธรรมเนียม 5% เป็นแหล่งรายได้หลัก เป้าหมาย 80,000 ผู้ใช้" },
+  "hero.detail.3.title": { ko: "XP 토큰 디플레이션 모델", en: "XP Token Deflation Model", zh: "XP代币通缩模型", ja: "XPトークンデフレモデル", vi: "Mô hình giảm phát XP Token", th: "โมเดลเงินฝืด XP Token" },
+  "hero.detail.3.desc": { ko: "총 발행량 2,100만 → 100만까지 소각. 극단적 디플레이션으로 토큰 가치 극대화", en: "Total supply 21M → burning to 1M. Extreme deflation maximizes token value", zh: "总发行量2100万 → 燃烧至100万。极端通缩最大化代币价值", ja: "総発行量2,100万 → 100万まで焼却。極端なデフレでトークン価値を最大化", vi: "Tổng cung 21M → đốt còn 1M. Giảm phát cực độ tối đa hóa giá trị token", th: "อุปทานรวม 21M → เผาเหลือ 1M ภาวะเงินฝืดสุดขีดเพิ่มมูลค่าโทเค็น" },
+  "hero.detail.4.title": { ko: "6세대 레퍼럴 보상 시스템", en: "6-Generation Referral Reward System", zh: "6代推荐奖励系统", ja: "6世代リファラル報酬システム", vi: "Hệ thống thưởng giới thiệu 6 thế hệ", th: "ระบบรางวัลแนะนำ 6 รุ่น" },
+  "hero.detail.4.desc": { ko: "직추천 10% + 팀 수익 80% 분배. 네트워크가 성장할수록 수동 수익이 증가합니다", en: "Direct referral 10% + 80% team distribution. Passive income grows as your network expands", zh: "直推10% + 团队收益80%分配。网络增长，被动收入增加", ja: "直接紹介10% + チーム収益80%分配。ネットワーク成長で不労所得が増加", vi: "Giới thiệu trực tiếp 10% + phân phối nhóm 80%. Thu nhập thụ động tăng theo mạng lưới", th: "แนะนำตรง 10% + แบ่งทีม 80% รายได้ passive เพิ่มตามเครือข่าย" },
+
   // Hero referral CTA
   "hero.register.referral": { ko: "내 레퍼럴 등록하기", en: "Register My Referral", zh: "注册我的推荐链接", ja: "マイリファラル登録", vi: "Đăng ký liên kết giới thiệu", th: "ลงทะเบียนลิงก์แนะนำ" },
   "hero.start.with.referral": { ko: "지금 XPLAY 시작하기", en: "Start XPLAY Now", zh: "立即开始XPLAY", ja: "今すぐXPLAYを始める", vi: "Bắt đầu XPLAY ngay", th: "เริ่ม XPLAY เลย" },

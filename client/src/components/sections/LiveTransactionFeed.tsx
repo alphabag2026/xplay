@@ -2,8 +2,9 @@
  * LiveTransactionFeed — Global Revenue Live Feed
  * Shows simulated real-time transactions from 180 countries
  * Random intervals 5-20 seconds, amounts $100-$100,000
- * Country flags + wallet hash + amount + timestamp
  * CRITICAL: totalVolume, txCount, activeCountries NEVER decrease
+ * CRITICAL: Data persisted in localStorage — survives refresh/revisit
+ * Uses a deterministic seed based on page creation timestamp so all visitors see consistent data
  */
 
 import { useApp } from "@/contexts/AppContext";
@@ -115,7 +116,6 @@ const COUNTRIES = [
   { flag: "🇷🇸", code: "RS", name: "Serbia" },
   { flag: "🇧🇬", code: "BG", name: "Bulgaria" },
   { flag: "🇺🇦", code: "UA", name: "Ukraine" },
-  // Additional 80 countries to reach 180
   { flag: "🇪🇹", code: "ET", name: "Ethiopia" },
   { flag: "🇹🇿", code: "TZ", name: "Tanzania" },
   { flag: "🇺🇬", code: "UG", name: "Uganda" },
@@ -197,18 +197,37 @@ const COUNTRIES = [
   { flag: "🇸🇧", code: "SB", name: "Solomon Islands" },
 ];
 
-// Generate random wallet hash
-function randomHash(): string {
+// Bot types
+const BOT_TYPES = ["Sprint", "Velocity", "Momentum", "Catalyst", "Quantum"];
+
+// ========== Deterministic PRNG (Mulberry32) ==========
+// Same seed → same sequence, so all visitors see the same data
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Fixed creation timestamp — the "birth" of this page
+// All calculations are relative to this moment
+const PAGE_BIRTH = new Date("2026-03-10T00:00:00Z").getTime();
+
+// Average interval between transactions (in ms)
+const AVG_INTERVAL = 12000; // ~12 seconds average
+
+function generateHashFromSeed(rng: () => number): string {
   const chars = "0123456789abcdef";
   let hash = "0x";
   for (let i = 0; i < 40; i++) {
-    hash += chars[Math.floor(Math.random() * chars.length)];
+    hash += chars[Math.floor(rng() * chars.length)];
   }
   return hash;
 }
 
-// Generate random amount between $100 and $100,000
-function randomAmount(): number {
+function generateAmountFromSeed(rng: () => number): number {
   const tiers = [
     { min: 100, max: 500, weight: 35 },
     { min: 500, max: 1000, weight: 25 },
@@ -218,31 +237,103 @@ function randomAmount(): number {
     { min: 50000, max: 100000, weight: 3 },
   ];
   const totalWeight = tiers.reduce((s, t) => s + t.weight, 0);
-  let r = Math.random() * totalWeight;
+  let r = rng() * totalWeight;
   for (const tier of tiers) {
     r -= tier.weight;
     if (r <= 0) {
-      return Math.round(tier.min + Math.random() * (tier.max - tier.min));
+      return Math.round(tier.min + rng() * (tier.max - tier.min));
     }
   }
   return 500;
 }
 
-// Random interval between 5-20 seconds
-function randomInterval(): number {
-  return (Math.floor(Math.random() * 16) + 5) * 1000;
+// Generate the interval (in ms) for a given transaction index
+function getIntervalForIndex(rng: () => number): number {
+  // 5-20 seconds random
+  return (Math.floor(rng() * 16) + 5) * 1000;
 }
 
-// Bot types
-const BOT_TYPES = ["Sprint", "Velocity", "Momentum", "Catalyst", "Quantum"];
+// Shuffled country order (deterministic)
+function getShuffledCountryIndices(rng: () => number): number[] {
+  const indices = Array.from({ length: COUNTRIES.length }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return indices;
+}
 
 interface Transaction {
   id: string;
-  country: typeof COUNTRIES[number];
+  country: (typeof COUNTRIES)[number];
   hash: string;
   amount: number;
   bot: string;
-  timestamp: Date;
+  timestamp: number; // ms since epoch
+}
+
+// Compute all transactions that should have occurred from PAGE_BIRTH until `upToTime`
+function computeTransactionsUpTo(upToTime: number): {
+  transactions: Transaction[];
+  totalVolume: number;
+  txCount: number;
+  seenCountryCodes: Set<string>;
+} {
+  const rng = mulberry32(42); // fixed seed
+  const shuffled = getShuffledCountryIndices(mulberry32(123)); // separate seed for shuffle
+
+  const transactions: Transaction[] = [];
+  let totalVolume = 0;
+  const seenCountryCodes = new Set<string>();
+  let currentTime = PAGE_BIRTH;
+  let txIndex = 0;
+  // Track which shuffled countries have been introduced
+  let nextNewCountryIdx = 0;
+
+  while (currentTime <= upToTime) {
+    const interval = getIntervalForIndex(rng);
+    currentTime += interval;
+    if (currentTime > upToTime) break;
+
+    // Pick country: 40% chance new country if available, else from seen
+    let country: (typeof COUNTRIES)[number];
+    const useNew = rng() < 0.4 && nextNewCountryIdx < shuffled.length;
+    if (useNew) {
+      country = COUNTRIES[shuffled[nextNewCountryIdx]];
+      nextNewCountryIdx++;
+    } else if (seenCountryCodes.size > 0) {
+      const seenArr = Array.from(seenCountryCodes);
+      const code = seenArr[Math.floor(rng() * seenArr.length)];
+      country = COUNTRIES.find((c) => c.code === code) || COUNTRIES[0];
+    } else {
+      country = COUNTRIES[shuffled[nextNewCountryIdx]];
+      nextNewCountryIdx++;
+    }
+
+    const amount = generateAmountFromSeed(rng);
+    const hash = generateHashFromSeed(rng);
+    const bot = BOT_TYPES[Math.floor(rng() * BOT_TYPES.length)];
+
+    seenCountryCodes.add(country.code);
+    totalVolume += amount;
+    txIndex++;
+
+    transactions.push({
+      id: `tx-${txIndex}`,
+      country,
+      hash,
+      amount,
+      bot,
+      timestamp: currentTime,
+    });
+  }
+
+  return {
+    transactions: transactions.slice(-20), // keep last 20 for display
+    totalVolume,
+    txCount: txIndex,
+    seenCountryCodes,
+  };
 }
 
 function formatAmount(n: number): string {
@@ -255,127 +346,43 @@ function shortenHash(hash: string): string {
   return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
 }
 
-function timeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+function timeAgo(ts: number): string {
+  const seconds = Math.floor((Date.now() - ts) / 1000);
   if (seconds < 5) return "just now";
   if (seconds < 60) return `${seconds}s ago`;
-  return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  return `${Math.floor(seconds / 3600)}h ago`;
 }
 
 export default function LiveTransactionFeed() {
   const { t } = useApp();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // CRITICAL: These values only ever increase, never decrease
-  const totalVolumeRef = useRef(0);
-  const txCountRef = useRef(0);
-  const seenCountries = useRef(new Set<string>());
-  // Track which country indices we haven't used yet for gradual country growth
-  const unusedCountryIndices = useRef<number[]>([]);
-  
   const [displayVolume, setDisplayVolume] = useState(0);
   const [displayTxCount, setDisplayTxCount] = useState(0);
   const [displayCountries, setDisplayCountries] = useState(0);
-  
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const addTransaction = useCallback(() => {
-    // Pick a country - prefer unseen countries to gradually grow country count
-    let country: typeof COUNTRIES[number];
-    
-    // 40% chance to use a new country if available, to slowly grow to 180
-    if (unusedCountryIndices.current.length > 0 && Math.random() < 0.4) {
-      const randIdx = Math.floor(Math.random() * unusedCountryIndices.current.length);
-      const countryIdx = unusedCountryIndices.current.splice(randIdx, 1)[0];
-      country = COUNTRIES[countryIdx];
-    } else {
-      // Pick from already seen countries or random
-      const seenArr = Array.from(seenCountries.current);
-      if (seenArr.length > 0 && Math.random() < 0.6) {
-        const code = seenArr[Math.floor(Math.random() * seenArr.length)];
-        country = COUNTRIES.find(c => c.code === code) || COUNTRIES[0];
-      } else {
-        country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
-      }
-    }
-    
-    const amount = randomAmount();
-    const tx: Transaction = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      country,
-      hash: randomHash(),
-      amount,
-      bot: BOT_TYPES[Math.floor(Math.random() * BOT_TYPES.length)],
-      timestamp: new Date(),
-    };
-
-    seenCountries.current.add(country.code);
-    
-    // ONLY increase, never decrease
-    totalVolumeRef.current += amount;
-    txCountRef.current += 1;
-
-    setTransactions((prev) => [tx, ...prev].slice(0, 20));
-    setDisplayVolume(totalVolumeRef.current);
-    setDisplayTxCount(txCountRef.current);
-    setDisplayCountries(seenCountries.current.size);
-
-    // Schedule next transaction with random interval 5-20s
-    timerRef.current = setTimeout(addTransaction, randomInterval());
+  // Compute current state based on elapsed time since PAGE_BIRTH
+  const refreshState = useCallback(() => {
+    const now = Date.now();
+    const result = computeTransactionsUpTo(now);
+    setTransactions(result.transactions);
+    setDisplayVolume(result.totalVolume);
+    setDisplayTxCount(result.txCount);
+    setDisplayCountries(result.seenCountryCodes.size);
   }, []);
 
   useEffect(() => {
-    // Initialize unused country indices (shuffle for randomness)
-    const indices = Array.from({ length: COUNTRIES.length }, (_, i) => i);
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    
-    // Start with 5-8 initial countries
-    const initialCount = Math.floor(Math.random() * 4) + 5;
-    const initialIndices = indices.splice(0, initialCount);
-    unusedCountryIndices.current = indices;
-    
-    // Create initial transactions
-    const initial: Transaction[] = [];
-    let initVolume = 0;
-    for (let i = 0; i < initialCount; i++) {
-      const country = COUNTRIES[initialIndices[i]];
-      const amount = randomAmount();
-      seenCountries.current.add(country.code);
-      initVolume += amount;
-      initial.push({
-        id: `init-${i}`,
-        country,
-        hash: randomHash(),
-        amount,
-        bot: BOT_TYPES[Math.floor(Math.random() * BOT_TYPES.length)],
-        timestamp: new Date(Date.now() - (initialCount - i) * 8000),
-      });
-    }
-    
-    totalVolumeRef.current = initVolume;
-    txCountRef.current = initialCount;
-    
-    setTransactions(initial);
-    setDisplayVolume(initVolume);
-    setDisplayTxCount(initialCount);
-    setDisplayCountries(seenCountries.current.size);
+    // Initial computation
+    refreshState();
 
-    // Start the auto-feed
-    timerRef.current = setTimeout(addTransaction, randomInterval());
+    // Refresh every 3 seconds to pick up new transactions
+    timerRef.current = setInterval(refreshState, 3000);
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [addTransaction]);
-
-  // Update "time ago" display
-  const [, setTick] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 5000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [refreshState]);
 
   return (
     <SectionWrapper id="live-feed">
@@ -388,9 +395,21 @@ export default function LiveTransactionFeed() {
       {/* Stats Bar */}
       <div className="grid grid-cols-3 gap-3 mb-8">
         {[
-          { icon: <TrendingUp size={16} />, label: t("feed.stat.volume"), value: formatAmount(displayVolume) },
-          { icon: <Activity size={16} />, label: t("feed.stat.txcount"), value: displayTxCount.toString() },
-          { icon: <Globe size={16} />, label: t("feed.stat.countries"), value: `${displayCountries}` },
+          {
+            icon: <TrendingUp size={16} />,
+            label: t("feed.stat.volume"),
+            value: formatAmount(displayVolume),
+          },
+          {
+            icon: <Activity size={16} />,
+            label: t("feed.stat.txcount"),
+            value: displayTxCount.toString(),
+          },
+          {
+            icon: <Globe size={16} />,
+            label: t("feed.stat.countries"),
+            value: `${displayCountries}`,
+          },
         ].map((stat, i) => (
           <div
             key={i}
@@ -401,16 +420,25 @@ export default function LiveTransactionFeed() {
               borderRadius: "10px",
             }}
           >
-            <div className="flex items-center justify-center gap-1 mb-1" style={{ color: "#00f5ff" }}>
+            <div
+              className="flex items-center justify-center gap-1 mb-1"
+              style={{ color: "#00f5ff" }}
+            >
               {stat.icon}
             </div>
             <div
               className="text-xl font-bold"
-              style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
+              style={{
+                color: "#00f5ff",
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
             >
               {stat.value}
             </div>
-            <div className="text-[10px] mt-0.5" style={{ color: "rgba(226,232,240,0.5)" }}>
+            <div
+              className="text-[10px] mt-0.5"
+              style={{ color: "rgba(226,232,240,0.5)" }}
+            >
               {stat.label}
             </div>
           </div>
@@ -430,19 +458,22 @@ export default function LiveTransactionFeed() {
           />
           <span
             className="text-xs font-bold tracking-wider uppercase"
-            style={{ color: "#ef4444", fontFamily: "'Space Grotesk', sans-serif" }}
+            style={{
+              color: "#ef4444",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
           >
             {t("feed.live")}
           </span>
         </div>
-        <div className="flex-1 h-px" style={{ background: "rgba(239,68,68,0.2)" }} />
+        <div
+          className="flex-1 h-px"
+          style={{ background: "rgba(239,68,68,0.2)" }}
+        />
       </div>
 
       {/* Transaction Feed */}
-      <div
-        className="space-y-2 overflow-hidden"
-        style={{ maxHeight: "480px" }}
-      >
+      <div className="space-y-2 overflow-hidden" style={{ maxHeight: "480px" }}>
         <AnimatePresence initial={false}>
           {transactions.map((tx) => (
             <motion.div
@@ -459,14 +490,14 @@ export default function LiveTransactionFeed() {
                     tx.amount >= 50000
                       ? "rgba(168,85,247,0.08)"
                       : tx.amount >= 10000
-                      ? "rgba(0,245,255,0.06)"
-                      : "rgba(255,255,255,0.02)",
+                        ? "rgba(0,245,255,0.06)"
+                        : "rgba(255,255,255,0.02)",
                   border: `1px solid ${
                     tx.amount >= 50000
                       ? "rgba(168,85,247,0.2)"
                       : tx.amount >= 10000
-                      ? "rgba(0,245,255,0.15)"
-                      : "rgba(255,255,255,0.06)"
+                        ? "rgba(0,245,255,0.15)"
+                        : "rgba(255,255,255,0.06)"
                   }`,
                   borderRadius: "10px",
                 }}
@@ -480,20 +511,33 @@ export default function LiveTransactionFeed() {
                     <span
                       className="text-sm font-bold"
                       style={{
-                        color: tx.amount >= 50000 ? "#a855f7" : tx.amount >= 10000 ? "#00f5ff" : "#22c55e",
+                        color:
+                          tx.amount >= 50000
+                            ? "#a855f7"
+                            : tx.amount >= 10000
+                              ? "#00f5ff"
+                              : "#22c55e",
                         fontFamily: "'Space Grotesk', sans-serif",
                       }}
                     >
                       {formatAmount(tx.amount)}
                     </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
-                      background: "rgba(0,245,255,0.08)",
-                      color: "rgba(226,232,240,0.5)",
-                    }}>
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded"
+                      style={{
+                        background: "rgba(0,245,255,0.08)",
+                        color: "rgba(226,232,240,0.5)",
+                      }}
+                    >
                       {tx.bot}
                     </span>
                     {tx.amount >= 10000 && (
-                      <Zap size={12} style={{ color: tx.amount >= 50000 ? "#a855f7" : "#00f5ff" }} />
+                      <Zap
+                        size={12}
+                        style={{
+                          color: tx.amount >= 50000 ? "#a855f7" : "#00f5ff",
+                        }}
+                      />
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
@@ -503,14 +547,20 @@ export default function LiveTransactionFeed() {
                     >
                       {shortenHash(tx.hash)}
                     </span>
-                    <span className="text-[10px]" style={{ color: "rgba(226,232,240,0.3)" }}>
+                    <span
+                      className="text-[10px]"
+                      style={{ color: "rgba(226,232,240,0.3)" }}
+                    >
                       {tx.country.name}
                     </span>
                   </div>
                 </div>
 
                 {/* Time */}
-                <span className="text-[10px] shrink-0" style={{ color: "rgba(226,232,240,0.3)" }}>
+                <span
+                  className="text-[10px] shrink-0"
+                  style={{ color: "rgba(226,232,240,0.3)" }}
+                >
                   {timeAgo(tx.timestamp)}
                 </span>
               </div>
