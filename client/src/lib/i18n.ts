@@ -494,6 +494,7 @@ export const T: Record<string, Record<Lang, string>> = {
   "nav.media": { ko: "미디어", en: "Media", zh: "媒体", ja: "メディア", vi: "Media", th: "สื่อ" },
   "nav.livechat": { ko: "라이브 채팅", en: "Live Chat", zh: "实时聊天", ja: "ライブチャット", vi: "Chat trực tiếp", th: "แชทสด" },
   "nav.announcements": { ko: "공지방", en: "Notices", zh: "公告", ja: "お知らせ", vi: "Thông báo", th: "ประกาศ" },
+  "nav.partners": { ko: "소통 파트너", en: "Partners", zh: "合作伙伴", ja: "パートナー", vi: "Đối tác", th: "พาร์ทเนอร์" },
   "road.badge": { ko: "ROADMAP", en: "ROADMAP", zh: "ROADMAP", ja: "ROADMAP", vi: "ROADMAP", th: "ROADMAP" },
   "road.title": { ko: "XPLAY 로드맵", en: "XPLAY Roadmap", zh: "XPLAY 路线图", ja: "XPLAY ロードマップ", vi: "Lộ trình XPLAY", th: "แผนงาน XPLAY" },
   "road.subtitle": { ko: "예측 플랫폼에서 AI 에이전트, Web4까지 — XPLAY의 미래 비전", en: "From prediction platform to AI Agent & Web4 — XPLAY's future vision", zh: "从预测平台到AI代理和Web4 — XPLAY的未来愿景", ja: "予測プラットフォームからAIエージェント、Web4まで — XPLAYの未来ビジョン", vi: "Từ nền tảng dự đoán đến AI Agent & Web4 — Tầm nhìn tương lai XPLAY", th: "จากแพลตฟอร์มทำนายสู่ AI Agent & Web4 — วิสัยทัศน์อนาคต XPLAY" },

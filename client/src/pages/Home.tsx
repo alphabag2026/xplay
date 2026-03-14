@@ -18,11 +18,12 @@
  * 11. FlywheelSection
  * 12. SimulatorSection
  * 13. LiveChatSection
- * 14. AnnouncementBoard (공지방)
- * 15. ResourcesSection (자료실)
- * 16. TutorialSection (자료실 아래)
- * 17. MediaGallerySection (자료실 아래)
- * 18. Footer
+ * 14. AnnouncementBoard (공지방 + 뉴스)
+ * 15. CommunicationPartners (소통 파트너)
+ * 16. ResourcesSection (자료실)
+ * 17. TutorialSection (자료실 아래)
+ * 18. MediaGallerySection (자료실 아래)
+ * 19. Footer
  */
 
 import Footer from "@/components/Footer";
@@ -43,6 +44,7 @@ import LiveChatSection from "@/components/sections/LiveChatSection";
 import MediaGallerySection from "@/components/sections/MediaGallerySection";
 import TutorialSection from "@/components/sections/TutorialSection";
 import AnnouncementBoard from "@/components/sections/AnnouncementBoard";
+import CommunicationPartners from "@/components/sections/CommunicationPartners";
 
 export default function Home() {
   return (
@@ -61,6 +63,7 @@ export default function Home() {
       <SimulatorSection />
       <LiveChatSection />
       <AnnouncementBoard />
+      <CommunicationPartners />
       <ResourcesSection />
       <TutorialSection />
       <MediaGallerySection />

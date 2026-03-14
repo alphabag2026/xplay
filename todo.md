@@ -17,3 +17,34 @@
 - [x] 채팅 Pinned Message와 공지방 연동
 - [x] 전체 테스트 (6/6 통과)
 - [x] Fix: announcements.pinned 쿼리가 undefined 반환하는 버그 수정 (null 반환으로 변경)
+
+## 뉴스/URL 공유 + 번역 뷰어
+- [x] DB: newsLinks 테이블 (url, title, description, imageUrl, translatedContent)
+- [x] 백엔드: URL 메타데이터 크롤링 + LLM 번역 API
+- [x] 텔레그램 봇: /뉴스 URL 명령어 → URL 파싱 → 서버 등록
+- [x] 프론트엔드: 뉴스 카드 미리보기 + 번역 뷰어 모달
+
+## 텔레그램 삭제 기능
+- [x] 텔레그램 봇: /삭제, /뉴스삭제 명령어 → 공지/뉴스 삭제
+- [x] 백엔드: 삭제 API (soft delete)
+
+## 좋아요 + 인기 공지
+- [x] DB: announcementLikes 테이블
+- [x] 백엔드: 좋아요 토글 API + 인기순 정렬
+- [x] 프론트엔드: 좋아요 버튼 + 인기 공지 배지 (HOT)
+
+## 검색 기능
+- [x] 백엔드: 제목/내용 기반 검색 API
+- [x] 프론트엔드: 검색바 + 결과 필터링
+
+## 댓글 + 텔레그램 알림
+- [x] DB: announcementComments 테이블
+- [x] 백엔드: 댓글 CRUD API
+- [x] 텔레그램 봇: 새 댓글 시 텔레그램 알림 전송
+- [x] 프론트엔드: 댓글 UI (작성/목록/접기펼치기)
+
+## 소통 파트너 섹션
+- [x] DB: communicationPartners 테이블 (name, phone, telegram, kakao, whatsapp, wechat)
+- [x] 백엔드: 소통 파트너 CRUD API
+- [x] 텔레그램 봇: /파트너, /파트너삭제 명령어로 등록/삭제
+- [x] 프론트엔드: 소통 파트너 카드 섹션 (연락처 버튼들)
