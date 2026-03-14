@@ -12,6 +12,7 @@ import AdminAnnouncements from "./pages/admin/Announcements";
 import AdminNews from "./pages/admin/News";
 import AdminPartners from "./pages/admin/Partners";
 import AdminMedia from "./pages/admin/Media";
+import AdminUsers from "./pages/admin/Users";
 
 function Router() {
   return (
@@ -32,6 +33,9 @@ function Router() {
       </Route>
       <Route path="/admin/media">
         <AdminLayout><AdminMedia /></AdminLayout>
+      </Route>
+      <Route path="/admin/users">
+        <AdminLayout><AdminUsers /></AdminLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

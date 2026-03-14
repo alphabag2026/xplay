@@ -22,20 +22,29 @@ import {
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
-  LayoutDashboard, Megaphone, Newspaper, Users, HardDrive,
-  LogOut, PanelLeft, ArrowLeft, Shield,
+  LayoutDashboard, Megaphone, Newspaper, Users, HardDrive, UserCog,
+  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck,
 } from "lucide-react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { DashboardLayoutSkeleton } from "@/components/DashboardLayoutSkeleton";
 import { Button } from "@/components/ui/button";
 
-const adminMenuItems = [
-  { icon: LayoutDashboard, label: "대시보드", path: "/admin" },
-  { icon: Megaphone, label: "공지사항", path: "/admin/announcements" },
-  { icon: Newspaper, label: "뉴스", path: "/admin/news" },
-  { icon: Users, label: "소통 파트너", path: "/admin/partners" },
-  { icon: HardDrive, label: "미디어 (R2)", path: "/admin/media" },
+type MenuItem = {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path: string;
+  /** Which roles can see this menu item */
+  roles: Array<"admin" | "sub_admin">;
+};
+
+const allMenuItems: MenuItem[] = [
+  { icon: LayoutDashboard, label: "대시보드", path: "/admin", roles: ["admin", "sub_admin"] },
+  { icon: Megaphone, label: "공지사항", path: "/admin/announcements", roles: ["admin"] },
+  { icon: Newspaper, label: "뉴스", path: "/admin/news", roles: ["admin", "sub_admin"] },
+  { icon: Users, label: "소통 파트너", path: "/admin/partners", roles: ["admin", "sub_admin"] },
+  { icon: HardDrive, label: "미디어 (R2)", path: "/admin/media", roles: ["admin"] },
+  { icon: UserCog, label: "사용자 관리", path: "/admin/users", roles: ["admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "admin-sidebar-width";
@@ -71,14 +80,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Check admin role
-  if (user.role !== "admin") {
+  // Check admin or sub_admin role
+  if (user.role !== "admin" && user.role !== "sub_admin") {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-6 p-8 max-w-md w-full">
           <Shield className="h-16 w-16 text-destructive opacity-50" />
           <h1 className="text-2xl font-semibold tracking-tight text-center">접근 권한 없음</h1>
-          <p className="text-sm text-muted-foreground text-center">관리자 권한이 필요합니다. 관리자에게 문의하세요.</p>
+          <p className="text-sm text-muted-foreground text-center">관리자 또는 부관리자 권한이 필요합니다. 관리자에게 문의하세요.</p>
           <Link href="/">
             <Button variant="outline" className="gap-2">
               <ArrowLeft className="h-4 w-4" /> 메인으로 돌아가기
@@ -103,8 +112,18 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = adminMenuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+
+  const userRole = (user?.role ?? "user") as "admin" | "sub_admin" | "user";
+
+  // Filter menu items based on user role
+  const visibleMenuItems = useMemo(() => {
+    if (userRole === "admin") return allMenuItems;
+    if (userRole === "sub_admin") return allMenuItems.filter(item => item.roles.includes("sub_admin"));
+    return [];
+  }, [userRole]);
+
+  const activeMenuItem = visibleMenuItems.find(item => item.path === location);
 
   useEffect(() => {
     if (isCollapsed) setIsResizing(false);
@@ -144,7 +163,11 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
               </button>
               {!isCollapsed && (
                 <div className="flex items-center gap-2 min-w-0">
-                  <Shield className="h-4 w-4 text-cyan-400 shrink-0" />
+                  {userRole === "admin" ? (
+                    <Shield className="h-4 w-4 text-cyan-400 shrink-0" />
+                  ) : (
+                    <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
+                  )}
                   <span className="font-semibold tracking-tight truncate text-sm">XPLAY 백오피스</span>
                 </div>
               )}
@@ -152,8 +175,20 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
           </SidebarHeader>
 
           <SidebarContent className="gap-0">
+            {/* Role badge */}
+            {!isCollapsed && (
+              <div className="px-4 py-2">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                  userRole === "admin" ? "text-red-500 bg-red-500/10" : "text-amber-500 bg-amber-500/10"
+                }`}>
+                  {userRole === "admin" ? <Shield className="h-3 w-3" /> : <ShieldCheck className="h-3 w-3" />}
+                  {userRole === "admin" ? "관리자" : "부관리자"}
+                </span>
+              </div>
+            )}
+
             <SidebarMenu className="px-2 py-1">
-              {adminMenuItems.map(item => {
+              {visibleMenuItems.map(item => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

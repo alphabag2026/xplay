@@ -63,3 +63,19 @@
 - [x] Nginx 리버스 프록시 + SSL 설정
 - [x] 배포 가이드 문서 업데이트
 - [x] 전체 테스트 (14/14 통과)
+
+## 부관리자(sub-admin) 권한 시스템
+- [x] DB 스키마: users.role에 'sub_admin' 추가
+- [x] 백엔드: 부관리자 권한 미들웨어 (뉴스/파트너만 관리 가능)
+- [x] 백오피스: 사용자 관리 페이지 (역할 변경)
+- [x] 백오피스: 부관리자 접근 시 제한된 메뉴만 표시
+
+## Let's Encrypt SSL 자동 발급
+- [x] certbot 자동 설치 + 인증서 발급 스크립트 (setup-ssl.sh)
+- [x] docker-compose에 certbot 서비스 추가 (12시간마다 자동 갱신)
+- [x] Nginx 설정에 ACME challenge 경로 추가
+- [x] SSL 인증서 자동 갱신 certbot 컨테이너 설정
+
+## Vultr 배포 패키지
+- [x] deploy.sh 업데이트 (방화벽 설정, SSL 안내 포함)
+- [x] 전체 테스트 (21/21 통과)

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router, adminProcedure } from "./_core/trpc";
+import { publicProcedure, router, adminProcedure, subAdminProcedure } from "./_core/trpc";
 import { z } from "zod";
 import {
   getAnnouncements, getAnnouncementById, getPinnedAnnouncement,
@@ -15,6 +15,7 @@ import {
   createNewsLink, updateNewsLink, deleteNewsLink,
   createPartner, updatePartner, deletePartner, hardDeletePartner, getAllPartners,
   getDashboardStats,
+  getAllUsers, updateUserRole, getUserById,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -171,8 +172,8 @@ export const appRouter = router({
 
   // ========== Admin Back-Office ==========
   admin: router({
-    // Dashboard stats
-    stats: adminProcedure.query(async () => {
+    // Dashboard stats (sub_admin accessible)
+    stats: subAdminProcedure.query(async () => {
       return getDashboardStats();
     }),
 
@@ -244,15 +245,38 @@ export const appRouter = router({
         }),
     }),
 
-    // ===== News CRUD =====
+    // ===== User Management (admin only) =====
+    users: router({
+      list: adminProcedure.query(async () => {
+        return getAllUsers();
+      }),
+
+      updateRole: adminProcedure
+        .input(z.object({
+          userId: z.number(),
+          role: z.enum(["user", "admin", "sub_admin"]),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          // Prevent self-demotion
+          if (ctx.user.id === input.userId) {
+            return { success: false, error: "자신의 역할은 변경할 수 없습니다." };
+          }
+          const targetUser = await getUserById(input.userId);
+          if (!targetUser) return { success: false, error: "사용자를 찾을 수 없습니다." };
+          await updateUserRole(input.userId, input.role);
+          return { success: true };
+        }),
+    }),
+
+    // ===== News CRUD (sub_admin accessible) =====
     news: router({
-      list: adminProcedure
+      list: subAdminProcedure
         .input(z.object({ limit: z.number().min(1).max(200).optional() }).optional())
         .query(async ({ input }) => {
           return getNewsLinks(input?.limit ?? 100);
         }),
 
-      create: adminProcedure
+      create: subAdminProcedure
         .input(z.object({
           url: z.string().min(1),
           title: z.string().min(1).max(500),
@@ -276,7 +300,7 @@ export const appRouter = router({
           return { success: true, id };
         }),
 
-      update: adminProcedure
+      update: subAdminProcedure
         .input(z.object({
           id: z.number(),
           url: z.string().optional(),
@@ -291,7 +315,7 @@ export const appRouter = router({
           return { success: true };
         }),
 
-      delete: adminProcedure
+      delete: subAdminProcedure
         .input(z.object({ id: z.number() }))
         .mutation(async ({ input }) => {
           await deleteNewsLink(input.id);
@@ -299,13 +323,13 @@ export const appRouter = router({
         }),
     }),
 
-    // ===== Partners CRUD =====
+    // ===== Partners CRUD (sub_admin accessible) =====
     partners: router({
-      list: adminProcedure.query(async () => {
+      list: subAdminProcedure.query(async () => {
         return getAllPartners();
       }),
 
-      create: adminProcedure
+      create: subAdminProcedure
         .input(z.object({
           name: z.string().min(1).max(200),
           description: z.string().nullable().optional(),
@@ -332,7 +356,7 @@ export const appRouter = router({
           return { success: true, id };
         }),
 
-      update: adminProcedure
+      update: subAdminProcedure
         .input(z.object({
           id: z.number(),
           name: z.string().max(200).optional(),
@@ -352,7 +376,7 @@ export const appRouter = router({
           return { success: true };
         }),
 
-      delete: adminProcedure
+      delete: subAdminProcedure
         .input(z.object({ id: z.number() }))
         .mutation(async ({ input }) => {
           await hardDeletePartner(input.id);
