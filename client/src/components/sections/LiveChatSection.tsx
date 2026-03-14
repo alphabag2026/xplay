@@ -59,6 +59,9 @@ const NATIVE_MESSAGES: Record<string, NativeMessage[]> = {
     { native: "BTC prediction game is so addictive lol", translations: { ko: "BTC 예측 게임 중독성 있네요 ㅋㅋ", zh: "BTC预测游戏太上瘾了哈哈", ja: "BTC予測ゲーム中毒性あるw", vi: "Game dự đoán BTC gây nghiện quá", th: "เกมทำนาย BTC เสพติดมาก 555" } },
     { native: "My Sprint Bot just completed 7 days, reinvesting now!", translations: { ko: "스프린트봇 7일 완료, 재투자합니다!", zh: "Sprint Bot刚完成7天，现在再投资！", ja: "Sprint Bot 7日完了、再投資します！", vi: "Sprint Bot vừa hoàn thành 7 ngày, tái đầu tư ngay!", th: "Sprint Bot ครบ 7 วันแล้ว ลงทุนซ้ำเลย!" } },
     { native: "100K users already? This is growing fast 🔥", translations: { ko: "벌써 10만 유저? 성장 속도 미쳤다 🔥", zh: "已经10万用户了？增长太快了🔥", ja: "もう10万ユーザー？成長速度すごい🔥", vi: "Đã 100K người dùng rồi? Tăng trưởng nhanh quá 🔥", th: "100K ผู้ใช้แล้ว? โตเร็วมาก 🔥" } },
+    { native: "Just withdrew $2,000 USDT to my wallet, took only 2 hours! 💸", translations: { ko: "방금 2000달러 USDT 출금했는데 2시간밖에 안 걸렸어요! 💸", zh: "刚提现2000美元USDT，只用了2小时！💸", ja: "2000ドルUSDT出金、たった2時間！💸", vi: "Vừa rút $2,000 USDT, chỉ mất 2 tiếng! 💸", th: "เพิ่งถอน $2,000 USDT ใช้เวลาแค่ 2 ชั่วโมง! 💸" } },
+    { native: "The prediction game during World Cup was insane! Can't wait for the next one", translations: { ko: "월드컵 때 예측 게임 미쳤었는데! 다음 거 기대됨", zh: "世界杯期间的预测游戏太疯狂了！期待下一个", ja: "W杯の予測ゲーム最高だった！次が楽しみ", vi: "Game dự đoán World Cup điên cuồng! Mong chờ lần tiếp", th: "เกมทำนายช่วง World Cup บ้ามาก! รอครั้งต่อไป" } },
+    { native: "My team has 50+ members now, passive income is real 🙌", translations: { ko: "우리 팀 50명 넘었어요, 패시브 인컴 실화 🙌", zh: "我的团队已经50+人了，被动收入是真的🙌", ja: "チーム50人超え、パッシブインカムは本物🙌", vi: "Đội tôi đã 50+ thành viên, thu nhập thụ động thật sự 🙌", th: "ทีมมี 50+ คนแล้ว รายได้ passive เป็นจริง 🙌" } },
   ],
   ko: [
     { native: "퀀텀봇에 5000달러 스테이킹 완료! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", zh: "刚在Quantum Bot上质押了5000美元！🚀", ja: "Quantum Botに5000ドルステーキング完了！🚀", vi: "Vừa stake 5,000$ trên Quantum Bot! 🚀", th: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀" } },
@@ -69,6 +72,9 @@ const NATIVE_MESSAGES: Record<string, NativeMessage[]> = {
     { native: "스프린트봇 7일 완료, 재투자합니다!", translations: { en: "Sprint Bot 7 days done, reinvesting!", zh: "Sprint Bot刚完成7天，再投资！", ja: "Sprint Bot 7日完了、再投資！", vi: "Sprint Bot hoàn thành 7 ngày, tái đầu tư!", th: "Sprint Bot ครบ 7 วัน ลงทุนซ้ำ!" } },
     { native: "벌써 10만 유저? 성장 속도 미쳤다 🔥", translations: { en: "Already 100K users? Growth speed is insane 🔥", zh: "已经10万用户？增长太快🔥", ja: "もう10万ユーザー？成長速度すごい🔥", vi: "Đã 100K người dùng? Tăng trưởng nhanh 🔥", th: "100K ผู้ใช้แล้ว? โตเร็วมาก 🔥" } },
     { native: "모멘텀봇 매일 0.9% 안정적 수익 💰", translations: { en: "Momentum Bot gives stable 0.9% daily 💰", zh: "动量机器人每天稳定0.9%收益💰", ja: "Momentum Bot毎日安定0.9%収益💰", vi: "Momentum Bot lợi nhuận ổn định 0.9%/ngày 💰", th: "Momentum Bot กำไรคงที่ 0.9%/วัน 💰" } },
+    { native: "방금 2000달러 USDT 출금했는데 2시간밖에 안 걸렸어요! 💸", translations: { en: "Just withdrew $2,000 USDT, took only 2 hours! 💸", zh: "刚提现2000美元USDT，只用了2小时！💸", ja: "2000ドルUSDT出金、たった2時間！💸", vi: "Vừa rút $2,000 USDT, chỉ mất 2 tiếng! 💸", th: "เพิ่งถอน $2,000 USDT แค่ 2 ชั่วโมง! 💸" } },
+    { native: "월드컵 예측 게임 때 진짜 대박이었는데 다음 이벤트 기대됩니다", translations: { en: "World Cup prediction game was amazing, looking forward to next event", zh: "世界杯预测游戏太棒了，期待下一个活动", ja: "W杯予測ゲーム最高だった、次のイベント楽しみ", vi: "Game dự đoán World Cup tuyệt vời, mong chờ sự kiện tiếp", th: "เกมทำนาย World Cup สุดยอด รอกิจกรรมต่อไป" } },
+    { native: "우리 팀 50명 넘었어요 패시브 인컴 실화입니다 🙌", translations: { en: "Our team has 50+ members, passive income is real 🙌", zh: "团队50+人了，被动收入是真的🙌", ja: "チーム50人超え、パッシブインカムは本物🙌", vi: "Đội 50+ thành viên, thu nhập thụ động thật sự 🙌", th: "ทีม 50+ คน รายได้ passive เป็นจริง 🙌" } },
   ],
   zh: [
     { native: "刚在Quantum Bot上质押了5000美元！🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹 완료! 🚀", ja: "Quantum Botに5000ドルステーキング完了！🚀", vi: "Vừa stake 5,000$ trên Quantum Bot! 🚀", th: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀" } },
@@ -228,8 +234,8 @@ export default function LiveChatSection() {
       setMessages((prev) => [...prev, msg].slice(-50));
     }
 
-    // Random interval 5-15 seconds for lively feel
-    const interval = (Math.floor(Math.random() * 11) + 5) * 1000;
+    // Random interval 3-12 seconds for lively feel
+    const interval = (Math.floor(Math.random() * 10) + 3) * 1000;
     timerRef.current = setTimeout(addAutoMessage, interval);
   }, [viewerLang]);
 
@@ -446,6 +452,12 @@ export default function LiveChatSection() {
                         >
                           {msg.user?.name || "User"}
                         </span>
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded-full"
+                          style={{ background: "rgba(255,255,255,0.04)", color: "rgba(226,232,240,0.35)" }}
+                        >
+                          {msg.nativeLang.toUpperCase()}
+                        </span>
                         <span className="text-[9px]" style={{ color: "rgba(226,232,240,0.3)" }}>
                           {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
@@ -473,7 +485,7 @@ export default function LiveChatSection() {
                             borderLeft: "2px solid rgba(0,245,255,0.15)",
                           }}
                         >
-                          🌐 {msg.translationText}
+                          <span style={{ color: "rgba(0,245,255,0.4)", fontSize: "9px", marginRight: "4px" }}>AUTO-TRANSLATE</span> {msg.translationText}
                         </div>
                       )}
                     </div>
