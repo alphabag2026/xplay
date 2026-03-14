@@ -11,7 +11,7 @@ import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, Users, Globe2 } from "lucide-react";
+import { Send, Bot, Users, Globe2, ChevronDown, Languages } from "lucide-react";
 
 // Virtual users from around the world with their native language
 const VIRTUAL_USERS = [
@@ -181,6 +181,16 @@ interface ChatMessage {
   isAI: boolean;
 }
 
+// Supported chat languages with display names
+const CHAT_LANGUAGES = [
+  { code: "ko", name: "한국어", flag: "🇰🇷" },
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "zh", name: "中文", flag: "🇨🇳" },
+  { code: "ja", name: "日本語", flag: "🇯🇵" },
+  { code: "vi", name: "Tiếng Việt", flag: "🇻🇳" },
+  { code: "th", name: "ไทย", flag: "🇹🇭" },
+];
+
 export default function LiveChatSection() {
   const { t, lang } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -188,9 +198,24 @@ export default function LiveChatSection() {
   const [onlineCount, setOnlineCount] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Map site lang to supported chat lang
-  const viewerLang = ["ko", "en", "zh", "ja", "vi", "th"].includes(lang) ? lang : "en";
+  // User-selected preferred language (defaults to site language)
+  const defaultLang = ["ko", "en", "zh", "ja", "vi", "th"].includes(lang) ? lang : "en";
+  const [preferredLang, setPreferredLang] = useState<string>(defaultLang);
+  const viewerLang = preferredLang;
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setShowLangDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const addAutoMessage = useCallback(() => {
     const isAI = Math.random() < 0.2;
@@ -473,15 +498,71 @@ export default function LiveChatSection() {
               {t("chat.global")}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users size={14} style={{ color: "rgba(226,232,240,0.5)" }} />
-            <span className="text-xs" style={{ color: "rgba(226,232,240,0.5)" }}>
-              {onlineCount.toLocaleString()} {t("chat.online")}
-            </span>
-            <span
-              className="w-2 h-2 rounded-full"
-              style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
-            />
+          <div className="flex items-center gap-3">
+            {/* Language Selector Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <button
+                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all"
+                style={{
+                  background: showLangDropdown ? "rgba(0,245,255,0.12)" : "rgba(0,245,255,0.06)",
+                  border: `1px solid ${showLangDropdown ? "rgba(0,245,255,0.3)" : "rgba(0,245,255,0.12)"}`,
+                }}
+              >
+                <Languages size={13} style={{ color: "#00f5ff" }} />
+                <span className="text-xs" style={{ color: "rgba(226,232,240,0.8)" }}>
+                  {CHAT_LANGUAGES.find(l => l.code === preferredLang)?.flag}{" "}
+                  {CHAT_LANGUAGES.find(l => l.code === preferredLang)?.name}
+                </span>
+                <ChevronDown size={12} style={{ color: "rgba(226,232,240,0.5)", transform: showLangDropdown ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+              </button>
+              {showLangDropdown && (
+                <div
+                  className="absolute right-0 mt-1 py-1 z-50"
+                  style={{
+                    background: "rgba(10,14,26,0.95)",
+                    border: "1px solid rgba(0,245,255,0.2)",
+                    borderRadius: "8px",
+                    backdropFilter: "blur(12px)",
+                    minWidth: "150px",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  {CHAT_LANGUAGES.map((chatLang) => (
+                    <button
+                      key={chatLang.code}
+                      onClick={() => {
+                        setPreferredLang(chatLang.code);
+                        setShowLangDropdown(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-left transition-all"
+                      style={{
+                        background: preferredLang === chatLang.code ? "rgba(0,245,255,0.1)" : "transparent",
+                        color: preferredLang === chatLang.code ? "#00f5ff" : "rgba(226,232,240,0.7)",
+                      }}
+                      onMouseEnter={(e) => { if (preferredLang !== chatLang.code) (e.target as HTMLElement).style.background = "rgba(0,245,255,0.05)"; }}
+                      onMouseLeave={(e) => { if (preferredLang !== chatLang.code) (e.target as HTMLElement).style.background = "transparent"; }}
+                    >
+                      <span className="text-base">{chatLang.flag}</span>
+                      <span className="text-xs font-medium">{chatLang.name}</span>
+                      {preferredLang === chatLang.code && (
+                        <span className="ml-auto text-[10px]" style={{ color: "#00f5ff" }}>✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Users size={14} style={{ color: "rgba(226,232,240,0.5)" }} />
+              <span className="text-xs" style={{ color: "rgba(226,232,240,0.5)" }}>
+                {onlineCount.toLocaleString()} {t("chat.online")}
+              </span>
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
+              />
+            </div>
           </div>
         </div>
 
