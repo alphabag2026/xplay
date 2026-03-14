@@ -16,3 +16,4 @@
 - [x] 텔레그램 봇 스크립트 작성
 - [x] 채팅 Pinned Message와 공지방 연동
 - [x] 전체 테스트 (6/6 통과)
+- [x] Fix: announcements.pinned 쿼리가 undefined 반환하는 버그 수정 (null 반환으로 변경)

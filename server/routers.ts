@@ -35,12 +35,14 @@ export const appRouter = router({
     getById: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
-        return getAnnouncementById(input.id);
+        const result = await getAnnouncementById(input.id);
+        return result ?? null;
       }),
 
     // Get the latest pinned announcement (public)
     pinned: publicProcedure.query(async () => {
-      return getPinnedAnnouncement();
+      const result = await getPinnedAnnouncement();
+      return result ?? null;
     }),
   }),
 });

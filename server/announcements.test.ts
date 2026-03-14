@@ -33,11 +33,11 @@ describe("announcements router", () => {
     expect(result === undefined || result === null || typeof result === "object").toBe(true);
   });
 
-  it("announcements.getById returns undefined for non-existent id", async () => {
+  it("announcements.getById returns null for non-existent id", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.announcements.getById({ id: 999999 });
-    expect(result).toBeUndefined();
+    expect(result).toBeNull();
   });
 });
