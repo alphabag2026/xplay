@@ -498,7 +498,7 @@ export const T: Record<string, Record<Lang, string>> = {
   "road.subtitle": { ko: "예측 플랫폼에서 AI 에이전트, Web4까지 — XPLAY의 미래 비전", en: "From prediction platform to AI Agent & Web4 — XPLAY's future vision", zh: "从预测平台到AI代理和Web4 — XPLAY的未来愿景", ja: "予測プラットフォームからAIエージェント、Web4まで — XPLAYの未来ビジョン", vi: "Từ nền tảng dự đoán đến AI Agent & Web4 — Tầm nhìn tương lai XPLAY", th: "จากแพลตฟอร์มทำนายสู่ AI Agent & Web4 — วิสัยทัศน์อนาคต XPLAY" },
   "road.phase1.title": { ko: "예측 플랫폼 시장 진출", en: "Prediction Platform Market Entry", zh: "预测平台市场进入", ja: "予測プラットフォーム市場参入", vi: "Gia nhập thị trường nền tảng dự đoán", th: "เข้าสู่ตลาดแพลตฟอร์มทำนาย" },
   "road.phase1.desc": { ko: "월드컵을 시작으로 글로벌 예측 플랫폼 시장에 진출. 이미 확보된 10만명 이상의 유저와 함께 예측 플랫폼을 운용 중입니다.", en: "Entering the global prediction platform market starting with the World Cup. Operating the prediction platform with over 100,000 secured users.", zh: "以世界杯为起点进入全球预测平台市场。已拥有超过10万用户，正在运营预测平台。", ja: "ワールドカップを皮切りにグローバル予測プラットフォーム市場に参入。すでに確保された10万人以上のユーザーと共に予測プラットフォームを運用中です。", vi: "Gia nhập thị trường nền tảng dự đoán toàn cầu bắt đầu từ World Cup. Đang vận hành nền tảng dự đoán với hơn 100.000 người dùng đã có.", th: "เข้าสู่ตลาดแพลตฟอร์มทำนายทั่วโลกเริ่มจากฟุตบอลโลก ดำเนินการแพลตฟอร์มทำนายกับผู้ใช้มากกว่า 100,000 คน" },
-  "road.phase1.status": { ko: "운영중", en: "Live", zh: "运营中", ja: "運営中", vi: "Đang hoạt động", th: "ดำเนินการอยู่" },
+  "road.phase1.status": { ko: "테스트중", en: "Testing", zh: "测试中", ja: "テスト中", vi: "Đang thử nghiệm", th: "กำลังทดสอบ" },
   "road.phase1.users": { ko: "10만명+ 유저 확보", en: "100K+ Users Secured", zh: "10万+用户已确保", ja: "10万人以上のユーザー確保", vi: "100K+ người dùng đã có", th: "ผู้ใช้ 100K+ คน" },
   "road.phase2.title": { ko: "AI 에이전트 플랫폼", en: "AI Agent Platform", zh: "AI代理平台", ja: "AIエージェントプラットフォーム", vi: "Nền tảng AI Agent", th: "แพลตฟอร์ม AI Agent" },
   "road.phase2.desc": { ko: "AI를 활용한 차세대 AI 에이전트 플랫폼을 개발 중입니다. 자동화된 투자 전략과 개인 맞춤형 AI 어시스턴트를 제공합니다.", en: "Developing next-generation AI Agent platform leveraging AI technology. Providing automated investment strategies and personalized AI assistants.", zh: "正在开发利用AI技术的下一代AI代理平台。提供自动化投资策略和个性化AI助手。", ja: "AIを活用した次世代AIエージェントプラットフォームを開発中です。自動化された投資戦略と個人向けAIアシスタントを提供します。", vi: "Đang phát triển nền tảng AI Agent thế hệ tiếp theo. Cung cấp chiến lược đầu tư tự động và trợ lý AI cá nhân hóa.", th: "กำลังพัฒนาแพลตฟอร์ม AI Agent รุ่นถัดไป ให้กลยุทธ์การลงทุนอัตโนมัติและผู้ช่วย AI ส่วนตัว" },
@@ -518,9 +518,9 @@ export const T: Record<string, Record<Lang, string>> = {
 
   // Live Chat
   "chat.badge": { ko: "GLOBAL COMMUNITY", en: "GLOBAL COMMUNITY", zh: "全球社区", ja: "グローバルコミュニティ", vi: "CỘNG ĐỒNG TOÀN CẦU", th: "ชุมชนทั่วโลก" },
-  "chat.title": { ko: "실시간 글로벌 채팅", en: "Live Global Chat", zh: "实时全球聊天", ja: "リアルタイムグローバルチャット", vi: "Chat toàn cầu trực tiếp", th: "แชทสดทั่วโลก" },
+  "chat.title": { ko: "실시간 Xplay 커뮤니티 채팅", en: "Live Xplay Community Chat", zh: "实时全球聊天", ja: "リアルタイムグローバルチャット", vi: "Chat toàn cầu trực tiếp", th: "แชทสดทั่วโลก" },
   "chat.subtitle": { ko: "전 세계 XPLAY 커뮤니티와 실시간으로 소통하세요", en: "Connect with the global XPLAY community in real-time", zh: "与全球XPLAY社区实时交流", ja: "世界中のXPLAYコミュニティとリアルタイムで交流", vi: "Kết nối với cộng đồng XPLAY toàn cầu", th: "เชื่อมต่อกับชุมชน XPLAY ทั่วโลก" },
-  "chat.global": { ko: "XPLAY 글로벌 채팅", en: "XPLAY Global Chat", zh: "XPLAY全球聊天", ja: "XPLAYグローバルチャット", vi: "XPLAY Chat Toàn Cầu", th: "XPLAY แชททั่วโลก" },
+  "chat.global": { ko: "XPLAY 커뮤니티 채팅", en: "XPLAY Community Chat", zh: "XPLAY全球聊天", ja: "XPLAYグローバルチャット", vi: "XPLAY Chat Toàn Cầu", th: "XPLAY แชททั่วโลก" },
   "chat.online": { ko: "온라인", en: "online", zh: "在线", ja: "オンライン", vi: "trực tuyến", th: "ออนไลน์" },
   "chat.placeholder": { ko: "메시지를 입력하세요...", en: "Type a message...", zh: "输入消息...", ja: "メッセージを入力...", vi: "Nhập tin nhắn...", th: "พิมพ์ข้อความ..." },
   "chat.you": { ko: "나", en: "You", zh: "我", ja: "あなた", vi: "Bạn", th: "คุณ" },
