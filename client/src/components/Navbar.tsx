@@ -14,6 +14,7 @@ const NAV_KEYS = [
   { id: "tokenomics", key: "nav.tokenomics" },
   { id: "roadmap", key: "nav.roadmap" },
   { id: "live-feed", key: "nav.livefeed" },
+  { id: "tutorial", key: "nav.tutorial" },
   { id: "media-gallery", key: "nav.media" },
   { id: "simulator", key: "nav.simulator" },
   { id: "live-chat", key: "nav.livechat" },

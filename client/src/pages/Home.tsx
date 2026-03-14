@@ -21,6 +21,7 @@ import TokenomicsSection from "@/components/sections/TokenomicsSection";
 import LiveTransactionFeed from "@/components/sections/LiveTransactionFeed";
 import LiveChatSection from "@/components/sections/LiveChatSection";
 import MediaGallerySection from "@/components/sections/MediaGallerySection";
+import TutorialSection from "@/components/sections/TutorialSection";
 
 export default function Home() {
   return (
@@ -35,6 +36,7 @@ export default function Home() {
       <TeamSection />
       <TokenomicsSection />
       <RoadmapSection />
+      <TutorialSection />
       <MediaGallerySection />
       <FlywheelSection />
       <SimulatorSection />

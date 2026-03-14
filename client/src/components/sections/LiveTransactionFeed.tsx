@@ -1,8 +1,9 @@
 /*
  * LiveTransactionFeed — Global Revenue Live Feed
- * Shows simulated real-time transactions from 100 countries
+ * Shows simulated real-time transactions from 180 countries
  * Random intervals 5-20 seconds, amounts $100-$100,000
  * Country flags + wallet hash + amount + timestamp
+ * CRITICAL: totalVolume, txCount, activeCountries NEVER decrease
  */
 
 import { useApp } from "@/contexts/AppContext";
@@ -12,7 +13,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, TrendingUp, Globe, Zap } from "lucide-react";
 
-// 100 countries with flag emoji and name
+// 180 countries with flag emoji and name
 const COUNTRIES = [
   { flag: "🇺🇸", code: "US", name: "United States" },
   { flag: "🇰🇷", code: "KR", name: "South Korea" },
@@ -114,6 +115,86 @@ const COUNTRIES = [
   { flag: "🇷🇸", code: "RS", name: "Serbia" },
   { flag: "🇧🇬", code: "BG", name: "Bulgaria" },
   { flag: "🇺🇦", code: "UA", name: "Ukraine" },
+  // Additional 80 countries to reach 180
+  { flag: "🇪🇹", code: "ET", name: "Ethiopia" },
+  { flag: "🇹🇿", code: "TZ", name: "Tanzania" },
+  { flag: "🇺🇬", code: "UG", name: "Uganda" },
+  { flag: "🇸🇳", code: "SN", name: "Senegal" },
+  { flag: "🇨🇲", code: "CM", name: "Cameroon" },
+  { flag: "🇨🇮", code: "CI", name: "Ivory Coast" },
+  { flag: "🇲🇬", code: "MG", name: "Madagascar" },
+  { flag: "🇲🇿", code: "MZ", name: "Mozambique" },
+  { flag: "🇿🇲", code: "ZM", name: "Zambia" },
+  { flag: "🇿🇼", code: "ZW", name: "Zimbabwe" },
+  { flag: "🇧🇼", code: "BW", name: "Botswana" },
+  { flag: "🇳🇦", code: "NA", name: "Namibia" },
+  { flag: "🇷🇼", code: "RW", name: "Rwanda" },
+  { flag: "🇲🇱", code: "ML", name: "Mali" },
+  { flag: "🇧🇫", code: "BF", name: "Burkina Faso" },
+  { flag: "🇳🇪", code: "NE", name: "Niger" },
+  { flag: "🇹🇩", code: "TD", name: "Chad" },
+  { flag: "🇬🇦", code: "GA", name: "Gabon" },
+  { flag: "🇨🇬", code: "CG", name: "Congo" },
+  { flag: "🇦🇴", code: "AO", name: "Angola" },
+  { flag: "🇱🇾", code: "LY", name: "Libya" },
+  { flag: "🇸🇩", code: "SD", name: "Sudan" },
+  { flag: "🇩🇿", code: "DZ", name: "Algeria" },
+  { flag: "🇧🇴", code: "BO", name: "Bolivia" },
+  { flag: "🇵🇾", code: "PY", name: "Paraguay" },
+  { flag: "🇬🇹", code: "GT", name: "Guatemala" },
+  { flag: "🇭🇳", code: "HN", name: "Honduras" },
+  { flag: "🇸🇻", code: "SV", name: "El Salvador" },
+  { flag: "🇳🇮", code: "NI", name: "Nicaragua" },
+  { flag: "🇨🇺", code: "CU", name: "Cuba" },
+  { flag: "🇭🇹", code: "HT", name: "Haiti" },
+  { flag: "🇧🇸", code: "BS", name: "Bahamas" },
+  { flag: "🇧🇧", code: "BB", name: "Barbados" },
+  { flag: "🇦🇫", code: "AF", name: "Afghanistan" },
+  { flag: "🇹🇲", code: "TM", name: "Turkmenistan" },
+  { flag: "🇹🇯", code: "TJ", name: "Tajikistan" },
+  { flag: "🇰🇬", code: "KG", name: "Kyrgyzstan" },
+  { flag: "🇾🇪", code: "YE", name: "Yemen" },
+  { flag: "🇸🇾", code: "SY", name: "Syria" },
+  { flag: "🇵🇸", code: "PS", name: "Palestine" },
+  { flag: "🇲🇩", code: "MD", name: "Moldova" },
+  { flag: "🇧🇾", code: "BY", name: "Belarus" },
+  { flag: "🇦🇱", code: "AL", name: "Albania" },
+  { flag: "🇲🇰", code: "MK", name: "North Macedonia" },
+  { flag: "🇲🇪", code: "ME", name: "Montenegro" },
+  { flag: "🇧🇦", code: "BA", name: "Bosnia" },
+  { flag: "🇽🇰", code: "XK", name: "Kosovo" },
+  { flag: "🇱🇮", code: "LI", name: "Liechtenstein" },
+  { flag: "🇲🇨", code: "MC", name: "Monaco" },
+  { flag: "🇦🇩", code: "AD", name: "Andorra" },
+  { flag: "🇸🇲", code: "SM", name: "San Marino" },
+  { flag: "🇲🇻", code: "MV", name: "Maldives" },
+  { flag: "🇧🇹", code: "BT", name: "Bhutan" },
+  { flag: "🇹🇱", code: "TL", name: "Timor-Leste" },
+  { flag: "🇲🇺", code: "MU", name: "Mauritius" },
+  { flag: "🇸🇨", code: "SC", name: "Seychelles" },
+  { flag: "🇧🇯", code: "BJ", name: "Benin" },
+  { flag: "🇹🇬", code: "TG", name: "Togo" },
+  { flag: "🇸🇱", code: "SL", name: "Sierra Leone" },
+  { flag: "🇱🇷", code: "LR", name: "Liberia" },
+  { flag: "🇬🇳", code: "GN", name: "Guinea" },
+  { flag: "🇬🇲", code: "GM", name: "Gambia" },
+  { flag: "🇬🇼", code: "GW", name: "Guinea-Bissau" },
+  { flag: "🇨🇻", code: "CV", name: "Cape Verde" },
+  { flag: "🇸🇹", code: "ST", name: "Sao Tome" },
+  { flag: "🇬🇶", code: "GQ", name: "Equatorial Guinea" },
+  { flag: "🇩🇯", code: "DJ", name: "Djibouti" },
+  { flag: "🇪🇷", code: "ER", name: "Eritrea" },
+  { flag: "🇸🇴", code: "SO", name: "Somalia" },
+  { flag: "🇰🇲", code: "KM", name: "Comoros" },
+  { flag: "🇧🇮", code: "BI", name: "Burundi" },
+  { flag: "🇲🇼", code: "MW", name: "Malawi" },
+  { flag: "🇱🇸", code: "LS", name: "Lesotho" },
+  { flag: "🇸🇿", code: "SZ", name: "Eswatini" },
+  { flag: "🇲🇷", code: "MR", name: "Mauritania" },
+  { flag: "🇼🇸", code: "WS", name: "Samoa" },
+  { flag: "🇹🇴", code: "TO", name: "Tonga" },
+  { flag: "🇻🇺", code: "VU", name: "Vanuatu" },
+  { flag: "🇸🇧", code: "SB", name: "Solomon Islands" },
 ];
 
 // Generate random wallet hash
@@ -165,6 +246,7 @@ interface Transaction {
 }
 
 function formatAmount(n: number): string {
+  if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `$${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}K`;
   return `$${n.toLocaleString()}`;
 }
@@ -183,14 +265,39 @@ function timeAgo(date: Date): string {
 export default function LiveTransactionFeed() {
   const { t } = useApp();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [totalVolume, setTotalVolume] = useState(0);
-  const [txCount, setTxCount] = useState(0);
-  const [activeCountries, setActiveCountries] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // CRITICAL: These values only ever increase, never decrease
+  const totalVolumeRef = useRef(0);
+  const txCountRef = useRef(0);
   const seenCountries = useRef(new Set<string>());
+  // Track which country indices we haven't used yet for gradual country growth
+  const unusedCountryIndices = useRef<number[]>([]);
+  
+  const [displayVolume, setDisplayVolume] = useState(0);
+  const [displayTxCount, setDisplayTxCount] = useState(0);
+  const [displayCountries, setDisplayCountries] = useState(0);
+  
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const addTransaction = useCallback(() => {
-    const country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+    // Pick a country - prefer unseen countries to gradually grow country count
+    let country: typeof COUNTRIES[number];
+    
+    // 40% chance to use a new country if available, to slowly grow to 180
+    if (unusedCountryIndices.current.length > 0 && Math.random() < 0.4) {
+      const randIdx = Math.floor(Math.random() * unusedCountryIndices.current.length);
+      const countryIdx = unusedCountryIndices.current.splice(randIdx, 1)[0];
+      country = COUNTRIES[countryIdx];
+    } else {
+      // Pick from already seen countries or random
+      const seenArr = Array.from(seenCountries.current);
+      if (seenArr.length > 0 && Math.random() < 0.6) {
+        const code = seenArr[Math.floor(Math.random() * seenArr.length)];
+        country = COUNTRIES.find(c => c.code === code) || COUNTRIES[0];
+      } else {
+        country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+      }
+    }
+    
     const amount = randomAmount();
     const tx: Transaction = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -202,36 +309,58 @@ export default function LiveTransactionFeed() {
     };
 
     seenCountries.current.add(country.code);
+    
+    // ONLY increase, never decrease
+    totalVolumeRef.current += amount;
+    txCountRef.current += 1;
 
     setTransactions((prev) => [tx, ...prev].slice(0, 20));
-    setTotalVolume((prev) => prev + amount);
-    setTxCount((prev) => prev + 1);
-    setActiveCountries(seenCountries.current.size);
+    setDisplayVolume(totalVolumeRef.current);
+    setDisplayTxCount(txCountRef.current);
+    setDisplayCountries(seenCountries.current.size);
 
-    // Schedule next transaction with random interval
+    // Schedule next transaction with random interval 5-20s
     timerRef.current = setTimeout(addTransaction, randomInterval());
   }, []);
 
   useEffect(() => {
-    // Start with a few initial transactions
+    // Initialize unused country indices (shuffle for randomness)
+    const indices = Array.from({ length: COUNTRIES.length }, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    
+    // Start with 5-8 initial countries
+    const initialCount = Math.floor(Math.random() * 4) + 5;
+    const initialIndices = indices.splice(0, initialCount);
+    unusedCountryIndices.current = indices;
+    
+    // Create initial transactions
     const initial: Transaction[] = [];
-    for (let i = 0; i < 5; i++) {
-      const country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+    let initVolume = 0;
+    for (let i = 0; i < initialCount; i++) {
+      const country = COUNTRIES[initialIndices[i]];
       const amount = randomAmount();
       seenCountries.current.add(country.code);
+      initVolume += amount;
       initial.push({
         id: `init-${i}`,
         country,
         hash: randomHash(),
         amount,
         bot: BOT_TYPES[Math.floor(Math.random() * BOT_TYPES.length)],
-        timestamp: new Date(Date.now() - (5 - i) * 8000),
+        timestamp: new Date(Date.now() - (initialCount - i) * 8000),
       });
     }
+    
+    totalVolumeRef.current = initVolume;
+    txCountRef.current = initialCount;
+    
     setTransactions(initial);
-    setTotalVolume(initial.reduce((s, tx) => s + tx.amount, 0));
-    setTxCount(initial.length);
-    setActiveCountries(seenCountries.current.size);
+    setDisplayVolume(initVolume);
+    setDisplayTxCount(initialCount);
+    setDisplayCountries(seenCountries.current.size);
 
     // Start the auto-feed
     timerRef.current = setTimeout(addTransaction, randomInterval());
@@ -257,13 +386,11 @@ export default function LiveTransactionFeed() {
       />
 
       {/* Stats Bar */}
-      <div
-        className="grid grid-cols-3 gap-3 mb-8"
-      >
+      <div className="grid grid-cols-3 gap-3 mb-8">
         {[
-          { icon: <TrendingUp size={16} />, label: t("feed.stat.volume"), value: formatAmount(totalVolume) },
-          { icon: <Activity size={16} />, label: t("feed.stat.txcount"), value: txCount.toString() },
-          { icon: <Globe size={16} />, label: t("feed.stat.countries"), value: `${activeCountries}` },
+          { icon: <TrendingUp size={16} />, label: t("feed.stat.volume"), value: formatAmount(displayVolume) },
+          { icon: <Activity size={16} />, label: t("feed.stat.txcount"), value: displayTxCount.toString() },
+          { icon: <Globe size={16} />, label: t("feed.stat.countries"), value: `${displayCountries}` },
         ].map((stat, i) => (
           <div
             key={i}
@@ -291,7 +418,7 @@ export default function LiveTransactionFeed() {
       </div>
 
       {/* Live Indicator */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-3 mb-4">
         <div className="relative flex items-center gap-2">
           <span
             className="w-2.5 h-2.5 rounded-full"

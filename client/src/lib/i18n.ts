@@ -522,5 +522,24 @@ export const T: Record<string, Record<Lang, string>> = {
   "media.telegram.join": { ko: "채널 참여", en: "Join Channel", zh: "加入频道", ja: "チャンネル参加", vi: "Tham gia kênh", th: "เข้าร่วมช่อง" },
   "media.viewmore": { ko: "텔레그램에서 더 보기", en: "View More on Telegram", zh: "在Telegram查看更多", ja: "テレグラムでもっと見る", vi: "Xem thêm trên Telegram", th: "ดูเพิ่มเติมบนเทเลแกรม" },
 
+  // Tutorial Section
+  "nav.tutorial": { ko: "튜토리얼", en: "Tutorial", zh: "教程", ja: "チュートリアル", vi: "Hướng dẫn", th: "บทช่วยสอน" },
+  "tutorial.badge": { ko: "TUTORIAL", en: "TUTORIAL", zh: "教程", ja: "チュートリアル", vi: "HƯỚNG DẪN", th: "บทช่วยสอน" },
+  "tutorial.title": { ko: "XPLAY 튜토리얼", en: "XPLAY Tutorials", zh: "XPLAY 教程", ja: "XPLAY チュートリアル", vi: "Hướng dẫn XPLAY", th: "บทช่วยสอน XPLAY" },
+  "tutorial.subtitle": { ko: "XPLAY 시작부터 수익 극대화까지 단계별 가이드", en: "Step-by-step guide from getting started to maximizing returns", zh: "从入门到收益最大化的分步指南", ja: "始め方から収益最大化まで段階的ガイド", vi: "Hướng dẫn từng bước từ bắt đầu đến tối đa hóa lợi nhuận", th: "คู่มือทีละขั้นตอนตั้งแต่เริ่มต้นจนถึงผลตอบแทนสูงสุด" },
+  "tutorial.bot.title": { ko: "텔레그램 봇으로 튜토리얼 관리", en: "Manage tutorials via Telegram Bot", zh: "通过Telegram机器人管理教程", ja: "テレグラムボットでチュートリアル管理", vi: "Quản lý hướng dẫn qua Telegram Bot", th: "จัดการบทช่วยสอนผ่าน Telegram Bot" },
+  "tutorial.bot.desc": { ko: "텔레그램으로 유튜브 URL과 제목을 보내면 자동으로 업데이트됩니다", en: "Send YouTube URL and title via Telegram for auto-update", zh: "通过Telegram发送YouTube URL和标题即可自动更新", ja: "テレグラムでYouTube URLとタイトルを送信すると自動更新", vi: "Gửi URL YouTube và tiêu đề qua Telegram để tự động cập nhật", th: "ส่ง URL YouTube และชื่อผ่าน Telegram เพื่ออัปเดตอัตโนมัติ" },
+
+  // Share Warning
+  "share.warning.title": { ko: "레퍼럴 확인 필요", en: "Referral Verification", zh: "推荐验证", ja: "リファラル確認", vi: "Xác minh giới thiệu", th: "ตรวจสอบการแนะนำ" },
+  "share.warning.not.own": { ko: "본인의 레퍼럴이 아닙니다!", en: "This is not your referral!", zh: "这不是您的推荐链接！", ja: "あなたのリファラルではありません！", vi: "Đây không phải liên kết giới thiệu của bạn!", th: "นี่ไม่ใช่ลิงก์แนะนำของคุณ!" },
+  "share.warning.desc": { ko: "현재 등록된 레퍼럴은 본인의 것이 아닙니다. 본인의 레퍼럴을 등록하고 전달하세요.", en: "The registered referral is not yours. Please register your own referral and share.", zh: "当前注册的推荐链接不是您的。请注册您自己的推荐链接后分享。", ja: "登録されたリファラルはあなたのものではありません。自分のリファラルを登録して共有してください。", vi: "Liên kết giới thiệu đã đăng ký không phải của bạn. Vui lòng đăng ký liên kết của bạn.", th: "ลิงก์แนะนำที่ลงทะเบียนไม่ใช่ของคุณ กรุณาลงทะเบียนลิงก์ของคุณ" },
+  "share.warning.current": { ko: "현재 등록된 레퍼럴", en: "Currently registered referral", zh: "当前注册的推荐链接", ja: "現在登録されたリファラル", vi: "Liên kết giới thiệu hiện tại", th: "ลิงก์แนะนำปัจจุบัน" },
+  "share.warning.register": { ko: "내 레퍼럴 등록하기", en: "Register My Referral", zh: "注册我的推荐链接", ja: "自分のリファラルを登録", vi: "Đăng ký liên kết của tôi", th: "ลงทะเบียนลิงก์ของฉัน" },
+  "share.warning.ignore": { ko: "무시하고 진행", en: "Ignore & Proceed", zh: "忽略并继续", ja: "無視して進む", vi: "Bỏ qua & Tiếp tục", th: "ข้ามและดำเนินการต่อ" },
+  "share.register.title": { ko: "내 레퍼럴 등록", en: "Register My Referral", zh: "注册我的推荐链接", ja: "自分のリファラル登録", vi: "Đăng ký liên kết của tôi", th: "ลงทะเบียนลิงก์ของฉัน" },
+  "share.register.desc": { ko: "본인의 XPLAY 레퍼럴 링크를 입력하세요. 이 링크가 공유 시 포함됩니다.", en: "Enter your XPLAY referral link. This will be included when sharing.", zh: "请输入您的XPLAY推荐链接。分享时将包含此链接。", ja: "あなたのXPLAYリファラルリンクを入力してください。共有時に含まれます。", vi: "Nhập liên kết giới thiệu XPLAY của bạn. Liên kết này sẽ được bao gồm khi chia sẻ.", th: "กรอกลิงก์แนะนำ XPLAY ของคุณ ลิงก์นี้จะรวมอยู่เมื่อแชร์" },
+  "share.register.save": { ko: "등록 후 공유하기", en: "Register & Share", zh: "注册并分享", ja: "登録して共有", vi: "Đăng ký & Chia sẻ", th: "ลงทะเบียน & แชร์" },
+
   "footer.disclaimer": { ko: "본 웹사이트는 XPLAY 프로젝트의 수익 구조를 분석한 정보성 콘텐츠입니다. 모든 투자에는 리스크가 따르며, 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.", en: "This website is informational content analyzing XPLAY project's revenue structure. All investments carry risks, and investment decisions should be made at your own judgment and responsibility.", zh: "本网站是分析XPLAY项目收益结构的信息性内容。所有投资都有风险，投资决策应在您自己的判断和责任下做出。", ja: "本ウェブサイトはXPLAYプロジェクトの収益構造を分析した情報性コンテンツです。すべての投資にはリスクが伴い、投資決定はご自身の判断と責任のもとで行ってください。", vi: "Trang web này là nội dung thông tin phân tích cấu trúc doanh thu dự án XPLAY. Mọi đầu tư đều có rủi ro, quyết định đầu tư phải dựa trên phán đoán và trách nhiệm của bạn.", th: "เว็บไซต์นี้เป็นเนื้อหาข้อมูลวิเคราะห์โครงสร้างรายได้โครงการ XPLAY การลงทุนทุกอย่างมีความเสี่ยง การตัดสินใจลงทุนควรอยู่ภายใต้วิจารณญาณและความรับผิดชอบของคุณเอง" },
 };

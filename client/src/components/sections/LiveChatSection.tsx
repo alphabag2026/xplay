@@ -1,7 +1,9 @@
 /*
  * LiveChatSection — Global Live Chat
  * AI bot + simulated global users chatting about XPLAY
- * Creates a vibrant, active community feel
+ * KEY: Each message shows in the user's NATIVE language
+ * Below each foreign message, show translation in the viewer's system language
+ * Creates a vibrant, active global community feel
  */
 
 import { useApp } from "@/contexts/AppContext";
@@ -9,137 +11,166 @@ import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Send, Bot, Users, Globe2 } from "lucide-react";
+import { Send, Bot, Users, Globe2 } from "lucide-react";
 
-// Virtual users from around the world
+// Virtual users from around the world with their native language
 const VIRTUAL_USERS = [
-  { name: "Alex K.", flag: "🇺🇸", color: "#00f5ff" },
-  { name: "김민수", flag: "🇰🇷", color: "#22c55e" },
-  { name: "田中太郎", flag: "🇯🇵", color: "#f59e0b" },
-  { name: "王小明", flag: "🇨🇳", color: "#ef4444" },
-  { name: "Nguyễn Văn", flag: "🇻🇳", color: "#8b5cf6" },
-  { name: "สมชาย", flag: "🇹🇭", color: "#ec4899" },
-  { name: "Hans M.", flag: "🇩🇪", color: "#06b6d4" },
-  { name: "Pierre L.", flag: "🇫🇷", color: "#f97316" },
-  { name: "Marco R.", flag: "🇮🇹", color: "#14b8a6" },
-  { name: "Carlos S.", flag: "🇪🇸", color: "#a855f7" },
-  { name: "João P.", flag: "🇧🇷", color: "#eab308" },
-  { name: "Raj P.", flag: "🇮🇳", color: "#10b981" },
-  { name: "Ahmed H.", flag: "🇸🇦", color: "#f43f5e" },
-  { name: "Olga V.", flag: "🇷🇺", color: "#6366f1" },
-  { name: "Sarah W.", flag: "🇬🇧", color: "#0ea5e9" },
-  { name: "Mike T.", flag: "🇨🇦", color: "#84cc16" },
-  { name: "Yuki S.", flag: "🇯🇵", color: "#d946ef" },
-  { name: "이지은", flag: "🇰🇷", color: "#f472b6" },
-  { name: "张伟", flag: "🇨🇳", color: "#fb923c" },
-  { name: "Budi S.", flag: "🇮🇩", color: "#2dd4bf" },
-  { name: "Fatima A.", flag: "🇦🇪", color: "#c084fc" },
-  { name: "Chen Wei", flag: "🇹🇼", color: "#fbbf24" },
-  { name: "박준호", flag: "🇰🇷", color: "#34d399" },
-  { name: "David L.", flag: "🇦🇺", color: "#60a5fa" },
-  { name: "Sophia M.", flag: "🇳🇱", color: "#fb7185" },
+  { name: "Alex K.", flag: "🇺🇸", color: "#00f5ff", lang: "en" },
+  { name: "김민수", flag: "🇰🇷", color: "#22c55e", lang: "ko" },
+  { name: "田中太郎", flag: "🇯🇵", color: "#f59e0b", lang: "ja" },
+  { name: "王小明", flag: "🇨🇳", color: "#ef4444", lang: "zh" },
+  { name: "Nguyễn Văn", flag: "🇻🇳", color: "#8b5cf6", lang: "vi" },
+  { name: "สมชาย", flag: "🇹🇭", color: "#ec4899", lang: "th" },
+  { name: "Hans M.", flag: "🇩🇪", color: "#06b6d4", lang: "de" },
+  { name: "Pierre L.", flag: "🇫🇷", color: "#f97316", lang: "fr" },
+  { name: "Marco R.", flag: "🇮🇹", color: "#14b8a6", lang: "it" },
+  { name: "Carlos S.", flag: "🇪🇸", color: "#a855f7", lang: "es" },
+  { name: "João P.", flag: "🇧🇷", color: "#eab308", lang: "pt" },
+  { name: "Raj P.", flag: "🇮🇳", color: "#10b981", lang: "hi" },
+  { name: "Ahmed H.", flag: "🇸🇦", color: "#f43f5e", lang: "ar" },
+  { name: "Olga V.", flag: "🇷🇺", color: "#6366f1", lang: "ru" },
+  { name: "Sarah W.", flag: "🇬🇧", color: "#0ea5e9", lang: "en" },
+  { name: "Mike T.", flag: "🇨🇦", color: "#84cc16", lang: "en" },
+  { name: "Yuki S.", flag: "🇯🇵", color: "#d946ef", lang: "ja" },
+  { name: "이지은", flag: "🇰🇷", color: "#f472b6", lang: "ko" },
+  { name: "张伟", flag: "🇨🇳", color: "#fb923c", lang: "zh" },
+  { name: "Budi S.", flag: "🇮🇩", color: "#2dd4bf", lang: "id" },
+  { name: "Fatima A.", flag: "🇦🇪", color: "#c084fc", lang: "ar" },
+  { name: "Chen Wei", flag: "🇹🇼", color: "#fbbf24", lang: "zh" },
+  { name: "박준호", flag: "🇰🇷", color: "#34d399", lang: "ko" },
+  { name: "David L.", flag: "🇦🇺", color: "#60a5fa", lang: "en" },
+  { name: "Sophia M.", flag: "🇳🇱", color: "#fb7185", lang: "nl" },
 ];
 
-// Predefined chat messages (multilingual, about XPLAY)
-const CHAT_MESSAGES: Record<string, string[]> = {
+// Messages in each language (native) with translation keys
+interface NativeMessage {
+  native: string;
+  translations: Record<string, string>;
+}
+
+// Chat messages in their native language + translations for all supported languages
+const NATIVE_MESSAGES: Record<string, NativeMessage[]> = {
   en: [
-    "Just staked $5,000 on Quantum Bot! 🚀",
-    "The daily returns are incredible, 1.5% today!",
-    "Anyone tried the Catalyst Bot? Thinking about switching",
-    "XPLAY's revenue model is the most transparent I've seen",
-    "Referred 3 friends this week, the 10% bonus is amazing",
-    "BTC prediction game is so addictive lol",
-    "My Sprint Bot just completed 7 days, reinvesting now!",
-    "The AI quant trading engine is legit, checked the on-chain data",
-    "Web4 platform sounds revolutionary, can't wait!",
-    "100K users already? This is growing fast 🔥",
-    "Token mixing engine fees are a genius revenue source",
-    "Just withdrew my first month's profit, smooth process",
-    "Momentum Bot giving me steady 0.9% daily 💰",
-    "The prediction platform during World Cup was insane!",
-    "AI Agent platform will be a game changer",
+    { native: "Just staked $5,000 on Quantum Bot! 🚀", translations: { ko: "퀀텀봇에 5000달러 스테이킹 완료! 🚀", zh: "刚在Quantum Bot上质押了5000美元！🚀", ja: "Quantum Botに5000ドルステーキング完了！🚀", vi: "Vừa stake 5,000$ trên Quantum Bot! 🚀", th: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀" } },
+    { native: "The daily returns are incredible, 1.5% today!", translations: { ko: "오늘 일일 수익률 1.5% 대박이네요!", zh: "今天日收益1.5%，太棒了！", ja: "今日の日次リターン1.5%、すごい！", vi: "Lợi nhuận hàng ngày tuyệt vời, 1.5% hôm nay!", th: "ผลตอบแทนรายวันเหลือเชื่อ 1.5% วันนี้!" } },
+    { native: "Anyone tried the Catalyst Bot? Thinking about switching", translations: { ko: "카탈리스트봇 써보신 분? 변경 고민중", zh: "有人试过Catalyst Bot吗？考虑切换", ja: "Catalyst Bot試した人いますか？切り替え検討中", vi: "Ai đã thử Catalyst Bot chưa?", th: "ใครลอง Catalyst Bot แล้วบ้าง?" } },
+    { native: "XPLAY's revenue model is the most transparent I've seen", translations: { ko: "XPLAY 수익 모델이 제가 본 중 가장 투명해요", zh: "XPLAY的收益模式是我见过最透明的", ja: "XPLAYの収益モデルは最も透明", vi: "Mô hình doanh thu XPLAY minh bạch nhất tôi từng thấy", th: "โมเดลรายได้ XPLAY โปร่งใสที่สุดที่เคยเห็น" } },
+    { native: "Referred 3 friends this week, the 10% bonus is amazing", translations: { ko: "이번 주 3명 추천했는데 10% 보너스 최고", zh: "这周推荐了3个朋友，10%奖金太好了", ja: "今週3人紹介、10%ボーナス最高", vi: "Giới thiệu 3 bạn tuần này, thưởng 10% tuyệt vời", th: "แนะนำเพื่อน 3 คนสัปดาห์นี้ โบนัส 10% สุดยอด" } },
+    { native: "BTC prediction game is so addictive lol", translations: { ko: "BTC 예측 게임 중독성 있네요 ㅋㅋ", zh: "BTC预测游戏太上瘾了哈哈", ja: "BTC予測ゲーム中毒性あるw", vi: "Game dự đoán BTC gây nghiện quá", th: "เกมทำนาย BTC เสพติดมาก 555" } },
+    { native: "My Sprint Bot just completed 7 days, reinvesting now!", translations: { ko: "스프린트봇 7일 완료, 재투자합니다!", zh: "Sprint Bot刚完成7天，现在再投资！", ja: "Sprint Bot 7日完了、再投資します！", vi: "Sprint Bot vừa hoàn thành 7 ngày, tái đầu tư ngay!", th: "Sprint Bot ครบ 7 วันแล้ว ลงทุนซ้ำเลย!" } },
+    { native: "100K users already? This is growing fast 🔥", translations: { ko: "벌써 10만 유저? 성장 속도 미쳤다 🔥", zh: "已经10万用户了？增长太快了🔥", ja: "もう10万ユーザー？成長速度すごい🔥", vi: "Đã 100K người dùng rồi? Tăng trưởng nhanh quá 🔥", th: "100K ผู้ใช้แล้ว? โตเร็วมาก 🔥" } },
   ],
   ko: [
-    "퀀텀봇에 5000달러 스테이킹 완료! 🚀",
-    "오늘 일일 수익률 1.5% 대박이네요",
-    "카탈리스트봇 써보신 분? 변경 고민중",
-    "XPLAY 수익 모델이 제가 본 중 가장 투명해요",
-    "이번 주 3명 추천했는데 10% 보너스 최고",
-    "BTC 예측 게임 중독성 있네요 ㅋㅋ",
-    "스프린트봇 7일 완료, 재투자합니다!",
-    "AI 퀀트 트레이딩 엔진 온체인 데이터 확인했는데 진짜네요",
-    "Web4 플랫폼 기대됩니다!",
-    "벌써 10만 유저? 성장 속도 미쳤다 🔥",
-    "모멘텀봇 매일 0.9% 안정적 수익 💰",
-    "첫 달 수익 출금 완료, 과정 매끄러워요",
-    "월드컵 때 예측 플랫폼 진짜 대박이었음",
-    "AI 에이전트 플랫폼 게임체인저 될 듯",
-    "토큰 믹싱 엔진 수수료 수익 모델 천재적",
+    { native: "퀀텀봇에 5000달러 스테이킹 완료! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", zh: "刚在Quantum Bot上质押了5000美元！🚀", ja: "Quantum Botに5000ドルステーキング完了！🚀", vi: "Vừa stake 5,000$ trên Quantum Bot! 🚀", th: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀" } },
+    { native: "오늘 일일 수익률 1.5% 대박이네요", translations: { en: "Today's daily return is 1.5%, incredible!", zh: "今天日收益1.5%，太棒了！", ja: "今日の日次リターン1.5%、すごい！", vi: "Lợi nhuận hàng ngày 1.5% hôm nay!", th: "ผลตอบแทนรายวัน 1.5% วันนี้!" } },
+    { native: "카탈리스트봇 써보신 분? 변경 고민중", translations: { en: "Anyone tried Catalyst Bot? Thinking about switching", zh: "有人试过Catalyst Bot吗？考虑切换", ja: "Catalyst Bot試した人いますか？", vi: "Ai đã thử Catalyst Bot chưa?", th: "ใครลอง Catalyst Bot แล้วบ้าง?" } },
+    { native: "이번 주 3명 추천했는데 10% 보너스 최고", translations: { en: "Referred 3 friends this week, 10% bonus is the best", zh: "这周推荐了3个朋友，10%奖金太好了", ja: "今週3人紹介、10%ボーナス最高", vi: "Giới thiệu 3 bạn tuần này, thưởng 10%", th: "แนะนำเพื่อน 3 คน โบนัส 10% สุดยอด" } },
+    { native: "BTC 예측 게임 중독성 있네요 ㅋㅋ", translations: { en: "BTC prediction game is so addictive lol", zh: "BTC预测游戏太上瘾了哈哈", ja: "BTC予測ゲーム中毒性あるw", vi: "Game dự đoán BTC gây nghiện quá", th: "เกมทำนาย BTC เสพติดมาก" } },
+    { native: "스프린트봇 7일 완료, 재투자합니다!", translations: { en: "Sprint Bot 7 days done, reinvesting!", zh: "Sprint Bot刚完成7天，再投资！", ja: "Sprint Bot 7日完了、再投資！", vi: "Sprint Bot hoàn thành 7 ngày, tái đầu tư!", th: "Sprint Bot ครบ 7 วัน ลงทุนซ้ำ!" } },
+    { native: "벌써 10만 유저? 성장 속도 미쳤다 🔥", translations: { en: "Already 100K users? Growth speed is insane 🔥", zh: "已经10万用户？增长太快🔥", ja: "もう10万ユーザー？成長速度すごい🔥", vi: "Đã 100K người dùng? Tăng trưởng nhanh 🔥", th: "100K ผู้ใช้แล้ว? โตเร็วมาก 🔥" } },
+    { native: "모멘텀봇 매일 0.9% 안정적 수익 💰", translations: { en: "Momentum Bot gives stable 0.9% daily 💰", zh: "动量机器人每天稳定0.9%收益💰", ja: "Momentum Bot毎日安定0.9%収益💰", vi: "Momentum Bot lợi nhuận ổn định 0.9%/ngày 💰", th: "Momentum Bot กำไรคงที่ 0.9%/วัน 💰" } },
   ],
   zh: [
-    "刚在Quantum Bot上质押了5000美元！🚀",
-    "今天日收益1.5%，太棒了！",
-    "有人试过Catalyst Bot吗？考虑切换",
-    "XPLAY的收益模式是我见过最透明的",
-    "这周推荐了3个朋友，10%奖金太好了",
-    "BTC预测游戏太上瘾了哈哈",
-    "Sprint Bot刚完成7天，现在再投资！",
-    "AI量化交易引擎是真的，查了链上数据",
-    "Web4平台听起来很革命性，等不及了！",
-    "已经10万用户了？增长太快了🔥",
-    "动量机器人每天稳定0.9%收益💰",
-    "第一个月利润提现完成，流程顺畅",
+    { native: "刚在Quantum Bot上质押了5000美元！🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹 완료! 🚀", ja: "Quantum Botに5000ドルステーキング完了！🚀", vi: "Vừa stake 5,000$ trên Quantum Bot! 🚀", th: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀" } },
+    { native: "今天日收益1.5%，太棒了！", translations: { en: "Today's daily return 1.5%, awesome!", ko: "오늘 일일 수익률 1.5% 대박!", ja: "今日の日次リターン1.5%、すごい！", vi: "Lợi nhuận hàng ngày 1.5%!", th: "ผลตอบแทนรายวัน 1.5%!" } },
+    { native: "有人试过Catalyst Bot吗？考虑切换", translations: { en: "Anyone tried Catalyst Bot? Thinking about switching", ko: "카탈리스트봇 써보신 분?", ja: "Catalyst Bot試した人いますか？", vi: "Ai đã thử Catalyst Bot?", th: "ใครลอง Catalyst Bot บ้าง?" } },
+    { native: "这周推荐了3个朋友，10%奖金太好了", translations: { en: "Referred 3 friends, 10% bonus is great", ko: "3명 추천, 10% 보너스 최고", ja: "3人紹介、10%ボーナス最高", vi: "Giới thiệu 3 bạn, thưởng 10%", th: "แนะนำเพื่อน 3 คน โบนัส 10%" } },
+    { native: "BTC预测游戏太上瘾了哈哈", translations: { en: "BTC prediction game is addictive haha", ko: "BTC 예측 게임 중독성 ㅋㅋ", ja: "BTC予測ゲーム中毒性w", vi: "Game dự đoán BTC gây nghiện", th: "เกมทำนาย BTC เสพติด" } },
+    { native: "已经10万用户了？增长太快了🔥", translations: { en: "100K users already? Growing so fast 🔥", ko: "벌써 10만 유저? 성장 속도 미쳤다 🔥", ja: "もう10万ユーザー？🔥", vi: "100K người dùng rồi? 🔥", th: "100K ผู้ใช้แล้ว? 🔥" } },
   ],
   ja: [
-    "Quantum Botに5000ドルステーキング完了！🚀",
-    "今日の日次リターン1.5%、すごい！",
-    "Catalyst Bot試した人いますか？切り替え検討中",
-    "XPLAYの収益モデルは最も透明",
-    "今週3人紹介、10%ボーナス最高",
-    "BTC予測ゲーム中毒性あるw",
-    "Sprint Bot 7日完了、再投資します！",
-    "AI量子取引エンジン本物だった",
-    "Web4プラットフォーム楽しみ！",
-    "もう10万ユーザー？成長速度すごい🔥",
+    { native: "Quantum Botに5000ドルステーキング完了！🚀", translations: { en: "Staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹! 🚀", zh: "Quantum Bot质押5000美元！🚀", vi: "Stake 5,000$ trên Quantum Bot! 🚀", th: "stake $5,000 บน Quantum Bot! 🚀" } },
+    { native: "今日の日次リターン1.5%、すごい！", translations: { en: "Today's daily return 1.5%, amazing!", ko: "오늘 수익률 1.5% 대박!", zh: "今天日收益1.5%！", vi: "Lợi nhuận 1.5% hôm nay!", th: "ผลตอบแทน 1.5% วันนี้!" } },
+    { native: "Catalyst Bot試した人いますか？切り替え検討中", translations: { en: "Anyone tried Catalyst Bot?", ko: "카탈리스트봇 써보신 분?", zh: "有人试过Catalyst Bot吗？", vi: "Ai thử Catalyst Bot chưa?", th: "ใครลอง Catalyst Bot?" } },
+    { native: "もう10万ユーザー？成長速度すごい🔥", translations: { en: "100K users? Growth is incredible 🔥", ko: "10만 유저? 성장 속도 미쳤다 🔥", zh: "10万用户？增长太快🔥", vi: "100K người dùng? Tăng trưởng nhanh 🔥", th: "100K ผู้ใช้? โตเร็วมาก 🔥" } },
+  ],
+  de: [
+    { native: "Gerade $5.000 auf Quantum Bot gestaked! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+    { native: "Die tägliche Rendite ist unglaublich, 1,5% heute!", translations: { en: "Daily return is incredible, 1.5% today!", ko: "일일 수익률 1.5% 대박!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", vi: "Lợi nhuận 1.5%!", th: "ผลตอบแทน 1.5%!" } },
+  ],
+  fr: [
+    { native: "Je viens de staker 5 000$ sur Quantum Bot ! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+    { native: "Les rendements quotidiens sont incroyables, 1,5% aujourd'hui !", translations: { en: "Daily returns are incredible, 1.5% today!", ko: "일일 수익률 1.5% 대박!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", vi: "Lợi nhuận 1.5%!", th: "ผลตอบแทน 1.5%!" } },
+  ],
+  es: [
+    { native: "¡Acabo de hacer staking de $5,000 en Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러 스테이킹! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+    { native: "Los rendimientos diarios son increíbles, ¡1.5% hoy!", translations: { en: "Daily returns are incredible, 1.5% today!", ko: "일일 수익률 1.5%!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", vi: "Lợi nhuận 1.5%!", th: "ผลตอบแทน 1.5%!" } },
+  ],
+  pt: [
+    { native: "Acabei de fazer staking de $5.000 no Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+  ],
+  ru: [
+    { native: "Только что застейкал $5,000 на Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+    { native: "Дневная доходность невероятная, 1.5% сегодня!", translations: { en: "Daily return incredible, 1.5% today!", ko: "일일 수익률 1.5%!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", vi: "Lợi nhuận 1.5%!", th: "ผลตอบแทน 1.5%!" } },
+  ],
+  ar: [
+    { native: "!🚀 لقد قمت بتكديس 5000 دولار على Quantum Bot", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+  ],
+  hi: [
+    { native: "Quantum Bot पर $5,000 स्टेक किया! 🚀", translations: { en: "Staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+  ],
+  vi: [
+    { native: "Vừa stake 5,000$ trên Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", th: "stake $5,000! 🚀" } },
+    { native: "Lợi nhuận hàng ngày tuyệt vời, 1.5% hôm nay!", translations: { en: "Daily return 1.5% today!", ko: "일일 수익률 1.5%!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", th: "ผลตอบแทน 1.5%!" } },
+  ],
+  th: [
+    { native: "เพิ่ง stake $5,000 บน Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀" } },
+    { native: "ผลตอบแทนรายวันเหลือเชื่อ 1.5% วันนี้!", translations: { en: "Daily return 1.5% today!", ko: "일일 수익률 1.5%!", zh: "日收益1.5%！", ja: "日次リターン1.5%！", vi: "Lợi nhuận 1.5%!" } },
+  ],
+  id: [
+    { native: "Baru saja stake $5,000 di Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+  ],
+  nl: [
+    { native: "Net $5.000 gestaked op Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
+  ],
+  it: [
+    { native: "Ho appena stakato $5.000 su Quantum Bot! 🚀", translations: { en: "Just staked $5,000 on Quantum Bot! 🚀", ko: "퀀텀봇에 5000달러! 🚀", zh: "Quantum Bot质押5000美元！🚀", ja: "Quantum Botに5000ドル！🚀", vi: "Stake 5,000$! 🚀", th: "stake $5,000! 🚀" } },
   ],
 };
 
-// AI Bot responses
+// AI Bot responses (always in the viewer's language)
 const AI_RESPONSES: Record<string, string[]> = {
   en: [
-    "Welcome to XPLAY! 🎉 Our AI engines are running 24/7 generating real revenue from token mixing, quant trading, and market making.",
-    "Great question! The Quantum Bot offers the highest daily return at 1.3%~1.8% for a 360-day lock period. Perfect for long-term investors!",
-    "XPLAY currently has over 100,000 active users across 100+ countries. Our prediction platform launched during the World Cup! ⚽",
-    "The referral system offers up to 10% direct referral bonus across 6 generations. Share your link to earn passive income!",
-    "Our AI Agent platform is currently in development. It will provide automated investment strategies and personalized AI assistants. Stay tuned! 🤖",
-    "XP Token follows an extreme deflation model: 21M total supply burning down to 1M. Scarcity drives value! 📈",
-    "All three revenue engines (Token Mixing 3.2%, AI Quant 6.5%, Binance Market Making 4.5%) are running and generating real profits.",
+    "Welcome to XPLAY! 🎉 Our AI engines run 24/7 generating real revenue from token mixing, quant trading, and market making.",
+    "Great question! Quantum Bot offers 1.3%~1.8% daily for 360-day lock. Perfect for long-term investors!",
+    "XPLAY has 100,000+ active users across 100+ countries. Our prediction platform launched during the World Cup! ⚽",
+    "The referral system offers up to 10% direct bonus across 6 generations. Share your link!",
+    "XP Token: 21M total supply burning to 1M. Extreme deflation = value! 📈",
   ],
   ko: [
-    "XPLAY에 오신 것을 환영합니다! 🎉 AI 엔진이 24시간 토큰 믹싱, 퀀트 트레이딩, 마켓 메이킹으로 실제 수익을 창출하고 있습니다.",
-    "좋은 질문입니다! 퀀텀봇은 360일 잠금 기간으로 일 1.3%~1.8%의 최고 수익률을 제공합니다. 장기 투자자에게 완벽합니다!",
-    "XPLAY는 현재 100개국 이상에서 10만명 이상의 활성 유저를 보유하고 있습니다. 월드컵 때 예측 플랫폼을 런칭했죠! ⚽",
-    "추천 시스템은 6세대에 걸쳐 최대 10% 직추천 보너스를 제공합니다. 링크를 공유하여 패시브 인컴을 얻으세요!",
-    "AI 에이전트 플랫폼은 현재 개발 중입니다. 자동화된 투자 전략과 맞춤형 AI 어시스턴트를 제공할 예정입니다! 🤖",
-    "XP 토큰은 극단적 디플레이션 모델을 따릅니다: 총 2100만개에서 100만개로 소각. 희소성이 가치를 만듭니다! 📈",
+    "XPLAY에 오신 것을 환영합니다! 🎉 AI 엔진이 24시간 토큰 믹싱, 퀀트 트레이딩으로 실제 수익을 창출합니다.",
+    "좋은 질문입니다! 퀀텀봇은 360일 잠금으로 일 1.3%~1.8% 수익률을 제공합니다!",
+    "XPLAY는 100개국 이상에서 10만명+ 활성 유저를 보유하고 있습니다. 월드컵 때 예측 플랫폼 런칭! ⚽",
+    "추천 시스템은 6세대 최대 10% 직추천 보너스를 제공합니다. 링크를 공유하세요!",
+    "XP 토큰: 2100만개에서 100만개로 소각. 극단적 디플레이션 = 가치! 📈",
   ],
   zh: [
-    "欢迎来到XPLAY！🎉 AI引擎24/7运行，通过代币混合、量化交易和做市产生真实收益。",
-    "好问题！Quantum Bot提供最高日收益1.3%~1.8%，锁定期360天。适合长期投资者！",
-    "XPLAY目前在100多个国家拥有超过10万活跃用户。我们在世界杯期间推出了预测平台！⚽",
-    "推荐系统提供6代最高10%直推奖金。分享链接赚取被动收入！",
+    "欢迎来到XPLAY！🎉 AI引擎24/7运行，通过代币混合、量化交易产生真实收益。",
+    "好问题！Quantum Bot日收益1.3%~1.8%，锁定360天。适合长期投资！",
+    "XPLAY在100多个国家有10万+活跃用户。世界杯期间推出预测平台！⚽",
+    "推荐系统6代最高10%直推奖金。分享链接！",
   ],
   ja: [
-    "XPLAYへようこそ！🎉 AIエンジンが24時間稼働し、トークンミキシング、クオンツ取引、マーケットメイキングで実際の収益を生み出しています。",
-    "いい質問ですね！Quantum Botは360日ロック期間で日次1.3%~1.8%の最高リターンを提供します！",
-    "XPLAYは現在100カ国以上で10万人以上のアクティブユーザーがいます。ワールドカップ中に予測プラットフォームを立ち上げました！⚽",
+    "XPLAYへようこそ！🎉 AIエンジンが24時間稼働中。",
+    "Quantum Botは360日ロックで日次1.3%~1.8%！",
+    "100カ国以上で10万人+のアクティブユーザー！⚽",
+  ],
+  vi: [
+    "Chào mừng đến XPLAY! 🎉 AI engine hoạt động 24/7.",
+    "Quantum Bot lợi nhuận 1.3%~1.8%/ngày, khóa 360 ngày!",
+  ],
+  th: [
+    "ยินดีต้อนรับสู่ XPLAY! 🎉 AI engine ทำงาน 24/7",
+    "Quantum Bot ผลตอบแทน 1.3%~1.8%/วัน ล็อค 360 วัน!",
   ],
 };
 
 interface ChatMessage {
   id: string;
-  user: typeof VIRTUAL_USERS[number] | null; // null = AI bot
-  text: string;
+  user: typeof VIRTUAL_USERS[number] | null;
+  nativeText: string;
+  translationText: string; // Translation in viewer's language
+  nativeLang: string;
   timestamp: Date;
   isAI: boolean;
 }
@@ -152,72 +183,111 @@ export default function LiveChatSection() {
   const chatRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const getLangMessages = useCallback(() => {
-    const langKey = lang === "vi" || lang === "th" ? "en" : lang;
-    return CHAT_MESSAGES[langKey] || CHAT_MESSAGES.en;
-  }, [lang]);
-
-  const getLangAIResponses = useCallback(() => {
-    const langKey = lang === "vi" || lang === "th" ? "en" : lang;
-    return AI_RESPONSES[langKey] || AI_RESPONSES.en;
-  }, [lang]);
+  // Map site lang to supported chat lang
+  const viewerLang = ["ko", "en", "zh", "ja", "vi", "th"].includes(lang) ? lang : "en";
 
   const addAutoMessage = useCallback(() => {
-    const isAI = Math.random() < 0.25; // 25% chance AI responds
-    const msgs = isAI ? getLangAIResponses() : getLangMessages();
-    const text = msgs[Math.floor(Math.random() * msgs.length)];
-    const user = isAI ? null : VIRTUAL_USERS[Math.floor(Math.random() * VIRTUAL_USERS.length)];
+    const isAI = Math.random() < 0.2;
 
-    const msg: ChatMessage = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      user,
-      text,
-      timestamp: new Date(),
-      isAI,
-    };
+    if (isAI) {
+      // AI always responds in viewer's language
+      const aiMsgs = AI_RESPONSES[viewerLang] || AI_RESPONSES.en;
+      const text = aiMsgs[Math.floor(Math.random() * aiMsgs.length)];
+      const msg: ChatMessage = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        user: null,
+        nativeText: text,
+        translationText: "",
+        nativeLang: viewerLang,
+        timestamp: new Date(),
+        isAI: true,
+      };
+      setMessages((prev) => [...prev, msg].slice(-50));
+    } else {
+      // Pick a random user
+      const user = VIRTUAL_USERS[Math.floor(Math.random() * VIRTUAL_USERS.length)];
+      const userLang = user.lang;
+      const msgs = NATIVE_MESSAGES[userLang] || NATIVE_MESSAGES.en;
+      const msgData = msgs[Math.floor(Math.random() * msgs.length)];
 
-    setMessages((prev) => [...prev, msg].slice(-50));
+      // Get translation in viewer's language
+      let translation = "";
+      if (userLang !== viewerLang) {
+        translation = msgData.translations[viewerLang] || msgData.translations["en"] || "";
+      }
 
-    // Random interval 8-25 seconds
-    const interval = (Math.floor(Math.random() * 18) + 8) * 1000;
+      const msg: ChatMessage = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        user,
+        nativeText: msgData.native,
+        translationText: translation,
+        nativeLang: userLang,
+        timestamp: new Date(),
+        isAI: false,
+      };
+      setMessages((prev) => [...prev, msg].slice(-50));
+    }
+
+    // Random interval 5-15 seconds for lively feel
+    const interval = (Math.floor(Math.random() * 11) + 5) * 1000;
     timerRef.current = setTimeout(addAutoMessage, interval);
-  }, [getLangMessages, getLangAIResponses]);
+  }, [viewerLang]);
 
   useEffect(() => {
     // Initialize with some messages
     const initial: ChatMessage[] = [];
-    const msgs = getLangMessages();
-    const aiMsgs = getLangAIResponses();
+    const allLangs = Object.keys(NATIVE_MESSAGES);
 
     for (let i = 0; i < 8; i++) {
       const isAI = i % 4 === 0;
-      const pool = isAI ? aiMsgs : msgs;
-      const user = isAI ? null : VIRTUAL_USERS[Math.floor(Math.random() * VIRTUAL_USERS.length)];
-      initial.push({
-        id: `init-${i}`,
-        user,
-        text: pool[i % pool.length],
-        timestamp: new Date(Date.now() - (8 - i) * 15000),
-        isAI,
-      });
+      if (isAI) {
+        const aiMsgs = AI_RESPONSES[viewerLang] || AI_RESPONSES.en;
+        initial.push({
+          id: `init-${i}`,
+          user: null,
+          nativeText: aiMsgs[i % aiMsgs.length],
+          translationText: "",
+          nativeLang: viewerLang,
+          timestamp: new Date(Date.now() - (8 - i) * 12000),
+          isAI: true,
+        });
+      } else {
+        const user = VIRTUAL_USERS[Math.floor(Math.random() * VIRTUAL_USERS.length)];
+        const userLang = user.lang;
+        const msgs = NATIVE_MESSAGES[userLang] || NATIVE_MESSAGES.en;
+        const msgData = msgs[Math.floor(Math.random() * msgs.length)];
+        let translation = "";
+        if (userLang !== viewerLang) {
+          translation = msgData.translations[viewerLang] || msgData.translations["en"] || "";
+        }
+        initial.push({
+          id: `init-${i}`,
+          user,
+          nativeText: msgData.native,
+          translationText: translation,
+          nativeLang: userLang,
+          timestamp: new Date(Date.now() - (8 - i) * 12000),
+          isAI: false,
+        });
+      }
     }
     setMessages(initial);
     setOnlineCount(Math.floor(Math.random() * 300) + 500);
 
-    timerRef.current = setTimeout(addAutoMessage, (Math.floor(Math.random() * 10) + 5) * 1000);
+    timerRef.current = setTimeout(addAutoMessage, (Math.floor(Math.random() * 6) + 3) * 1000);
 
-    // Fluctuate online count
+    // Online count only increases (with small fluctuations up)
     const onlineInterval = setInterval(() => {
-      setOnlineCount((prev) => prev + Math.floor(Math.random() * 21) - 10);
+      setOnlineCount((prev) => prev + Math.floor(Math.random() * 15) + 1);
     }, 30000);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       clearInterval(onlineInterval);
     };
-  }, [addAutoMessage, getLangMessages, getLangAIResponses]);
+  }, [addAutoMessage, viewerLang]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -226,11 +296,12 @@ export default function LiveChatSection() {
 
   const handleSend = () => {
     if (!userInput.trim()) return;
-
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
-      user: { name: t("chat.you"), flag: "👤", color: "#00f5ff" },
-      text: userInput,
+      user: { name: t("chat.you"), flag: "👤", color: "#00f5ff", lang: viewerLang },
+      nativeText: userInput,
+      translationText: "",
+      nativeLang: viewerLang,
       timestamp: new Date(),
       isAI: false,
     };
@@ -239,11 +310,13 @@ export default function LiveChatSection() {
 
     // AI responds after 2-4 seconds
     setTimeout(() => {
-      const aiMsgs = getLangAIResponses();
+      const aiMsgs = AI_RESPONSES[viewerLang] || AI_RESPONSES.en;
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         user: null,
-        text: aiMsgs[Math.floor(Math.random() * aiMsgs.length)],
+        nativeText: aiMsgs[Math.floor(Math.random() * aiMsgs.length)],
+        translationText: "",
+        nativeLang: viewerLang,
         timestamp: new Date(),
         isAI: true,
       };
@@ -300,7 +373,7 @@ export default function LiveChatSection() {
         <div
           ref={chatRef}
           className="overflow-y-auto px-4 py-3 space-y-3"
-          style={{ height: "400px" }}
+          style={{ height: "420px" }}
         >
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
@@ -349,12 +422,12 @@ export default function LiveChatSection() {
                           borderRadius: "0 10px 10px 10px",
                         }}
                       >
-                        {msg.text}
+                        {msg.nativeText}
                       </div>
                     </div>
                   </div>
                 ) : (
-                  /* User Message */
+                  /* User Message — native language + translation */
                   <div className="flex gap-2">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-lg"
@@ -377,6 +450,7 @@ export default function LiveChatSection() {
                           {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
+                      {/* Native language message */}
                       <div
                         className="text-sm p-3"
                         style={{
@@ -386,8 +460,22 @@ export default function LiveChatSection() {
                           borderRadius: "0 10px 10px 10px",
                         }}
                       >
-                        {msg.text}
+                        {msg.nativeText}
                       </div>
+                      {/* Translation in viewer's language */}
+                      {msg.translationText && (
+                        <div
+                          className="text-[11px] mt-1 px-3 py-1.5"
+                          style={{
+                            color: "rgba(226,232,240,0.45)",
+                            background: "rgba(0,245,255,0.03)",
+                            borderRadius: "0 8px 8px 8px",
+                            borderLeft: "2px solid rgba(0,245,255,0.15)",
+                          }}
+                        >
+                          🌐 {msg.translationText}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
