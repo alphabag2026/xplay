@@ -300,8 +300,87 @@ export default function LiveChatSection() {
     }
   }, [messages]);
 
+  // Simple client-side translation map for user messages (bidirectional)
+  const USER_MSG_TRANSLATIONS: Record<string, Record<string, string>> = {
+    ko: { en: "(Korean message)", zh: "(韩语消息)", ja: "(韓国語メッセージ)", vi: "(Tin nhắn tiếng Hàn)", th: "(ข้อความภาษาเกาหลี)" },
+    en: { ko: "(영어 메시지)", zh: "(英语消息)", ja: "(英語メッセージ)", vi: "(Tin nhắn tiếng Anh)", th: "(ข้อความภาษาอังกฤษ)" },
+    zh: { ko: "(중국어 메시지)", en: "(Chinese message)", ja: "(中国語メッセージ)", vi: "(Tin nhắn tiếng Trung)", th: "(ข้อความภาษาจีน)" },
+    ja: { ko: "(일본어 메시지)", en: "(Japanese message)", zh: "(日语消息)", vi: "(Tin nhắn tiếng Nhật)", th: "(ข้อความภาษาญี่ปุ่น)" },
+    vi: { ko: "(베트남어 메시지)", en: "(Vietnamese message)", zh: "(越南语消息)", ja: "(ベトナム語メッセージ)", th: "(ข้อความภาษาเวียดนาม)" },
+    th: { ko: "(태국어 메시지)", en: "(Thai message)", zh: "(泰语消息)", ja: "(タイ語メッセージ)", vi: "(Tin nhắn tiếng Thái)" },
+  };
+
+  // Simulate bidirectional translation: after user sends, foreign users "react" with translated version
+  const simulateBidirectionalReaction = useCallback((userText: string) => {
+    // Pick 1-2 random foreign users to "see" and react to the user's message
+    const foreignUsers = VIRTUAL_USERS.filter(u => u.lang !== viewerLang);
+    const reactCount = Math.floor(Math.random() * 2) + 1;
+    const shuffled = [...foreignUsers].sort(() => Math.random() - 0.5).slice(0, reactCount);
+
+    shuffled.forEach((foreignUser, idx) => {
+      setTimeout(() => {
+        // Foreign user reacts in their language
+        const reactions: Record<string, string[]> = {
+          en: [`Nice! "${userText.slice(0, 20)}..." - I agree! 👍`, `Great point! Welcome to XPLAY! 🎉`, `That's what I'm talking about! 🚀`],
+          ko: [`좋은 말씀이세요! 동감합니다 👍`, `맞아요! XPLAY 최고! 🎉`, `저도 그렇게 생각해요! 🚀`],
+          zh: [`说得好！我同意！👍`, `太对了！XPLAY最棒！🎉`, `我也是这么想的！🚀`],
+          ja: [`いいですね！同感です👍`, `その通り！XPLAY最高！🎉`, `私もそう思います！🚀`],
+          vi: [`Hay quá! Tôi đồng ý! 👍`, `Đúng vậy! XPLAY tuyệt vời! 🎉`, `Tôi cũng nghĩ vậy! 🚀`],
+          th: [`เห็นด้วย! 👍`, `ใช่เลย! XPLAY สุดยอด! 🎉`, `คิดเหมือนกัน! 🚀`],
+          fr: [`Bien dit ! Je suis d'accord ! 👍`, `Exactement ! XPLAY est génial ! 🎉`, `Je pense pareil ! 🚀`],
+          de: [`Gut gesagt! Stimme zu! 👍`, `Genau! XPLAY ist super! 🎉`, `Denke ich auch! 🚀`],
+          es: [`¡Bien dicho! ¡Estoy de acuerdo! 👍`, `¡Exacto! ¡XPLAY es genial! 🎉`, `¡Pienso lo mismo! 🚀`],
+          pt: [`Bem dito! Concordo! 👍`, `Exato! XPLAY é incrível! 🎉`, `Penso o mesmo! 🚀`],
+          it: [`Ben detto! Sono d'accordo! 👍`, `Esatto! XPLAY è fantastico! 🎉`, `La penso anch'io! 🚀`],
+          ar: [`أحسنت! أوافق! 👍`, `بالضبط! XPLAY رائع! 🎉`, `أفكر بنفس الشيء! 🚀`],
+          hi: [`बहुत अच्छा! मैं सहमत हूँ! 👍`, `बिल्कुल! XPLAY शानदार है! 🎉`, `मैं भी ऐसा सोचता हूँ! 🚀`],
+          ru: [`Хорошо сказано! Согласен! 👍`, `Точно! XPLAY супер! 🎉`, `Думаю так же! 🚀`],
+          id: [`Setuju! 👍`, `Benar! XPLAY luar biasa! 🎉`, `Saya juga berpikir begitu! 🚀`],
+          nl: [`Goed gezegd! Mee eens! 👍`, `Precies! XPLAY is geweldig! 🎉`, `Denk ik ook! 🚀`],
+        };
+        const fLang = foreignUser.lang;
+        const fReactions = reactions[fLang] || reactions.en;
+        const nativeText = fReactions[Math.floor(Math.random() * fReactions.length)];
+
+        // Translation for viewer
+        const translationMap: Record<string, Record<string, string>> = {
+          en: { ko: "좋아요! 동감합니다! 👍", zh: "说得好！同意！👍", ja: "いいね！同感！👍" },
+          ko: { en: "Nice! I agree! 👍", zh: "说得好！同意！👍", ja: "いいね！同感！👍" },
+          zh: { ko: "좋아요! 동감합니다! 👍", en: "Well said! I agree! 👍", ja: "いいね！同感！👍" },
+          ja: { ko: "좋아요! 동감합니다! 👍", en: "Nice! I agree! 👍", zh: "说得好！同意！👍" },
+          fr: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          de: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          es: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          pt: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          it: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          ar: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          hi: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          ru: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          vi: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          th: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          id: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+          nl: { ko: "잘 말씀하셨어요! 동감합니다! 👍", en: "Well said! I agree! 👍", zh: "说得好！同意！👍", ja: "よく言った！同感！👍" },
+        };
+        const translation = (translationMap[fLang] && translationMap[fLang][viewerLang]) || "";
+
+        const reactionMsg: ChatMessage = {
+          id: `reaction-${Date.now()}-${idx}`,
+          user: foreignUser,
+          nativeText,
+          translationText: fLang !== viewerLang ? translation : "",
+          nativeLang: fLang,
+          timestamp: new Date(),
+          isAI: false,
+        };
+        setMessages((prev) => [...prev, reactionMsg].slice(-50));
+      }, (idx + 1) * (3000 + Math.random() * 4000));
+    });
+  }, [viewerLang]);
+
   const handleSend = () => {
     if (!userInput.trim()) return;
+
+    // User's message with bidirectional translation indicator
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       user: { name: t("chat.you"), flag: "👤", color: "#00f5ff", lang: viewerLang },
@@ -312,9 +391,40 @@ export default function LiveChatSection() {
       isAI: false,
     };
     setMessages((prev) => [...prev, userMsg].slice(-50));
+    const sentText = userInput;
     setUserInput("");
 
-    // AI responds after 2-4 seconds
+    // Show "translating..." indicator then show translated broadcast
+    setTimeout(() => {
+      // Show a system message that the user's message was auto-translated
+      const broadcastLangs = ["en", "zh", "ja", "ko", "vi", "th"].filter(l => l !== viewerLang);
+      const targetLang = broadcastLangs[Math.floor(Math.random() * broadcastLangs.length)];
+      const langNames: Record<string, Record<string, string>> = {
+        en: { ko: "영어", zh: "英语", ja: "英語", vi: "tiếng Anh", th: "ภาษาอังกฤษ" },
+        ko: { en: "Korean", zh: "韩语", ja: "韓国語", vi: "tiếng Hàn", th: "ภาษาเกาหลี" },
+        zh: { en: "Chinese", ko: "중국어", ja: "中国語", vi: "tiếng Trung", th: "ภาษาจีน" },
+        ja: { en: "Japanese", ko: "일본어", zh: "日语", vi: "tiếng Nhật", th: "ภาษาญี่ปุ่น" },
+        vi: { en: "Vietnamese", ko: "베트남어", zh: "越南语", ja: "ベトナム語", th: "ภาษาเวียดนาม" },
+        th: { en: "Thai", ko: "태국어", zh: "泰语", ja: "タイ語", vi: "tiếng Thái" },
+      };
+      const translatedToName = (langNames[viewerLang] && langNames[viewerLang][targetLang]) || targetLang.toUpperCase();
+
+      const sysMsg: ChatMessage = {
+        id: `sys-translate-${Date.now()}`,
+        user: null,
+        nativeText: `🌐 ${t("chat.autoTranslated") || "Your message was auto-translated and broadcast to"} ${broadcastLangs.length} ${t("chat.languages") || "languages"}`,
+        translationText: "",
+        nativeLang: viewerLang,
+        timestamp: new Date(),
+        isAI: true,
+      };
+      setMessages((prev) => [...prev, sysMsg].slice(-50));
+    }, 1500);
+
+    // Foreign users react to the user's message
+    simulateBidirectionalReaction(sentText);
+
+    // AI also responds after 4-6 seconds
     setTimeout(() => {
       const aiMsgs = AI_RESPONSES[viewerLang] || AI_RESPONSES.en;
       const aiMsg: ChatMessage = {
@@ -327,7 +437,7 @@ export default function LiveChatSection() {
         isAI: true,
       };
       setMessages((prev) => [...prev, aiMsg].slice(-50));
-    }, 2000 + Math.random() * 2000);
+    }, 4000 + Math.random() * 2000);
   };
 
   return (

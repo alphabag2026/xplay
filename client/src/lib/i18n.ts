@@ -524,6 +524,8 @@ export const T: Record<string, Record<Lang, string>> = {
   "chat.online": { ko: "온라인", en: "online", zh: "在线", ja: "オンライン", vi: "trực tuyến", th: "ออนไลน์" },
   "chat.placeholder": { ko: "메시지를 입력하세요...", en: "Type a message...", zh: "输入消息...", ja: "メッセージを入力...", vi: "Nhập tin nhắn...", th: "พิมพ์ข้อความ..." },
   "chat.you": { ko: "나", en: "You", zh: "我", ja: "あなた", vi: "Bạn", th: "คุณ" },
+  "chat.autoTranslated": { ko: "메시지가 자동 번역되어 전송되었습니다:", en: "Your message was auto-translated and broadcast to", zh: "您的消息已自动翻译并广播至", ja: "メッセージが自動翻訳され送信されました：", vi: "Tin nhắn của bạn đã được tự động dịch và phát tới", th: "ข้อความของคุณถูกแปลอัตโนมัติและส่งไปยัง" },
+  "chat.languages": { ko: "개 언어", en: "languages", zh: "种语言", ja: "言語", vi: "ngôn ngữ", th: "ภาษา" },
 
   // Media Gallery
   "media.badge": { ko: "TELEGRAM MEDIA", en: "TELEGRAM MEDIA", zh: "电报媒体", ja: "テレグラムメディア", vi: "TELEGRAM MEDIA", th: "สื่อเทเลแกรม" },
