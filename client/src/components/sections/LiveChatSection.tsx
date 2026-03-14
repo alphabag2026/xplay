@@ -12,6 +12,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, Users, Globe2, ChevronDown, Languages, Pin, X, Megaphone } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 // Virtual users from around the world with their native language
 const VIRTUAL_USERS = [
@@ -201,14 +202,19 @@ export default function LiveChatSection() {
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Pinned announcement
+  // Pinned announcement — fetch from API, fallback to hardcoded
+  const { data: apiPinned } = trpc.announcements.pinned.useQuery(undefined, {
+    retry: 1,
+    refetchInterval: 30000,
+  });
+
   const [pinnedMessage, setPinnedMessage] = useState<{
     text: string;
     translations: Record<string, string>;
     timestamp: Date;
     author: string;
   } | null>({
-    text: "XPLAY 2.0 업데이트 안내: 새로운 AI 에이전트 봇과 Web4 플랫폼이 곧 출시됩니다. 자세한 내용은 공식 텔레그램 채널을 확인해주세요! 🚀",
+    text: "XPLAY 2.0 업데이트 안내: 새로운 AI 에이전트 봇과 Web4 플랫폼이 곧 출시됩니다. 자세한 내용은 공식 텔레그램 채널을 확인해주세요! \ud83d\ude80",
     translations: {
       en: "XPLAY 2.0 Update: New AI Agent Bot and Web4 Platform launching soon. Check the official Telegram channel for details! \ud83d\ude80",
       zh: "XPLAY 2.0 \u66f4\u65b0\uff1a\u65b0AI\u4ee3\u7406Bot\u548cWeb4\u5e73\u53f0\u5373\u5c06\u4e0a\u7ebf\u3002\u8bf7\u67e5\u770b\u5b98\u65b9Telegram\u9891\u9053\uff01\ud83d\ude80",
@@ -219,6 +225,19 @@ export default function LiveChatSection() {
     timestamp: new Date(),
     author: "XPLAY Admin",
   });
+
+  // Update pinned message when API data changes
+  useEffect(() => {
+    if (apiPinned) {
+      setPinnedMessage({
+        text: `${apiPinned.title}: ${apiPinned.content}`,
+        translations: {},
+        timestamp: new Date(apiPinned.createdAt),
+        author: apiPinned.authorName,
+      });
+      setPinnedDismissed(false);
+    }
+  }, [apiPinned]);
   const [pinnedExpanded, setPinnedExpanded] = useState(false);
   const [pinnedDismissed, setPinnedDismissed] = useState(false);
 

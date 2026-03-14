@@ -18,6 +18,7 @@ const NAV_KEYS = [
   { id: "media-gallery", key: "nav.media" },
   { id: "simulator", key: "nav.simulator" },
   { id: "live-chat", key: "nav.livechat" },
+  { id: "announcements", key: "nav.announcements" },
   { id: "resources", key: "nav.resources" },
 ];
 
