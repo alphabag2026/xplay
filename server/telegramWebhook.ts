@@ -8,6 +8,7 @@ import {
   createAnnouncement, togglePinAnnouncement, deleteAnnouncement, getAnnouncementById,
   createNewsLink, deleteNewsLink,
   createPartner, deletePartner,
+  getCsTickets, getCsTicketById, replyCsTicket,
 } from "./db";
 import { storagePut } from "./storage";
 
@@ -172,6 +173,87 @@ telegramRouter.post("/api/telegram/notify-comment", async (req, res) => {
     return res.json({ success: true });
   } catch (error) {
     console.error("[Telegram Notify] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ========== CS Ticket Notification ==========
+telegramRouter.post("/api/telegram/notify-cs", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { ticketNo, name, category, subject, message, chatId } = req.body;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken || !chatId) return res.status(400).json({ error: "Bot token or chatId missing" });
+
+    const text = `\u{1F3AB} <b>CS 문의 접수</b>\n\n` +
+      `\u{1F4CB} <b>접수번호:</b> ${ticketNo}\n` +
+      `\u{1F464} <b>이름:</b> ${name}\n` +
+      `\u{1F4C1} <b>카테고리:</b> ${category}\n` +
+      `\u{1F4CC} <b>제목:</b> ${subject}\n` +
+      `\u{1F4DD} <b>내용:</b> ${message?.substring(0, 300)}\n\n` +
+      `\u{1F517} 백오피스에서 확인하세요.`;
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+    });
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("[Telegram CS Notify] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ========== CS Reply Notification ==========
+telegramRouter.post("/api/telegram/notify-cs-reply", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { ticketNo, subject, reply, chatId } = req.body;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken || !chatId) return res.status(400).json({ error: "Bot token or chatId missing" });
+
+    const text = `\u{2705} <b>CS 답변 완료</b>\n\n` +
+      `\u{1F4CB} <b>접수번호:</b> ${ticketNo}\n` +
+      `\u{1F4CC} <b>제목:</b> ${subject}\n` +
+      `\u{1F4AC} <b>답변:</b> ${reply?.substring(0, 300)}`;
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+    });
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("[Telegram CS Reply Notify] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ========== CS List (for bot) ==========
+telegramRouter.post("/api/telegram/cs-list", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { tickets } = await getCsTickets({ status: "open", limit: 20 });
+    return res.json({ success: true, tickets });
+  } catch (error) {
+    console.error("[Telegram CS List] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ========== CS Reply (from bot) ==========
+telegramRouter.post("/api/telegram/cs-reply", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { id, reply } = req.body;
+    if (!id || !reply) return res.status(400).json({ error: "ID and reply are required" });
+
+    const ticket = await getCsTicketById(id);
+    if (!ticket) return res.status(404).json({ error: "Ticket not found" });
+
+    await replyCsTicket(id, reply, "XPLAY Admin (Telegram)");
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("[Telegram CS Reply] Error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

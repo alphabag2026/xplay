@@ -10,6 +10,8 @@
  *   /뉴스삭제 <ID>   — 뉴스 삭제
  *   /파트너 <이름>   — 소통 파트너 등록 (다음 메시지로 연락처 정보)
  *   /파트너삭제 <ID> — 소통 파트너 삭제
+ *   /cs              — CS 문의 목록 확인
+ *   /cs답변 <ID>     — CS 문의에 답변
  *   /help            — 도움말
  */
 
@@ -27,6 +29,7 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 // Store pending states
 const pendingAnnouncements = new Map(); // chatId -> { title, isPinned }
 const pendingPartners = new Map();      // chatId -> { name }
+const pendingCsReplies = new Map();     // chatId -> { id }
 
 async function tgApi(method, body = {}) {
   const res = await fetch(`${TELEGRAM_API}/${method}`, {
@@ -134,11 +137,54 @@ async function processUpdate(update) {
       `<b>🤝 소통 파트너:</b>\n` +
       `• <code>/파트너 이름</code> — 파트너 등록\n` +
       `• <code>/파트너삭제 ID</code> — 파트너 삭제\n\n` +
+      `<b>🎧 CS 관리:</b>\n` +
+      `• <code>/cs</code> — 미답변 CS 문의 목록\n` +
+      `• <code>/cs답변 ID</code> — CS 문의에 답변\n\n` +
       `<b>사용 예시:</b>\n` +
       `1. <code>/공지 XPLAY 2.0 업데이트</code>\n` +
       `2. 내용 텍스트 전송 (사진 첨부 가능)\n\n` +
       `<b>서버:</b> ${WEBHOOK_URL}`
     );
+    return;
+  }
+
+  // ===== /cs답변 =====
+  if (text.startsWith("/cs답변") || text.startsWith("/cs답변")) {
+    const idStr = text.replace(/^\/cs답변\s*/, "").trim();
+    const id = parseInt(idStr);
+    if (!id || isNaN(id)) {
+      await sendMessage(chatId, `⚠️ 답변할 CS 문의 ID를 입력해주세요.\n예시: <code>/cs답변 5</code>`);
+      return;
+    }
+    pendingCsReplies.set(chatId, { id });
+    await sendMessage(chatId, `🎧 CS #${id}에 대한 답변을 입력해주세요.`);
+    return;
+  }
+
+  // ===== /cs (list open tickets) =====
+  if (text === "/cs") {
+    try {
+      const res = await fetch(`${WEBHOOK_URL}/api/telegram/cs-list`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ botSecret: BOT_SECRET }),
+      });
+      const data = await res.json();
+      if (data.success && data.tickets?.length > 0) {
+        let msg = `🎧 <b>미답변 CS 문의 (${data.tickets.length}건)</b>\n\n`;
+        for (const t of data.tickets.slice(0, 10)) {
+          msg += `#${t.id} [${t.ticketNo}] <b>${t.subject}</b>\n`;
+          msg += `  👤 ${t.name} | 📁 ${t.category}\n`;
+          msg += `  📝 ${(t.message || "").substring(0, 80)}...\n\n`;
+        }
+        msg += `답변하려면: <code>/cs답변 ID</code>`;
+        await sendMessage(chatId, msg);
+      } else {
+        await sendMessage(chatId, `✅ 미답변 CS 문의가 없습니다.`);
+      }
+    } catch (err) {
+      await sendMessage(chatId, `❌ CS 목록 조회 실패`);
+    }
     return;
   }
 
@@ -298,6 +344,24 @@ async function processUpdate(update) {
     return;
   }
 
+  // ===== Pending CS Reply =====
+  if (pendingCsReplies.has(chatId)) {
+    const pending = pendingCsReplies.get(chatId);
+    pendingCsReplies.delete(chatId);
+    const reply = text.trim();
+    if (!reply) {
+      await sendMessage(chatId, `⚠️ 답변 내용을 입력해주세요.`);
+      return;
+    }
+    const result = await apiCall("/api/telegram/cs-reply", { id: pending.id, reply });
+    if (result.success) {
+      await sendMessage(chatId, `✅ CS #${pending.id} 답변이 전송되었습니다.`);
+    } else {
+      await sendMessage(chatId, `❌ 답변 실패: ${result.error || "알 수 없는 오류"}`);
+    }
+    return;
+  }
+
   // ===== Pending Partner Info =====
   if (pendingPartners.has(chatId)) {
     const pending = pendingPartners.get(chatId);
@@ -341,7 +405,7 @@ async function processUpdate(update) {
 async function startPolling() {
   console.log("🤖 XPLAY Announcement Bot (Extended) started");
   console.log(`📡 Webhook URL: ${WEBHOOK_URL}`);
-  console.log("📋 Commands: /공지, /pin, /뉴스, /삭제, /뉴스삭제, /파트너, /파트너삭제, /help");
+  console.log("📋 Commands: /공지, /pin, /뉴스, /삭제, /뉴스삭제, /파트너, /파트너삭제, /cs, /cs답변, /help");
 
   let offset = 0;
   while (true) {

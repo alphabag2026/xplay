@@ -79,3 +79,34 @@
 ## Vultr 배포 패키지
 - [x] deploy.sh 업데이트 (방화벽 설정, SSL 안내 포함)
 - [x] 전체 테스트 (21/21 통과)
+
+## 감사 로그 (Audit Log)
+- [x] DB: auditLogs 테이블 (userId, action, targetType, targetId, details, ip, createdAt)
+- [x] 백엔드: 감사 로그 자동 기록 미들웨어 (관리자/부관리자 모든 작업)
+- [x] 백엔드: 감사 로그 조회 API (필터링, 페이지네이션)
+- [x] 백오피스: 감사 로그 페이지 (타임라인 뷰, 필터)
+
+## 공지 예약 발행
+- [x] DB: announcements 테이블에 scheduledAt, status 컨럼 추가
+- [x] 백엔드: 예약 발행 스케줄러 (1분 간격 확인 → 자동 발행)
+- [x] 백오피스: 공지 작성 시 예약 시간 선택 UI
+
+## Cloudflare R2 CDN 캐시 규칙
+- [x] R2 버킷에 Cache-Control 헤더 설정 코드
+- [x] Cloudflare CDN 캐시 규칙 설정 가이드 문서 (R2-CDN-CACHE-GUIDE.md)
+- [x] 비디오 스트리밍 최적화 (Range 요청 + CORS 헤더 가이드)
+
+## 재사용 스킬 생성
+- [x] skill-creator로 xplay-webdev 스킬 생성 (검증 통과)
+
+## 내 연락처 삽입 (추천인 등록)
+- [x] 사용자가 자신의 연락처(전화/텔레그램/카카오/왓츠앱/위챗) 등록 가능
+- [x] 등록된 연락처가 소통 파트너 섹션에 표시
+- [x] 프론트엔드 연락처 등록 모달/폼 UI
+
+## CS 접수 시스템 (텔레그램 연동)
+- [x] DB: CS 티켓 테이블 생성 (제목, 내용, 상태, 답변 등)
+- [x] 백엔드: CS 접수 API + 답변 API
+- [x] 프론트엔드: CS 문의 폼 + 내 문의 내역 확인 UI
+- [x] 텔레그램 봇: CS 접수 알림 + 답변 명령어 (/cs, /cs답변)
+- [x] 백오피스: CS 관리 페이지 (목록/답변/상태변경)

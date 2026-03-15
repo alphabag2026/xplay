@@ -31,6 +31,10 @@ export const announcements = mysqlTable("announcements", {
   isPinned: boolean("isPinned").default(false).notNull(),
   authorName: varchar("authorName", { length: 100 }).default("XPLAY Admin").notNull(),
   likeCount: int("likeCount").default(0).notNull(),
+  /** 'published' | 'scheduled' | 'draft' */
+  status: varchar("status", { length: 20 }).default("published").notNull(),
+  /** When status='scheduled', publish at this time (UTC ms) */
+  scheduledAt: timestamp("scheduledAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -102,6 +106,10 @@ export const communicationPartners = mysqlTable("communicationPartners", {
   whatsapp: varchar("whatsapp", { length: 50 }),
   wechat: varchar("wechat", { length: 100 }),
   avatarUrl: text("avatarUrl"),
+  /** Whether this was registered by a user (vs admin/telegram) */
+  isUserRegistered: boolean("isUserRegistered").default(false).notNull(),
+  /** User's openId if registered by a logged-in user */
+  registeredByOpenId: varchar("registeredByOpenId", { length: 64 }),
   isActive: boolean("isActive").default(true).notNull(),
   sortOrder: int("sortOrder").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -110,3 +118,58 @@ export const communicationPartners = mysqlTable("communicationPartners", {
 
 export type CommunicationPartner = typeof communicationPartners.$inferSelect;
 export type InsertCommunicationPartner = typeof communicationPartners.$inferInsert;
+
+/**
+ * Audit logs — tracks all admin/sub_admin actions in the back-office.
+ */
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  userName: varchar("userName", { length: 200 }),
+  userRole: varchar("userRole", { length: 20 }),
+  action: varchar("action", { length: 50 }).notNull(),
+  targetType: varchar("targetType", { length: 50 }).notNull(),
+  targetId: int("targetId"),
+  details: text("details"),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * CS Support Tickets — customer inquiries sent to company via Telegram.
+ * Users can submit questions, and admins respond via back-office or Telegram bot.
+ */
+export const csTickets = mysqlTable("csTickets", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Ticket number for display (e.g., CS-00001) */
+  ticketNo: varchar("ticketNo", { length: 20 }).notNull().unique(),
+  /** Submitter name (nickname or registered name) */
+  name: varchar("name", { length: 200 }).notNull(),
+  /** Submitter contact (email, phone, telegram, etc.) */
+  contact: varchar("contact", { length: 300 }),
+  /** Category: general, technical, billing, partnership, etc. */
+  category: varchar("category", { length: 50 }).default("general").notNull(),
+  /** Subject line */
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** Detailed message */
+  message: text("message").notNull(),
+  /** Status: open, in_progress, resolved, closed */
+  status: varchar("status", { length: 20 }).default("open").notNull(),
+  /** Priority: low, normal, high, urgent */
+  priority: varchar("priority", { length: 20 }).default("normal").notNull(),
+  /** Admin reply */
+  reply: text("reply"),
+  /** Admin who replied */
+  repliedBy: varchar("repliedBy", { length: 200 }),
+  repliedAt: timestamp("repliedAt"),
+  /** Telegram message ID for notification tracking */
+  telegramMsgId: int("telegramMsgId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CsTicket = typeof csTickets.$inferSelect;
+export type InsertCsTicket = typeof csTickets.$inferInsert;

@@ -13,6 +13,8 @@ import AdminNews from "./pages/admin/News";
 import AdminPartners from "./pages/admin/Partners";
 import AdminMedia from "./pages/admin/Media";
 import AdminUsers from "./pages/admin/Users";
+import AdminAuditLogs from "./pages/admin/AuditLogs";
+import AdminCsTickets from "./pages/admin/CsTickets";
 
 function Router() {
   return (
@@ -36,6 +38,12 @@ function Router() {
       </Route>
       <Route path="/admin/users">
         <AdminLayout><AdminUsers /></AdminLayout>
+      </Route>
+      <Route path="/admin/cs">
+        <AdminLayout><AdminCsTickets /></AdminLayout>
+      </Route>
+      <Route path="/admin/audit-logs">
+        <AdminLayout><AdminAuditLogs /></AdminLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
