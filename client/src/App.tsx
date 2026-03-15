@@ -18,11 +18,15 @@ import AdminCsTickets from "./pages/admin/CsTickets";
 import AdminLeaderReferrals from "./pages/admin/LeaderReferrals";
 import AdminUrgentNotices from "./pages/admin/UrgentNotices";
 import AdminResources from "./pages/admin/Resources";
+import AdminChangePassword from "./pages/admin/ChangePassword";
+import AdminLiveFeedConfig from "./pages/admin/LiveFeedConfig";
+import Login from "./pages/Login";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path="/login" component={Login} />
       {/* Admin Back-Office Routes */}
       <Route path="/admin">
         <AdminLayout><AdminDashboard /></AdminLayout>
@@ -56,6 +60,12 @@ function Router() {
       </Route>
       <Route path="/admin/audit-logs">
         <AdminLayout><AdminAuditLogs /></AdminLayout>
+      </Route>
+      <Route path="/admin/change-password">
+        <AdminLayout><AdminChangePassword /></AdminLayout>
+      </Route>
+      <Route path="/admin/live-feed">
+        <AdminLayout><AdminLiveFeedConfig /></AdminLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

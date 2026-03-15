@@ -209,13 +209,25 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
+// Use OPENAI_API_KEY and OPENAI_API_URL env vars for direct OpenAI/compatible API access
+// Falls back to Manus Forge API if OPENAI vars not set
+const resolveApiUrl = () => {
+  const openaiUrl = process.env.OPENAI_API_URL;
+  if (openaiUrl && openaiUrl.trim().length > 0) {
+    return `${openaiUrl.replace(/\/$/, "")}/v1/chat/completions`;
+  }
+  if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
+    return `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`;
+  }
+  return "https://api.openai.com/v1/chat/completions";
+};
+
+const resolveApiKey = () => {
+  return process.env.OPENAI_API_KEY || ENV.forgeApiKey || "";
+};
 
 const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
+  if (!resolveApiKey()) {
     throw new Error("OPENAI_API_KEY is not configured");
   }
 };
@@ -280,7 +292,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
+    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     messages: messages.map(normalizeMessage),
   };
 
@@ -296,10 +308,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
-  payload.thinking = {
-    "budget_tokens": 128
-  }
+  payload.max_tokens = 4096;
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -316,7 +325,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      authorization: `Bearer ${resolveApiKey()}`,
     },
     body: JSON.stringify(payload),
   });

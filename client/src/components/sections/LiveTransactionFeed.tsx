@@ -13,6 +13,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, TrendingUp, Globe, Zap } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 // 180 countries with flag emoji and name
 const COUNTRIES = [
@@ -362,15 +363,36 @@ export default function LiveTransactionFeed() {
   const [displayCountries, setDisplayCountries] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Fetch admin config from backend
+  const { data: feedConfig } = trpc.liveFeed.config.useQuery(undefined, {
+    staleTime: 60000, // cache for 1 minute
+    refetchOnWindowFocus: false,
+  });
+
   // Compute current state based on elapsed time since PAGE_BIRTH
+  // Use admin config overrides when available
   const refreshState = useCallback(() => {
     const now = Date.now();
     const result = computeTransactionsUpTo(now);
+
+    const cfg = feedConfig?.general as any;
+    if (cfg) {
+      // Use admin-configured base values + time-based growth with jitter
+      const hoursElapsed = (now - PAGE_BIRTH) / 3600000;
+      const jitterMultiplier = 0.85 + (mulberry32(Math.floor(hoursElapsed * 10))() * 0.3); // 0.85-1.15 jitter
+      const volumeGrowth = (cfg.volumeGrowthPerHour ?? 500000) * hoursElapsed * jitterMultiplier;
+      const txGrowth = Math.floor((cfg.txGrowthPerHour ?? 150) * hoursElapsed * jitterMultiplier);
+
+      setDisplayVolume((cfg.baseVolume ?? 50000000) + volumeGrowth);
+      setDisplayTxCount((cfg.baseTxCount ?? 15000) + txGrowth);
+      setDisplayCountries(cfg.activeCountries ?? result.seenCountryCodes.size);
+    } else {
+      setDisplayVolume(result.totalVolume);
+      setDisplayTxCount(result.txCount);
+      setDisplayCountries(result.seenCountryCodes.size);
+    }
     setTransactions(result.transactions);
-    setDisplayVolume(result.totalVolume);
-    setDisplayTxCount(result.txCount);
-    setDisplayCountries(result.seenCountryCodes.size);
-  }, []);
+  }, [feedConfig]);
 
   useEffect(() => {
     // Initial computation

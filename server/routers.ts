@@ -26,6 +26,7 @@ import {
   createUrgentNotice, getActiveUrgentNotices, getAllUrgentNotices,
   updateUrgentNoticeActive, deleteUrgentNotice, deactivateAllUrgentNotices,
   getResources, getAllResources, getResourceById, createResource, updateResource, deleteResource,
+  getAllLiveFeedConfigs, getLiveFeedConfig, upsertLiveFeedConfig,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -196,19 +197,43 @@ export const appRouter = router({
     }),
   }),
 
+  // ========== Public Live Feed Config ==========
+  liveFeed: router({
+    config: publicProcedure.query(async () => {
+      const configs = await getAllLiveFeedConfigs();
+      const result: Record<string, any> = {};
+      for (const c of configs) {
+        try { result[c.configKey] = JSON.parse(c.configValue); } catch { result[c.configKey] = c.configValue; }
+      }
+      return result;
+    }),
+  }),
+
   // ========== My Contact (Public - no login required) ==========
   myContact: router({
     register: publicProcedure
       .input(z.object({
         name: z.string().min(1).max(200),
-        phone: z.string().min(1).max(50),
+        phone: z.string().max(50).nullable().optional(),
         description: z.string().max(500).nullable().optional(),
+        telegram: z.string().max(100).nullable().optional(),
+        kakao: z.string().max(100).nullable().optional(),
+        openKakaoChat: z.string().max(500).nullable().optional(),
+        whatsapp: z.string().max(50).nullable().optional(),
+        wechat: z.string().max(100).nullable().optional(),
+        personalCommunity: z.string().max(2000).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         const result = await registerContactPublic({
           name: input.name.trim(),
-          phone: input.phone.trim(),
+          phone: input.phone?.trim() ?? null,
           description: input.description?.trim() ?? null,
+          telegram: input.telegram?.trim() ?? null,
+          kakao: input.kakao?.trim() ?? null,
+          openKakaoChat: input.openKakaoChat?.trim() ?? null,
+          whatsapp: input.whatsapp?.trim() ?? null,
+          wechat: input.wechat?.trim() ?? null,
+          personalCommunity: input.personalCommunity ?? null,
         });
         return { success: true, id: result.id, isNew: result.isNew };
       }),
@@ -508,6 +533,52 @@ export const appRouter = router({
           await deleteComment(input.id);
           await logAction(ctx, "delete", "comment", input.id);
           return { success: true };
+        }),
+
+      // AI polish content
+      polishContent: adminProcedure
+        .input(z.object({ content: z.string().min(1) }))
+        .mutation(async ({ input }) => {
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a professional content editor. Polish the following announcement content to make it more professional, clear, and engaging. Keep the same language and meaning. Return only the polished text without any explanation." },
+              { role: "user", content: input.content },
+            ],
+          });
+          const polished = response.choices?.[0]?.message?.content || input.content;
+          return { polished: polished as string };
+        }),
+
+      // Auto-translate content to multiple languages
+      autoTranslate: adminProcedure
+        .input(z.object({ title: z.string(), content: z.string() }))
+        .mutation(async ({ input }) => {
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: `You are a professional translator. Translate the following announcement title and content into English, Chinese (Simplified), Japanese, Vietnamese, and Thai. Return a JSON object with this exact structure: {"en":{"title":"...","content":"..."},"zh":{"title":"...","content":"..."},"ja":{"title":"...","content":"..."},"vi":{"title":"...","content":"..."},"th":{"title":"...","content":"..."}}. Return ONLY the JSON, no explanation.` },
+              { role: "user", content: `Title: ${input.title}\n\nContent: ${input.content}` },
+            ],
+            response_format: { type: "json_schema", json_schema: { name: "translations", strict: true, schema: { type: "object", properties: { en: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false }, zh: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false }, ja: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false }, vi: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false }, th: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false } }, required: ["en", "zh", "ja", "vi", "th"], additionalProperties: false } } },
+          });
+          const text = response.choices?.[0]?.message?.content || "{}";
+          try {
+            return { translations: JSON.parse(text as string) };
+          } catch {
+            return { translations: null };
+          }
+        }),
+
+      // Upload image for announcement
+      uploadImage: adminProcedure
+        .input(z.object({ imageBase64: z.string(), fileName: z.string() }))
+        .mutation(async ({ input }) => {
+          const buffer = Buffer.from(input.imageBase64, "base64");
+          const ext = input.fileName.split(".").pop() || "png";
+          const mimeMap: Record<string, string> = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp" };
+          const contentType = mimeMap[ext.toLowerCase()] || "image/png";
+          const key = generateFileKey("announcements", input.fileName);
+          const result = await r2Upload(key, buffer, contentType);
+          return { url: result.url, key: result.key };
         }),
     }),
 
@@ -882,6 +953,98 @@ export const appRouter = router({
     }),
 
     // ===== Media / R2 Storage =====
+    // ===== Live Feed Config =====
+    liveFeedConfig: router({
+      list: adminProcedure.query(async () => {
+        const configs = await getAllLiveFeedConfigs();
+        const result: Record<string, any> = {};
+        for (const c of configs) {
+          try { result[c.configKey] = JSON.parse(c.configValue); } catch { result[c.configKey] = c.configValue; }
+        }
+        return result;
+      }),
+
+      get: adminProcedure
+        .input(z.object({ key: z.string() }))
+        .query(async ({ input }) => {
+          const config = await getLiveFeedConfig(input.key);
+          if (!config) return null;
+          try { return JSON.parse(config.configValue); } catch { return config.configValue; }
+        }),
+
+      upsert: adminProcedure
+        .input(z.object({ key: z.string(), value: z.any() }))
+        .mutation(async ({ input, ctx }) => {
+          const val = typeof input.value === "string" ? input.value : JSON.stringify(input.value);
+          await upsertLiveFeedConfig(input.key, val);
+          await logAction(ctx, "update", "liveFeedConfig", undefined, `key=${input.key}`);
+          return { success: true };
+        }),
+    }),
+
+    // ===== AI Polish for Announcements =====
+    aiPolish: adminProcedure
+      .input(z.object({ content: z.string().min(1) }))
+      .mutation(async ({ input }) => {
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a professional content editor. Polish the following announcement text to be more professional, clear, and engaging. Keep the same language and meaning. Return only the polished text without any explanation." },
+            { role: "user", content: input.content },
+          ],
+        });
+        const rawContent = response.choices[0]?.message?.content;
+        return { polished: (typeof rawContent === 'string' ? rawContent : input.content) };
+      }),
+
+    // ===== Auto-translate Announcement =====
+    aiTranslate: adminProcedure
+      .input(z.object({ title: z.string(), content: z.string() }))
+      .mutation(async ({ input }) => {
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: `You are a professional translator. Translate the following announcement title and content into these languages: English (en), Chinese (zh), Japanese (ja), Vietnamese (vi), Thai (th). Return JSON format: { "en": { "title": "...", "content": "..." }, "zh": {...}, "ja": {...}, "vi": {...}, "th": {...} }. Keep the tone professional and accurate. Return ONLY valid JSON.` },
+            { role: "user", content: `Title: ${input.title}\n\nContent: ${input.content}` },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "translations",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  en: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false },
+                  zh: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false },
+                  ja: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false },
+                  vi: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false },
+                  th: { type: "object", properties: { title: { type: "string" }, content: { type: "string" } }, required: ["title", "content"], additionalProperties: false },
+                },
+                required: ["en", "zh", "ja", "vi", "th"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+        const rawText = response.choices[0]?.message?.content;
+        const text = typeof rawText === 'string' ? rawText : "{}";
+        try { return JSON.parse(text); } catch { return {}; }
+      }),
+
+    // ===== Announcement Image Upload =====
+    uploadAnnouncementImage: adminProcedure
+      .input(z.object({
+        fileName: z.string().min(1),
+        contentType: z.string().default("image/jpeg"),
+        base64Data: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const buffer = Buffer.from(input.base64Data, "base64");
+        const key = generateFileKey("announcements/images", input.fileName);
+        const result = await r2Upload(key, buffer, input.contentType);
+        await logAction(ctx, "upload", "announcementImage", undefined, `파일: ${input.fileName}`);
+        return { success: true, ...result };
+      }),
+
     media: router({
       list: adminProcedure
         .input(z.object({ prefix: z.string().optional(), maxKeys: z.number().min(1).max(500).optional() }).optional())

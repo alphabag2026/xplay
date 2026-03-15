@@ -157,9 +157,35 @@ export default function Footer() {
           </p>
         </div>
         <div className="h-px w-20 mx-auto mb-4" style={{ background: "rgba(0,245,255,0.15)" }} />
-        <p className="text-[10px]" style={{ color: "rgba(226,232,240,0.25)" }}>
+        <p className="text-[10px] mb-4" style={{ color: "rgba(226,232,240,0.25)" }}>
           {t("footer.disclaimer")}
         </p>
+
+        {/* infoweb4 Project Registration */}
+        <a
+          href="https://addinfo.infoweb4.vip"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold transition-all"
+          style={{
+            background: "rgba(0,245,255,0.08)",
+            border: "1px solid rgba(0,245,255,0.2)",
+            borderRadius: "8px",
+            color: "#00f5ff",
+            fontFamily: "'Space Grotesk', sans-serif",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(0,245,255,0.15)";
+            e.currentTarget.style.borderColor = "rgba(0,245,255,0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(0,245,255,0.08)";
+            e.currentTarget.style.borderColor = "rgba(0,245,255,0.2)";
+          }}
+        >
+          <Rocket size={12} />
+          {t("footer.infoweb4")}
+        </a>
       </div>
 
       {/* Share Modal */}

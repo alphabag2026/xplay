@@ -379,9 +379,7 @@ export default function AnnouncementBoard() {
           </div>
         )}
 
-        <div className="text-center mt-8">
-          <p className="text-xs" style={{ color: "rgba(226,232,240,0.3)" }}>📢 {bt("board.telegramNote")}</p>
-        </div>
+
       </div>
 
       {/* ===== Announcement Detail Modal ===== */}

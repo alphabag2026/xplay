@@ -13,6 +13,7 @@ import {
   urgentNotices, InsertUrgentNotice,
   pushSubscriptions, InsertPushSubscription,
   resources, InsertResource,
+  liveFeedConfig, InsertLiveFeedConfig,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -39,7 +40,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   try {
     const values: InsertUser = { openId: user.openId };
     const updateSet: Record<string, unknown> = {};
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = ["name", "email", "loginMethod", "passwordHash"] as const;
     type TextField = (typeof textFields)[number];
     const assignNullable = (field: TextField) => {
       const value = user[field];
@@ -49,6 +50,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet[field] = normalized;
     };
     textFields.forEach(assignNullable);
+    if (user.passwordHash !== undefined) { values.passwordHash = user.passwordHash; updateSet.passwordHash = user.passwordHash; }
     if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
     if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
     else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
@@ -66,6 +68,25 @@ export async function getUserByOpenId(openId: string) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUserPassword(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+}
+
+export async function updateUserTotp(userId: number, totpSecret: string | null, totpEnabled: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ totpSecret, totpEnabled }).where(eq(users.id, userId));
 }
 
 // ========== Announcement queries ==========
@@ -558,25 +579,39 @@ export async function getLeaderReferralStats() {
 
 export async function registerContactPublic(data: {
   name: string;
-  phone: string;
+  phone?: string | null;
   description?: string | null;
+  telegram?: string | null;
+  kakao?: string | null;
+  openKakaoChat?: string | null;
+  whatsapp?: string | null;
+  wechat?: string | null;
+  personalCommunity?: string | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  // Look up by name for upsert (since phone is now optional)
+  const lookupField = data.phone ? eq(communicationPartners.phone, data.phone) : eq(communicationPartners.name, data.name);
   const existing = await db.select().from(communicationPartners)
-    .where(eq(communicationPartners.phone, data.phone))
+    .where(lookupField)
     .limit(1);
+  const updateData = {
+    name: data.name,
+    description: data.description ?? null,
+    phone: data.phone ?? null,
+    telegram: data.telegram ?? null,
+    kakao: data.kakao ?? null,
+    openKakaoChat: data.openKakaoChat ?? null,
+    whatsapp: data.whatsapp ?? null,
+    wechat: data.wechat ?? null,
+    personalCommunity: data.personalCommunity ?? null,
+  };
   if (existing.length > 0) {
-    await db.update(communicationPartners).set({
-      name: data.name,
-      description: data.description ?? null,
-    }).where(eq(communicationPartners.id, existing[0].id));
+    await db.update(communicationPartners).set(updateData).where(eq(communicationPartners.id, existing[0].id));
     return { id: existing[0].id, isNew: false };
   } else {
     const result = await db.insert(communicationPartners).values({
-      name: data.name,
-      phone: data.phone,
-      description: data.description ?? null,
+      ...updateData,
       isUserRegistered: true,
       isActive: true,
     });
@@ -692,4 +727,30 @@ export async function deleteResource(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(resources).where(eq(resources.id, id));
+}
+
+// ========== Live Feed Config ==========
+
+export async function getLiveFeedConfig(key: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(liveFeedConfig).where(eq(liveFeedConfig.configKey, key)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getAllLiveFeedConfigs() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(liveFeedConfig);
+}
+
+export async function upsertLiveFeedConfig(key: string, value: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await getLiveFeedConfig(key);
+  if (existing) {
+    await db.update(liveFeedConfig).set({ configValue: value }).where(eq(liveFeedConfig.configKey, key));
+  } else {
+    await db.insert(liveFeedConfig).values({ configKey: key, configValue: value });
+  }
 }

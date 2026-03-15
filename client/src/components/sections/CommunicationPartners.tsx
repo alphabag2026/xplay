@@ -1,13 +1,14 @@
 /*
  * CommunicationPartners — Referral Contact Cards + Public Contact Registration + CS Support
- * Contact registration NO LONGER requires login — just name, phone, and brief intro.
+ * Contact registration NO LONGER requires login — just name + various contact methods.
+ * When a user registers their contact, their referrer's contact is replaced with theirs.
  */
 
 import { useApp } from "@/contexts/AppContext";
 import SectionTitle from "@/components/SectionTitle";
 import SectionWrapper from "@/components/SectionWrapper";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, MessageCircle, Users, UserPlus, X, Headphones, Send, CheckCircle } from "lucide-react";
+import { Phone, MessageCircle, Users, UserPlus, X, Headphones, Send, CheckCircle, Copy, Check, ExternalLink, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 
@@ -41,19 +42,63 @@ const CATEGORIES = [
 interface PartnerItem {
   id: number; name: string; description: string | null;
   phone: string | null; telegram: string | null; kakao: string | null;
-  whatsapp: string | null; wechat: string | null; avatarUrl: string | null;
+  openKakaoChat: string | null;
+  whatsapp: string | null; wechat: string | null;
+  personalCommunity: string | null;
+  avatarUrl: string | null;
 }
 
-const MESSENGER_CONFIGS: { key: keyof PartnerItem; label: string; color: string; bgColor: string; borderColor: string; getUrl: (v: string) => string; icon: string }[] = [
-  { key: "telegram", label: "Telegram", color: "#2AABEE", bgColor: "rgba(42,171,238,0.1)", borderColor: "rgba(42,171,238,0.2)", getUrl: (v) => `https://t.me/${v.replace("@", "")}`, icon: "✈️" },
-  { key: "kakao", label: "KakaoTalk", color: "#FEE500", bgColor: "rgba(254,229,0,0.08)", borderColor: "rgba(254,229,0,0.2)", getUrl: (v) => `https://open.kakao.com/o/${v}`, icon: "💬" },
-  { key: "whatsapp", label: "WhatsApp", color: "#25D366", bgColor: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.2)", getUrl: (v) => `https://wa.me/${v.replace(/[^0-9+]/g, "")}`, icon: "📱" },
-  { key: "wechat", label: "WeChat", color: "#07C160", bgColor: "rgba(7,193,96,0.1)", borderColor: "rgba(7,193,96,0.2)", getUrl: () => "#", icon: "💚" },
-  { key: "phone", label: "Phone", color: "#00f5ff", bgColor: "rgba(0,245,255,0.08)", borderColor: "rgba(0,245,255,0.15)", getUrl: (v) => `tel:${v}`, icon: "📞" },
+// ===== Copy Button Component =====
+function CopyBtn({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={handleCopy} className="p-1 rounded transition-colors" title={`Copy ${label}`}
+      style={{ color: copied ? "#22c55e" : "rgba(226,232,240,0.4)" }}>
+      {copied ? <Check size={11} /> : <Copy size={11} />}
+    </button>
+  );
+}
+
+// ===== Messenger configs with copy support =====
+const MESSENGER_CONFIGS: { key: keyof PartnerItem; label: string; color: string; bgColor: string; borderColor: string; getUrl: (v: string) => string | null; icon: string; copyable: boolean }[] = [
+  { key: "openKakaoChat", label: "오픈카카오", color: "#FEE500", bgColor: "rgba(254,229,0,0.08)", borderColor: "rgba(254,229,0,0.2)", getUrl: (v) => v.startsWith("http") ? v : `https://open.kakao.com/o/${v}`, icon: "💬", copyable: true },
+  { key: "kakao", label: "카카오ID", color: "#FEE500", bgColor: "rgba(254,229,0,0.08)", borderColor: "rgba(254,229,0,0.2)", getUrl: () => null, icon: "💛", copyable: true },
+  { key: "telegram", label: "Telegram", color: "#2AABEE", bgColor: "rgba(42,171,238,0.1)", borderColor: "rgba(42,171,238,0.2)", getUrl: (v) => `https://t.me/${v.replace("@", "")}`, icon: "✈️", copyable: true },
+  { key: "whatsapp", label: "WhatsApp", color: "#25D366", bgColor: "rgba(37,211,102,0.1)", borderColor: "rgba(37,211,102,0.2)", getUrl: (v) => `https://wa.me/${v.replace(/[^0-9+]/g, "")}`, icon: "📱", copyable: true },
+  { key: "wechat", label: "WeChat", color: "#07C160", bgColor: "rgba(7,193,96,0.1)", borderColor: "rgba(7,193,96,0.2)", getUrl: () => null, icon: "💚", copyable: true },
+  { key: "phone", label: "Phone", color: "#00f5ff", bgColor: "rgba(0,245,255,0.08)", borderColor: "rgba(0,245,255,0.15)", getUrl: (v) => `tel:${v}`, icon: "📞", copyable: true },
+];
+
+// ===== Community link configs =====
+interface CommunityLinks {
+  band?: string;
+  blog?: string;
+  webpage?: string;
+  social?: string;
+}
+
+const COMMUNITY_CONFIGS: { key: keyof CommunityLinks; label: string; icon: string; color: string }[] = [
+  { key: "band", label: "밴드", icon: "🎵", color: "#00C73C" },
+  { key: "blog", label: "블로그", icon: "📝", color: "#a855f7" },
+  { key: "webpage", label: "웹페이지", icon: "🌐", color: "#00f5ff" },
+  { key: "social", label: "소셜", icon: "👥", color: "#f97316" },
 ];
 
 function PartnerCard({ partner }: { partner: PartnerItem }) {
   const initials = partner.name.split(/[\s()（）]+/).filter(Boolean).map(w => w[0]).join("").substring(0, 2).toUpperCase();
+  
+  // Parse community links
+  let community: CommunityLinks = {};
+  try {
+    if (partner.personalCommunity) community = JSON.parse(partner.personalCommunity);
+  } catch {}
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -74,20 +119,50 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
             {partner.description && <p className="text-xs truncate" style={{ color: "rgba(226,232,240,0.5)" }}>{partner.description}</p>}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+
+        {/* Messenger buttons with copy */}
+        <div className="flex flex-wrap gap-2 mb-2">
           {MESSENGER_CONFIGS.map(cfg => {
             const value = partner[cfg.key] as string | null;
             if (!value) return null;
+            const url = cfg.getUrl(value);
             return (
-              <a key={cfg.key} href={cfg.getUrl(value)} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
-                style={{ background: cfg.bgColor, border: `1px solid ${cfg.borderColor}`, color: cfg.color }}
-                onClick={e => { if (cfg.key === "wechat") { e.preventDefault(); navigator.clipboard.writeText(value); alert(`WeChat ID copied: ${value}`); } }}>
-                <span>{cfg.icon}</span> {cfg.label}
-              </a>
+              <div key={cfg.key} className="inline-flex items-center gap-1 rounded-lg text-[11px] font-semibold"
+                style={{ background: cfg.bgColor, border: `1px solid ${cfg.borderColor}` }}>
+                {url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5"
+                    style={{ color: cfg.color }}>
+                    <span>{cfg.icon}</span> {cfg.label}
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1.5" style={{ color: cfg.color }}>
+                    <span>{cfg.icon}</span> {cfg.label}
+                  </span>
+                )}
+                <CopyBtn value={value} label={cfg.label} />
+              </div>
             );
           })}
         </div>
+
+        {/* Community links */}
+        {Object.keys(community).some(k => community[k as keyof CommunityLinks]) && (
+          <div className="flex flex-wrap gap-2 mt-2 pt-2" style={{ borderTop: "1px solid rgba(0,245,255,0.06)" }}>
+            {COMMUNITY_CONFIGS.map(cfg => {
+              const url = community[cfg.key];
+              if (!url) return null;
+              return (
+                <a key={cfg.key} href={url.startsWith("http") ? url : `https://${url}`} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all"
+                  style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.12)", color: cfg.color }}>
+                  <span>{cfg.icon}</span> {cfg.label}
+                  <ExternalLink size={9} />
+                </a>
+              );
+            })}
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -100,15 +175,41 @@ function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
   });
 
   const [saved, setSaved] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", description: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    description: "",
+    openKakaoChat: "",
+    kakao: "",
+    telegram: "",
+    whatsapp: "",
+    wechat: "",
+    communityBand: "",
+    communityBlog: "",
+    communityWebpage: "",
+    communitySocial: "",
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.phone.trim()) return;
+    if (!form.name.trim()) return;
+    
+    const personalCommunity: CommunityLinks = {};
+    if (form.communityBand.trim()) personalCommunity.band = form.communityBand.trim();
+    if (form.communityBlog.trim()) personalCommunity.blog = form.communityBlog.trim();
+    if (form.communityWebpage.trim()) personalCommunity.webpage = form.communityWebpage.trim();
+    if (form.communitySocial.trim()) personalCommunity.social = form.communitySocial.trim();
+
     registerMutation.mutate({
       name: form.name.trim(),
-      phone: form.phone.trim(),
+      phone: form.phone.trim() || null,
       description: form.description.trim() || null,
+      openKakaoChat: form.openKakaoChat.trim() || null,
+      kakao: form.kakao.trim() || null,
+      telegram: form.telegram.trim() || null,
+      whatsapp: form.whatsapp.trim() || null,
+      wechat: form.wechat.trim() || null,
+      personalCommunity: Object.keys(personalCommunity).length > 0 ? JSON.stringify(personalCommunity) : null,
     });
   };
 
@@ -119,7 +220,7 @@ function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
       className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
       onClick={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-md rounded-xl overflow-hidden max-h-[85vh] overflow-y-auto"
+        className="w-full max-w-md rounded-xl overflow-hidden max-h-[90vh] overflow-y-auto"
         style={{ background: "rgba(15,20,35,0.98)", border: "1px solid rgba(0,245,255,0.2)" }}
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-[rgba(0,245,255,0.1)]">
@@ -136,27 +237,79 @@ function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
           <div className="p-8 text-center">
             <CheckCircle size={48} className="mx-auto mb-3" style={{ color: "#00f5ff" }} />
             <p className="font-bold" style={{ color: "rgba(226,232,240,0.95)" }}>등록 완료!</p>
-            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>연락처가 등록되었습니다.</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>연락처가 등록되었습니다. 추천자의 연락처가 내 연락처로 교체됩니다.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
             <p className="text-xs mb-2" style={{ color: "rgba(226,232,240,0.4)" }}>
-              로그인 없이 간편하게 등록할 수 있습니다.
+              로그인 없이 간편하게 등록할 수 있습니다. 등록 시 추천자 연락처가 내 연락처로 교체됩니다.
             </p>
-            <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>이름 *</label>
-              <input className={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="표시될 이름" />
+
+            {/* Basic Info */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold" style={{ color: "#00f5ff" }}>기본 정보</p>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>이름 *</label>
+                <input className={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="표시될 이름" />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📞 전화번호</label>
+                <input className={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+82-10-1234-5678" />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>간단한 소개</label>
+                <textarea className={`${inputStyle} resize-none`} rows={2} value={form.description}
+                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                  placeholder="간단한 자기소개를 작성해주세요" />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📞 전화번호 *</label>
-              <input className={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} required placeholder="+82-10-1234-5678" />
+
+            {/* Messenger Info */}
+            <div className="space-y-2 pt-2" style={{ borderTop: "1px solid rgba(0,245,255,0.08)" }}>
+              <p className="text-[11px] font-semibold" style={{ color: "#00f5ff" }}>연락 수단 (복사 버튼으로 쉽게 공유)</p>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>💬 오픈카카오채팅방 주소</label>
+                <input className={inputStyle} value={form.openKakaoChat} onChange={e => setForm(f => ({ ...f, openKakaoChat: e.target.value }))} placeholder="https://open.kakao.com/o/..." />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>💛 개인 카카오아이디</label>
+                <input className={inputStyle} value={form.kakao} onChange={e => setForm(f => ({ ...f, kakao: e.target.value }))} placeholder="카카오톡 ID" />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>✈️ 개인 텔레그램 아이디</label>
+                <input className={inputStyle} value={form.telegram} onChange={e => setForm(f => ({ ...f, telegram: e.target.value }))} placeholder="@username" />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📱 왓츠앱</label>
+                <input className={inputStyle} value={form.whatsapp} onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} placeholder="+82-10-1234-5678" />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>💚 위챗 아이디</label>
+                <input className={inputStyle} value={form.wechat} onChange={e => setForm(f => ({ ...f, wechat: e.target.value }))} placeholder="WeChat ID" />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>간단한 소개</label>
-              <textarea className={`${inputStyle} resize-none`} rows={3} value={form.description}
-                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="간단한 자기소개를 작성해주세요" />
+
+            {/* Community Links */}
+            <div className="space-y-2 pt-2" style={{ borderTop: "1px solid rgba(0,245,255,0.08)" }}>
+              <p className="text-[11px] font-semibold" style={{ color: "#a855f7" }}>개인 커뮤니티 (클릭 시 자동 이동)</p>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>🎵 밴드</label>
+                <input className={inputStyle} value={form.communityBand} onChange={e => setForm(f => ({ ...f, communityBand: e.target.value }))} placeholder="https://band.us/..." />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📝 블로그</label>
+                <input className={inputStyle} value={form.communityBlog} onChange={e => setForm(f => ({ ...f, communityBlog: e.target.value }))} placeholder="https://blog.naver.com/..." />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>🌐 웹페이지</label>
+                <input className={inputStyle} value={form.communityWebpage} onChange={e => setForm(f => ({ ...f, communityWebpage: e.target.value }))} placeholder="https://..." />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>👥 개인소셜 (인스타/페이스북 등)</label>
+                <input className={inputStyle} value={form.communitySocial} onChange={e => setForm(f => ({ ...f, communitySocial: e.target.value }))} placeholder="https://instagram.com/..." />
+              </div>
             </div>
+
             <button type="submit" disabled={registerMutation.isPending}
               className="w-full py-2.5 rounded-lg text-sm font-bold transition-all"
               style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.2), rgba(168,85,247,0.2))", border: "1px solid rgba(0,245,255,0.3)", color: "#00f5ff" }}>

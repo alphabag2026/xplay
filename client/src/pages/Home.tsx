@@ -4,29 +4,28 @@
  * Colors: Deep Navy (#0a0e1a) + Neon Cyan (#00f5ff) + Purple (#a855f7)
  * Typography: Space Grotesk (display) + DM Sans (body)
  *
- * Section Order:
- * 1. UrgentBanner (최상단 — 회의 공지 한줄 띠)
+ * Section Order (Updated):
+ * 1. UrgentBanner
  * 2. Navbar
- * 3. Hero (title + stats + CTA)
- * 4. About XPLAY (detail intro + intro video) — embedded in HeroSection
- * 5. LiveTransactionFeed (global revenue live feed)
- * 6. BusinessSection
- * 7. GameSection
- * 8. StakingSection
- * 9. TeamSection
- * 10. TokenomicsSection
- * 11. RoadmapSection
+ * 3. Hero
+ * 4. BusinessSection
+ * 5. GameSection
+ * 6. ReferralSection (직추천 수익 — 팀수익 위에)
+ * 7. StakingSection
+ * 8. TeamSection
+ * 9. TokenomicsSection
+ * 10. RoadmapSection
+ * 11. LiveTransactionFeed (실시간 글로벌 매출 — 로드맵 다음)
  * 12. FlywheelSection
  * 13. SimulatorSection
  * 14. LiveChatSection
- * 15. AnnouncementBoard (공지방 + 뉴스)
- * 16. ResourcesSection (자료실)
+ * 15. AnnouncementBoard
+ * 16. ResourcesSection
  * 17. TutorialSection
  * 18. MediaGallerySection
- * 19. CommunicationPartners (소통 파트너 — 맨 아래)
- * 20. LeaderReferralSection (리더 추천 — 맨 아래)
- * 21. ReferralSection (소개자 — 맨 아래)
- * 22. Footer
+ * 19. CommunicationPartners
+ * 20. LeaderReferralSection
+ * 21. Footer
  */
 
 import Footer from "@/components/Footer";
@@ -57,13 +56,14 @@ export default function Home() {
       <UrgentBanner />
       <Navbar />
       <HeroSection />
-      <LiveTransactionFeed />
       <BusinessSection />
       <GameSection />
+      <ReferralSection />
       <StakingSection />
       <TeamSection />
       <TokenomicsSection />
       <RoadmapSection />
+      <LiveTransactionFeed />
       <FlywheelSection />
       <SimulatorSection />
       <LiveChatSection />
@@ -73,7 +73,6 @@ export default function Home() {
       <MediaGallerySection />
       <CommunicationPartners />
       <LeaderReferralSection />
-      <ReferralSection />
       <Footer />
     </div>
   );

@@ -319,12 +319,12 @@ const FAQ_ITEMS: FAQItem[] = [
       th: "ถอนเงินใช้เวลานานเท่าไหร่?",
     },
     answer: {
-      ko: "출금 요청 후 평균 2시간 이내에 처리됩니다. Polygon 네트워크의 빠른 트랜잭션 속도 덕분에 대부분 1시간 이내에 완료됩니다. 네트워크 혼잡 시 최대 24시간까지 소요될 수 있습니다.",
-      en: "Withdrawals are processed within ~2 hours on average. Thanks to Polygon's fast transaction speed, most complete within 1 hour. During network congestion, it may take up to 24 hours.",
-      zh: "提现平均2小时内处理。得益于Polygon的快速交易速度，大多数1小时内完成。网络拥堵时最多24小时。",
-      ja: "出金は平均2時間以内に処理。Polygonの高速トランザクションにより大半は1時間以内。ネットワーク混雑時は最大24時間。",
-      vi: "Rút tiền được xử lý trong ~2 giờ. Nhờ tốc độ nhanh của Polygon, hầu hết hoàn thành trong 1 giờ.",
-      th: "ถอนเงินดำเนินการภายใน ~2 ชั่วโมง ด้วยความเร็วของ Polygon ส่วนใหญ่เสร็จภายใน 1 ชั่วโมง",
+      ko: "봇 수익율이 자동으로 6.25 USDT에 도달하면 20%를 제외하고 자동으로 지갑으로 입금됩니다. 자금은 모두 BNB체인 중심이지만 다양한 체인을 사용합니다.",
+      en: "When bot earnings automatically reach 6.25 USDT, 20% is deducted and the remainder is automatically deposited to your wallet. Funds are primarily on the BNB chain but various chains are used.",
+      zh: "当机器人收益自动达到6.25 USDT时，扣除20%后自动存入您的钱包。资金主要在BNB链上，但也使用多种链。",
+      ja: "ボット収益が自動的に6.25 USDTに達すると、20%を差し引いて自動的にウォレットに入金されます。資金はBNBチェーン中心ですが、様々なチェーンを使用します。",
+      vi: "Khi lợi nhuận bot tự động đạt 6.25 USDT, 20% được khấu trừ và phần còn lại tự động chuyển vào ví. Tiền chủ yếu trên chuỗi BNB nhưng sử dụng nhiều chuỗi khác nhau.",
+      th: "เมื่อรายได้บอทถึง 6.25 USDT อัตโนมัติ หัก 20% แล้วฝากเข้ากระเป๋าอัตโนมัติ เงินอยู่บนเชน BNB เป็นหลักแต่ใช้หลายเชน",
     },
   },
   {

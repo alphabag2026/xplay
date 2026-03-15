@@ -23,7 +23,7 @@ import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
   LayoutDashboard, Megaphone, Newspaper, Users, HardDrive, UserCog,
-  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown, AlertTriangle, FolderOpen,
+  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown, AlertTriangle, FolderOpen, KeyRound, BarChart3,
 } from "lucide-react";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
@@ -49,7 +49,9 @@ const allMenuItems: MenuItem[] = [
   { icon: Crown, label: "리더 추천", path: "/admin/leader-referrals", roles: ["admin", "sub_admin"] },
   { icon: AlertTriangle, label: "긴급 공지", path: "/admin/urgent-notices", roles: ["admin", "sub_admin"] },
   { icon: Headphones, label: "CS 관리", path: "/admin/cs", roles: ["admin", "sub_admin"] },
+  { icon: BarChart3, label: "실시간 매출 설정", path: "/admin/live-feed", roles: ["admin"] },
   { icon: ScrollText, label: "감사 로그", path: "/admin/audit-logs", roles: ["admin"] },
+  { icon: KeyRound, label: "비밀번호 변경", path: "/admin/change-password", roles: ["admin", "sub_admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "admin-sidebar-width";

@@ -160,6 +160,22 @@ export default function Navbar() {
                   </p>
                 </div>
               )}
+
+              {/* Admin Login Button */}
+              <div className="mt-6 mx-2 pt-4" style={{ borderTop: "1px solid rgba(0,245,255,0.08)" }}>
+                <a
+                  href="/login"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-xs font-medium transition-all"
+                  style={{
+                    background: "rgba(168,85,247,0.1)",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                    color: "rgba(168,85,247,0.8)",
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                  관리자
+                </a>
+              </div>
             </motion.div>
           </motion.div>
         )}

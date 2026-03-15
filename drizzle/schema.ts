@@ -9,6 +9,9 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  totpSecret: varchar("totpSecret", { length: 255 }),
+  totpEnabled: boolean("totpEnabled").default(false).notNull(),
   role: mysqlEnum("role", ["user", "admin", "sub_admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -103,8 +106,11 @@ export const communicationPartners = mysqlTable("communicationPartners", {
   phone: varchar("phone", { length: 50 }),
   telegram: varchar("telegram", { length: 100 }),
   kakao: varchar("kakao", { length: 100 }),
+  openKakaoChat: text("openKakaoChat"),
   whatsapp: varchar("whatsapp", { length: 50 }),
   wechat: varchar("wechat", { length: 100 }),
+  /** Personal community links (JSON): { band, blog, webpage, social } */
+  personalCommunity: text("personalCommunity"),
   avatarUrl: text("avatarUrl"),
   /** Whether this was registered by a user (vs admin/telegram) */
   isUserRegistered: boolean("isUserRegistered").default(false).notNull(),
@@ -299,3 +305,19 @@ export const resources = mysqlTable("resources", {
 
 export type Resource = typeof resources.$inferSelect;
 export type InsertResource = typeof resources.$inferInsert;
+
+/**
+ * Live Feed Configuration — admin-editable settings for the live transaction feed.
+ * Stores JSON config for countries, volume, timing rules, etc.
+ */
+export const liveFeedConfig = mysqlTable("liveFeedConfig", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Config key: 'countries', 'volume', 'timing', 'general' */
+  configKey: varchar("configKey", { length: 50 }).notNull().unique(),
+  /** JSON value */
+  configValue: text("configValue").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LiveFeedConfig = typeof liveFeedConfig.$inferSelect;
+export type InsertLiveFeedConfig = typeof liveFeedConfig.$inferInsert;
