@@ -28,6 +28,8 @@ import {
   getResources, getAllResources, getResourceById, createResource, updateResource, deleteResource,
   getAllLiveFeedConfigs, getLiveFeedConfig, upsertLiveFeedConfig,
   fetchOgImage,
+  getTutorials, getAllTutorials, getTutorialById, createTutorial, updateTutorial, deleteTutorial,
+  getFaqItems, getAllFaqItems, getFaqItemById, createFaqItem, updateFaqItem, deleteFaqItem,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -1126,6 +1128,116 @@ export const appRouter = router({
           return { success: true };
         }),
     }),
+  }),
+
+  // ========== Tutorials (public + admin) ==========
+  tutorials: router({
+    list: publicProcedure.query(async () => {
+      return getTutorials();
+    }),
+    adminList: adminProcedure.query(async () => {
+      return getAllTutorials();
+    }),
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return getTutorialById(input.id);
+      }),
+    create: adminProcedure
+      .input(z.object({
+        youtubeId: z.string().min(1),
+        videoUrl: z.string().nullable().optional(),
+        iconName: z.string().default("Rocket"),
+        iconColor: z.string().default("#00f5ff"),
+        title: z.string().min(1),
+        description: z.string().min(1),
+        tooltip: z.string().nullable().optional(),
+        category: z.string().default("beginner"),
+        steps: z.string().nullable().optional(),
+        sortOrder: z.number().default(0),
+        isActive: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await createTutorial(input as any);
+        await logAction(ctx, "create", "tutorial", result.id, `튜토리얼: ${JSON.parse(input.title).ko || 'New'}`);
+        return result;
+      }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        youtubeId: z.string().optional(),
+        videoUrl: z.string().nullable().optional(),
+        iconName: z.string().optional(),
+        iconColor: z.string().optional(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        tooltip: z.string().nullable().optional(),
+        category: z.string().optional(),
+        steps: z.string().nullable().optional(),
+        sortOrder: z.number().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await updateTutorial(id, data as any);
+        await logAction(ctx, "update", "tutorial", id);
+        return { success: true };
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await deleteTutorial(input.id);
+        await logAction(ctx, "delete", "tutorial", input.id);
+        return { success: true };
+      }),
+  }),
+
+  // ========== FAQ Items (public + admin) ==========
+  faq: router({
+    list: publicProcedure.query(async () => {
+      return getFaqItems();
+    }),
+    adminList: adminProcedure.query(async () => {
+      return getAllFaqItems();
+    }),
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return getFaqItemById(input.id);
+      }),
+    create: adminProcedure
+      .input(z.object({
+        question: z.string().min(1),
+        answer: z.string().min(1),
+        sortOrder: z.number().default(0),
+        isActive: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await createFaqItem(input as any);
+        await logAction(ctx, "create", "faq", result.id, `FAQ: ${JSON.parse(input.question).ko || 'New'}`);
+        return result;
+      }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        question: z.string().optional(),
+        answer: z.string().optional(),
+        sortOrder: z.number().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await updateFaqItem(id, data as any);
+        await logAction(ctx, "update", "faq", id);
+        return { success: true };
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await deleteFaqItem(input.id);
+        await logAction(ctx, "delete", "faq", input.id);
+        return { success: true };
+      }),
   }),
 });
 

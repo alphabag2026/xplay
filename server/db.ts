@@ -14,6 +14,8 @@ import {
   pushSubscriptions, InsertPushSubscription,
   resources, InsertResource,
   liveFeedConfig, InsertLiveFeedConfig,
+  tutorials, InsertTutorial,
+  faqItems, InsertFaqItem,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -785,4 +787,94 @@ export async function fetchOgImage(url: string): Promise<string | null> {
     console.log("[OG Image] Fetch error:", e);
     return null;
   }
+}
+
+// ========== Tutorials ==========
+
+/** Get active tutorials for frontend */
+export async function getTutorials() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(tutorials)
+    .where(eq(tutorials.isActive, true))
+    .orderBy(asc(tutorials.sortOrder), desc(tutorials.createdAt));
+}
+
+/** Get all tutorials for admin */
+export async function getAllTutorials() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(tutorials)
+    .orderBy(asc(tutorials.sortOrder), desc(tutorials.createdAt));
+}
+
+export async function getTutorialById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(tutorials).where(eq(tutorials.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createTutorial(data: Omit<InsertTutorial, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(tutorials).values(data as any);
+  return { id: Number(result[0].insertId) };
+}
+
+export async function updateTutorial(id: number, data: Partial<InsertTutorial>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(tutorials).set(data as any).where(eq(tutorials.id, id));
+}
+
+export async function deleteTutorial(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(tutorials).where(eq(tutorials.id, id));
+}
+
+// ========== FAQ Items ==========
+
+/** Get active FAQ items for frontend */
+export async function getFaqItems() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(faqItems)
+    .where(eq(faqItems.isActive, true))
+    .orderBy(asc(faqItems.sortOrder), desc(faqItems.createdAt));
+}
+
+/** Get all FAQ items for admin */
+export async function getAllFaqItems() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(faqItems)
+    .orderBy(asc(faqItems.sortOrder), desc(faqItems.createdAt));
+}
+
+export async function getFaqItemById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(faqItems).where(eq(faqItems.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createFaqItem(data: Omit<InsertFaqItem, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(faqItems).values(data as any);
+  return { id: Number(result[0].insertId) };
+}
+
+export async function updateFaqItem(id: number, data: Partial<InsertFaqItem>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(faqItems).set(data as any).where(eq(faqItems.id, id));
+}
+
+export async function deleteFaqItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(faqItems).where(eq(faqItems.id, id));
 }

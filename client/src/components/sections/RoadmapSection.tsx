@@ -21,7 +21,7 @@ export default function RoadmapSection() {
       highlightIcon: <Users size={14} />,
       accentColor: "#00f5ff",
       lineActive: true,
-      link: "https://k-play.net",
+      link: "https://x-play.net",
     },
     {
       icon: <Bot size={24} />,

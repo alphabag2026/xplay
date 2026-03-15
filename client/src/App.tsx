@@ -20,6 +20,7 @@ import AdminUrgentNotices from "./pages/admin/UrgentNotices";
 import AdminResources from "./pages/admin/Resources";
 import AdminChangePassword from "./pages/admin/ChangePassword";
 import AdminLiveFeedConfig from "./pages/admin/LiveFeedConfig";
+import AdminTutorials from "./pages/admin/Tutorials";
 import Login from "./pages/Login";
 
 function Router() {
@@ -66,6 +67,9 @@ function Router() {
       </Route>
       <Route path="/admin/live-feed">
         <AdminLayout><AdminLiveFeedConfig /></AdminLayout>
+      </Route>
+      <Route path="/admin/tutorials">
+        <AdminLayout><AdminTutorials /></AdminLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

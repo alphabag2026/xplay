@@ -7,7 +7,7 @@ import { useApp } from "@/contexts/AppContext";
 import { GAME_PREDICTION, IMAGES, LOTTO_DISTRIBUTION } from "@/lib/data";
 import { Rocket, ExternalLink } from "lucide-react";
 
-const K_PLAY_URL = "https://k-play.net";
+const K_PLAY_URL = "https://x-play.net";
 
 export default function GameSection() {
   const { t } = useApp();
@@ -74,6 +74,65 @@ export default function GameSection() {
           <ExternalLink size={14} />
         </a>
       </div>
+
+      {/* x-play.net Preview Card */}
+      <a
+        href={K_PLAY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mb-8 group"
+      >
+        <div
+          className="relative overflow-hidden transition-all duration-300 group-hover:scale-[1.01]"
+          style={{
+            borderRadius: "16px",
+            border: "1px solid rgba(0,245,255,0.2)",
+            boxShadow: "0 0 30px rgba(0,245,255,0.1), inset 0 0 30px rgba(0,0,0,0.3)",
+          }}
+        >
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663373200888/45mU6xhgdRUAikfBjGs2KY/xplay-predict-screenshot_d3ca49aa.webp"
+            alt="XPLAY Prediction Market"
+            className="w-full h-auto object-cover"
+            style={{ maxHeight: "400px", objectPosition: "top" }}
+          />
+          {/* Overlay gradient */}
+          <div
+            className="absolute inset-0 flex items-end"
+            style={{
+              background: "linear-gradient(to top, rgba(10,14,26,0.95) 0%, rgba(10,14,26,0.5) 40%, transparent 70%)",
+            }}
+          >
+            <div className="p-5 sm:p-6 w-full">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p
+                    className="text-lg sm:text-xl font-bold mb-1"
+                    style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    XPLAY Prediction Market
+                  </p>
+                  <p className="text-xs sm:text-sm" style={{ color: "rgba(226,232,240,0.7)" }}>
+                    Web3 Prediction · Hash Game · RPS Game · AI Bots
+                  </p>
+                </div>
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all group-hover:scale-105"
+                  style={{
+                    background: "linear-gradient(135deg, #00f5ff, #a855f7)",
+                    color: "#0a0e1a",
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    boxShadow: "0 0 15px rgba(0,245,255,0.3)",
+                  }}
+                >
+                  <ExternalLink size={14} />
+                  {t("game.tryNow")}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
         <StatBox label={t("game.round")} value="30s" sub={t("game.round.sub")} delay={0} />

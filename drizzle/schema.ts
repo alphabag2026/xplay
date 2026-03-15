@@ -321,3 +321,60 @@ export const liveFeedConfig = mysqlTable("liveFeedConfig", {
 
 export type LiveFeedConfig = typeof liveFeedConfig.$inferSelect;
 export type InsertLiveFeedConfig = typeof liveFeedConfig.$inferInsert;
+
+/**
+ * Tutorials — managed via back-office.
+ * Each tutorial has a YouTube video, title/description in multiple languages (JSON),
+ * category, steps (JSON), and display order.
+ */
+export const tutorials = mysqlTable("tutorials", {
+  id: int("id").autoincrement().primaryKey(),
+  /** YouTube video ID */
+  youtubeId: varchar("youtubeId", { length: 50 }).notNull(),
+  /** Optional: direct video URL (R2 or external) for non-YouTube videos */
+  videoUrl: text("videoUrl"),
+  /** Icon name (lucide icon key) */
+  iconName: varchar("iconName", { length: 50 }).default("Rocket").notNull(),
+  /** Icon color hex */
+  iconColor: varchar("iconColor", { length: 20 }).default("#00f5ff").notNull(),
+  /** JSON: { ko: "...", en: "...", zh: "...", ... } */
+  title: text("title").notNull(),
+  /** JSON: { ko: "...", en: "...", zh: "...", ... } */
+  description: text("description").notNull(),
+  /** JSON: { ko: "...", en: "...", zh: "...", ... } */
+  tooltip: text("tooltip"),
+  /** Category: beginner, intermediate, advanced */
+  category: varchar("category", { length: 20 }).default("beginner").notNull(),
+  /** JSON array of steps: [{ title: { ko, en, ... }, desc: { ko, en, ... } }, ...] */
+  steps: text("steps"),
+  /** Sort order (lower = first) */
+  sortOrder: int("sortOrder").default(0).notNull(),
+  /** Whether this tutorial is visible */
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Tutorial = typeof tutorials.$inferSelect;
+export type InsertTutorial = typeof tutorials.$inferInsert;
+
+/**
+ * FAQ Items — managed via back-office.
+ * Question and answer in multiple languages (JSON).
+ */
+export const faqItems = mysqlTable("faqItems", {
+  id: int("id").autoincrement().primaryKey(),
+  /** JSON: { ko: "...", en: "...", zh: "...", ... } */
+  question: text("question").notNull(),
+  /** JSON: { ko: "...", en: "...", zh: "...", ... } */
+  answer: text("answer").notNull(),
+  /** Sort order (lower = first) */
+  sortOrder: int("sortOrder").default(0).notNull(),
+  /** Whether this FAQ is visible */
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FaqItem = typeof faqItems.$inferSelect;
+export type InsertFaqItem = typeof faqItems.$inferInsert;
