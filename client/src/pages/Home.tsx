@@ -5,25 +5,28 @@
  * Typography: Space Grotesk (display) + DM Sans (body)
  *
  * Section Order:
- * 1. Hero (title + stats + CTA)
- * 2. About XPLAY (detail intro + intro video) — embedded in HeroSection
- * 3. LiveTransactionFeed (global revenue live feed)
- * 4. BusinessSection
- * 5. GameSection
- * 6. StakingSection
- * 7. ReferralSection
- * 8. TeamSection
- * 9. TokenomicsSection
- * 10. RoadmapSection
- * 11. FlywheelSection
- * 12. SimulatorSection
- * 13. LiveChatSection
- * 14. AnnouncementBoard (공지방 + 뉴스)
- * 15. CommunicationPartners (소통 파트너)
- * 16. ResourcesSection (자료실)
- * 17. TutorialSection (자료실 아래)
- * 18. MediaGallerySection (자료실 아래)
- * 19. Footer
+ * 1. UrgentBanner (최상단 — 회의 공지 한줄 띠)
+ * 2. Navbar
+ * 3. Hero (title + stats + CTA)
+ * 4. About XPLAY (detail intro + intro video) — embedded in HeroSection
+ * 5. LiveTransactionFeed (global revenue live feed)
+ * 6. BusinessSection
+ * 7. GameSection
+ * 8. StakingSection
+ * 9. TeamSection
+ * 10. TokenomicsSection
+ * 11. RoadmapSection
+ * 12. FlywheelSection
+ * 13. SimulatorSection
+ * 14. LiveChatSection
+ * 15. AnnouncementBoard (공지방 + 뉴스)
+ * 16. CommunicationPartners (소통 파트너)
+ * 17. ResourcesSection (자료실)
+ * 18. TutorialSection
+ * 19. MediaGallerySection
+ * 20. LeaderReferralSection (리더 추천 — 맨 아래)
+ * 21. ReferralSection (소개자 — 맨 아래)
+ * 22. Footer
  */
 
 import Footer from "@/components/Footer";
@@ -58,7 +61,6 @@ export default function Home() {
       <BusinessSection />
       <GameSection />
       <StakingSection />
-      <ReferralSection />
       <TeamSection />
       <TokenomicsSection />
       <RoadmapSection />
@@ -66,11 +68,12 @@ export default function Home() {
       <SimulatorSection />
       <LiveChatSection />
       <AnnouncementBoard />
-      <LeaderReferralSection />
       <CommunicationPartners />
       <ResourcesSection />
       <TutorialSection />
       <MediaGallerySection />
+      <LeaderReferralSection />
+      <ReferralSection />
       <Footer />
     </div>
   );
