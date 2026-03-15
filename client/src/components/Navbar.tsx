@@ -1,6 +1,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import LangSelector from "./LangSelector";
+import { trpc } from "@/lib/trpc";
 import { Link2, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,6 +30,13 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Check if urgent banner is active to offset navbar position
+  const { data: urgentNotices } = trpc.urgentNotice.active.useQuery(undefined, {
+    refetchInterval: 15000,
+  });
+  const hasBanner = (urgentNotices ?? []).length > 0;
+  const bannerHeight = hasBanner ? 36 : 0;
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handler, { passive: true });
@@ -51,8 +59,9 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        className="fixed left-0 right-0 z-50 transition-all duration-300"
         style={{
+          top: `${bannerHeight}px`,
           background: scrolled ? "rgba(10,14,26,0.95)" : "rgba(10,14,26,0.5)",
           backdropFilter: "blur(20px)",
           borderBottom: scrolled ? "1px solid rgba(0,245,255,0.08)" : "none",
@@ -113,8 +122,9 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute right-0 top-0 bottom-0 w-64 pt-16 pb-6 px-4 overflow-y-auto"
+              className="absolute right-0 top-0 bottom-0 w-64 pb-6 px-4 overflow-y-auto"
               style={{
+                paddingTop: `${bannerHeight + 56}px`,
                 background: "rgba(10,14,26,0.98)",
                 borderLeft: "1px solid rgba(0,245,255,0.1)",
                 backdropFilter: "blur(30px)",

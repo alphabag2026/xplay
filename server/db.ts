@@ -10,6 +10,7 @@ import {
   auditLogs, InsertAuditLog,
   csTickets, InsertCsTicket,
   leaderReferrals, InsertLeaderReferral,
+  urgentNotices, InsertUrgentNotice,
   pushSubscriptions, InsertPushSubscription,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -580,4 +581,54 @@ export async function registerContactPublic(data: {
     });
     return { id: result[0].insertId, isNew: true };
   }
+}
+
+// ========== Urgent Notices queries ==========
+
+export async function createUrgentNotice(data: InsertUrgentNotice) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(urgentNotices).values(data);
+  return result[0].insertId;
+}
+
+export async function getActiveUrgentNotices() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(urgentNotices)
+    .where(eq(urgentNotices.isActive, true))
+    .orderBy(desc(urgentNotices.createdAt))
+    .limit(10);
+}
+
+export async function getAllUrgentNotices(opts?: { limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) return { notices: [], total: 0 };
+  const limit = opts?.limit ?? 50;
+  const offset = opts?.offset ?? 0;
+  const [totalResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(urgentNotices);
+  const notices = await db.select().from(urgentNotices)
+    .orderBy(desc(urgentNotices.createdAt))
+    .limit(limit)
+    .offset(offset);
+  return { notices, total: totalResult?.count ?? 0 };
+}
+
+export async function updateUrgentNoticeActive(id: number, isActive: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(urgentNotices).set({ isActive }).where(eq(urgentNotices.id, id));
+}
+
+export async function deleteUrgentNotice(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(urgentNotices).where(eq(urgentNotices.id, id));
+}
+
+/** Deactivate all active urgent notices */
+export async function deactivateAllUrgentNotices() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(urgentNotices).set({ isActive: false }).where(eq(urgentNotices.isActive, true));
 }

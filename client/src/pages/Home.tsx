@@ -46,10 +46,12 @@ import TutorialSection from "@/components/sections/TutorialSection";
 import AnnouncementBoard from "@/components/sections/AnnouncementBoard";
 import CommunicationPartners from "@/components/sections/CommunicationPartners";
 import LeaderReferralSection from "@/components/sections/LeaderReferralSection";
+import UrgentBanner from "@/components/UrgentBanner";
 
 export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "#0a0e1a" }}>
+      <UrgentBanner />
       <Navbar />
       <HeroSection />
       <LiveTransactionFeed />

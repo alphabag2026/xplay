@@ -16,6 +16,7 @@ import AdminUsers from "./pages/admin/Users";
 import AdminAuditLogs from "./pages/admin/AuditLogs";
 import AdminCsTickets from "./pages/admin/CsTickets";
 import AdminLeaderReferrals from "./pages/admin/LeaderReferrals";
+import AdminUrgentNotices from "./pages/admin/UrgentNotices";
 
 function Router() {
   return (
@@ -45,6 +46,9 @@ function Router() {
       </Route>
       <Route path="/admin/cs">
         <AdminLayout><AdminCsTickets /></AdminLayout>
+      </Route>
+      <Route path="/admin/urgent-notices">
+        <AdminLayout><AdminUrgentNotices /></AdminLayout>
       </Route>
       <Route path="/admin/audit-logs">
         <AdminLayout><AdminAuditLogs /></AdminLayout>

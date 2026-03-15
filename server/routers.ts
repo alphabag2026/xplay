@@ -23,6 +23,8 @@ import {
   createLeaderReferral, getLeaderReferrals, getLeaderReferralById,
   updateLeaderReferralStatus, getLeaderReferralStats,
   registerContactPublic,
+  createUrgentNotice, getActiveUrgentNotices, getAllUrgentNotices,
+  updateUrgentNoticeActive, deleteUrgentNotice, deactivateAllUrgentNotices,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -285,6 +287,14 @@ export const appRouter = router({
 
         return { success: true, id };
       }),
+  }),
+
+  // ========== Urgent Notices (Red Banner) ==========
+  urgentNotice: router({
+    /** Get active urgent notices (public, no auth required) */
+    active: publicProcedure.query(async () => {
+      return getActiveUrgentNotices();
+    }),
   }),
 
   // ========== CS Support Tickets ==========
@@ -718,6 +728,62 @@ export const appRouter = router({
         .mutation(async ({ input, ctx }) => {
           await updateCsTicketStatus(input.id, input.status);
           await logAction(ctx, "updateStatus", "csTicket", input.id, `상태: ${input.status}`);
+          return { success: true };
+        }),
+    }),
+
+    // ===== Urgent Notices Management =====
+    urgentNotices: router({
+      list: subAdminProcedure
+        .input(z.object({
+          limit: z.number().min(1).max(200).optional(),
+          offset: z.number().min(0).optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return getAllUrgentNotices({
+            limit: input?.limit ?? 50,
+            offset: input?.offset ?? 0,
+          });
+        }),
+
+      create: subAdminProcedure
+        .input(z.object({
+          message: z.string().min(1).max(2000),
+          meetingType: z.enum(["zoom", "tencent", "debox", "google", "general"]).optional(),
+          meetingLink: z.string().max(2000).nullable().optional(),
+          meetingTime: z.string().max(200).nullable().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          const id = await createUrgentNotice({
+            message: input.message.trim(),
+            meetingType: input.meetingType ?? "general",
+            meetingLink: input.meetingLink?.trim() ?? null,
+            meetingTime: input.meetingTime?.trim() ?? null,
+          });
+          await logAction(ctx, "create", "urgentNotice", id, `긴급: ${input.message.substring(0, 100)}`);
+          return { success: true, id };
+        }),
+
+      toggleActive: subAdminProcedure
+        .input(z.object({ id: z.number(), isActive: z.boolean() }))
+        .mutation(async ({ input, ctx }) => {
+          await updateUrgentNoticeActive(input.id, input.isActive);
+          await logAction(ctx, "toggleActive", "urgentNotice", input.id, `활성: ${input.isActive}`);
+          return { success: true };
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input, ctx }) => {
+          await deleteUrgentNotice(input.id);
+          await logAction(ctx, "delete", "urgentNotice", input.id);
+          return { success: true };
+        }),
+
+      deactivateAll: subAdminProcedure
+        .mutation(async ({ ctx }) => {
+          await deactivateAllUrgentNotices();
+          await logAction(ctx, "deactivateAll", "urgentNotice");
           return { success: true };
         }),
     }),

@@ -23,7 +23,7 @@ import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import {
   LayoutDashboard, Megaphone, Newspaper, Users, HardDrive, UserCog,
-  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown,
+  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown, AlertTriangle,
 } from "lucide-react";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
@@ -46,6 +46,7 @@ const allMenuItems: MenuItem[] = [
   { icon: HardDrive, label: "미디어 (R2)", path: "/admin/media", roles: ["admin"] },
   { icon: UserCog, label: "사용자 관리", path: "/admin/users", roles: ["admin"] },
   { icon: Crown, label: "리더 추천", path: "/admin/leader-referrals", roles: ["admin", "sub_admin"] },
+  { icon: AlertTriangle, label: "긴급 공지", path: "/admin/urgent-notices", roles: ["admin", "sub_admin"] },
   { icon: Headphones, label: "CS 관리", path: "/admin/cs", roles: ["admin", "sub_admin"] },
   { icon: ScrollText, label: "감사 로그", path: "/admin/audit-logs", roles: ["admin"] },
 ];

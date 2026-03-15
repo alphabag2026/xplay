@@ -258,4 +258,38 @@ telegramRouter.post("/api/telegram/cs-reply", async (req, res) => {
   }
 });
 
+// ========== Urgent Notice (Red Banner) ==========
+telegramRouter.post("/api/telegram/urgent", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { message, meetingType, meetingLink, meetingTime } = req.body;
+    if (!message) return res.status(400).json({ error: "Message is required" });
+
+    const { createUrgentNotice } = await import("./db");
+    const id = await createUrgentNotice({
+      message,
+      meetingType: meetingType || "general",
+      meetingLink: meetingLink || null,
+      meetingTime: meetingTime || null,
+    });
+    return res.json({ success: true, id });
+  } catch (error) {
+    console.error("[Telegram Urgent] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ========== Deactivate All Urgent Notices ==========
+telegramRouter.post("/api/telegram/urgent/off", async (req, res) => {
+  try {
+    if (!verifySecret(req, res)) return;
+    const { deactivateAllUrgentNotices } = await import("./db");
+    await deactivateAllUrgentNotices();
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("[Telegram Urgent Off] Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export { telegramRouter };

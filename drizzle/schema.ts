@@ -219,6 +219,32 @@ export type LeaderReferral = typeof leaderReferrals.$inferSelect;
 export type InsertLeaderReferral = typeof leaderReferrals.$inferInsert;
 
 /**
+ * Urgent notices — red banner bar above navbar.
+ * Supports meeting info (Zoom, Tencent Meeting, DeBox, Google Meet).
+ * Created via Telegram bot or admin API.
+ */
+export const urgentNotices = mysqlTable("urgentNotices", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Notice message text */
+  message: text("message").notNull(),
+  /** Meeting type: zoom, tencent, debox, google, general */
+  meetingType: varchar("meetingType", { length: 30 }).default("general").notNull(),
+  /** Meeting link URL */
+  meetingLink: text("meetingLink"),
+  /** Meeting time description (e.g., "2026-03-15 20:00 KST") */
+  meetingTime: varchar("meetingTime", { length: 200 }),
+  /** Whether this notice is currently active */
+  isActive: boolean("isActive").default(true).notNull(),
+  /** Author name */
+  authorName: varchar("authorName", { length: 100 }).default("XPLAY Admin").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UrgentNotice = typeof urgentNotices.$inferSelect;
+export type InsertUrgentNotice = typeof urgentNotices.$inferInsert;
+
+/**
  * Push subscriptions — stores browser push notification subscriptions.
  */
 export const pushSubscriptions = mysqlTable("pushSubscriptions", {
