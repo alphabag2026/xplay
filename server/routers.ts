@@ -20,6 +20,9 @@ import {
   generateTicketNo, createCsTicket, getCsTickets, getCsTicketById, getCsTicketByNo,
   replyCsTicket, updateCsTicketStatus, getCsTicketStats,
   getPartnerByOpenId, upsertMyContact,
+  createLeaderReferral, getLeaderReferrals, getLeaderReferralById,
+  updateLeaderReferralStatus, getLeaderReferralStats,
+  registerContactPublic,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -190,33 +193,96 @@ export const appRouter = router({
     }),
   }),
 
-  // ========== My Contact (User-registered Partner) ==========
+  // ========== My Contact (Public - no login required) ==========
   myContact: router({
-    get: protectedProcedure.query(async ({ ctx }) => {
-      const result = await getPartnerByOpenId(ctx.user.openId);
-      return result ?? null;
-    }),
-
-    upsert: protectedProcedure
+    register: publicProcedure
       .input(z.object({
         name: z.string().min(1).max(200),
-        description: z.string().nullable().optional(),
-        phone: z.string().nullable().optional(),
-        telegram: z.string().nullable().optional(),
-        kakao: z.string().nullable().optional(),
-        whatsapp: z.string().nullable().optional(),
-        wechat: z.string().nullable().optional(),
+        phone: z.string().min(1).max(50),
+        description: z.string().max(500).nullable().optional(),
       }))
-      .mutation(async ({ input, ctx }) => {
-        const id = await upsertMyContact(ctx.user.openId, {
-          name: input.name,
-          description: input.description ?? null,
-          phone: input.phone ?? null,
-          telegram: input.telegram ?? null,
-          kakao: input.kakao ?? null,
-          whatsapp: input.whatsapp ?? null,
-          wechat: input.wechat ?? null,
+      .mutation(async ({ input }) => {
+        const result = await registerContactPublic({
+          name: input.name.trim(),
+          phone: input.phone.trim(),
+          description: input.description?.trim() ?? null,
         });
+        return { success: true, id: result.id, isNew: result.isNew };
+      }),
+  }),
+
+  // ========== Leader Referral Program ==========
+  leaderReferral: router({
+    submit: publicProcedure
+      .input(z.object({
+        referralType: z.enum(["self", "acquaintance"]),
+        referrerName: z.string().min(1).max(200),
+        referrerContact: z.string().min(1).max(300),
+        referrerEmail: z.string().max(320).nullable().optional(),
+        leaderName: z.string().max(200).nullable().optional(),
+        leaderContact: z.string().max(300).nullable().optional(),
+        previousExperience: z.string().max(5000).nullable().optional(),
+        teamSize: z.string().max(100).nullable().optional(),
+        organizationStructure: z.string().max(5000).nullable().optional(),
+        region: z.string().max(200).nullable().optional(),
+        expertise: z.string().max(300).nullable().optional(),
+        introduction: z.string().max(5000).nullable().optional(),
+        additionalNotes: z.string().max(5000).nullable().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await createLeaderReferral({
+          referralType: input.referralType,
+          referrerName: input.referrerName.trim(),
+          referrerContact: input.referrerContact.trim(),
+          referrerEmail: input.referrerEmail?.trim() ?? null,
+          leaderName: input.leaderName?.trim() ?? null,
+          leaderContact: input.leaderContact?.trim() ?? null,
+          previousExperience: input.previousExperience?.trim() ?? null,
+          teamSize: input.teamSize?.trim() ?? null,
+          organizationStructure: input.organizationStructure?.trim() ?? null,
+          region: input.region?.trim() ?? null,
+          expertise: input.expertise?.trim() ?? null,
+          introduction: input.introduction?.trim() ?? null,
+          additionalNotes: input.additionalNotes?.trim() ?? null,
+        });
+
+        // Send Telegram notification
+        try {
+          const botToken = process.env.TELEGRAM_BOT_TOKEN;
+          if (botToken) {
+            const typeLabel = input.referralType === "self" ? "본인 추천" : "지인 추천";
+            const text = [
+              `\u{1F451} 새 리더 추천 접수`,
+              ``,
+              `\u{1F4CB} 유형: ${typeLabel}`,
+              `\u{1F464} 추천자: ${input.referrerName}`,
+              `\u{1F4DE} 연락처: ${input.referrerContact}`,
+              input.referrerEmail ? `\u{1F4E7} 이메일: ${input.referrerEmail}` : "",
+              input.referralType === "acquaintance" && input.leaderName ? `\u{1F31F} 리더: ${input.leaderName}` : "",
+              input.teamSize ? `\u{1F465} 팀 규모: ${input.teamSize}` : "",
+              input.region ? `\u{1F30D} 지역: ${input.region}` : "",
+              input.expertise ? `\u{1F3AF} 분야: ${input.expertise}` : "",
+              input.introduction ? `\n\u{1F4DD} 소개:\n${input.introduction.substring(0, 300)}` : "",
+            ].filter(Boolean).join("\n");
+
+            const webhookUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const chatIds = process.env.TELEGRAM_ADMIN_CHAT_IDS?.split(",") ?? [];
+            for (const chatId of chatIds) {
+              try {
+                await fetch(webhookUrl, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ chat_id: chatId.trim(), text }),
+                });
+              } catch (e) {
+                console.error(`[LeaderReferral] Failed to notify chat ${chatId}:`, e);
+              }
+            }
+          }
+        } catch (e) {
+          console.error("[LeaderReferral Notification] Error:", e);
+        }
+
         return { success: true, id };
       }),
   }),
@@ -562,6 +628,46 @@ export const appRouter = router({
         .mutation(async ({ input, ctx }) => {
           await hardDeletePartner(input.id);
           await logAction(ctx, "delete", "partner", input.id);
+          return { success: true };
+        }),
+    }),
+
+    // ===== Leader Referral Management =====
+    leaderReferrals: router({
+      list: subAdminProcedure
+        .input(z.object({
+          status: z.string().optional(),
+          limit: z.number().min(1).max(200).optional(),
+          offset: z.number().min(0).optional(),
+        }).optional())
+        .query(async ({ input }) => {
+          return getLeaderReferrals({
+            status: input?.status,
+            limit: input?.limit ?? 50,
+            offset: input?.offset ?? 0,
+          });
+        }),
+
+      stats: subAdminProcedure.query(async () => {
+        return getLeaderReferralStats();
+      }),
+
+      getById: subAdminProcedure
+        .input(z.object({ id: z.number() }))
+        .query(async ({ input }) => {
+          const result = await getLeaderReferralById(input.id);
+          return result ?? null;
+        }),
+
+      updateStatus: subAdminProcedure
+        .input(z.object({
+          id: z.number(),
+          status: z.enum(["pending", "reviewing", "approved", "rejected"]),
+          adminNote: z.string().max(5000).optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          await updateLeaderReferralStatus(input.id, input.status, input.adminNote);
+          await logAction(ctx, "updateStatus", "leaderReferral", input.id, `상태: ${input.status}`);
           return { success: true };
         }),
     }),

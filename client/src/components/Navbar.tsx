@@ -19,6 +19,7 @@ const NAV_KEYS = [
   { id: "simulator", key: "nav.simulator" },
   { id: "live-chat", key: "nav.livechat" },
   { id: "announcements", key: "nav.announcements" },
+  { id: "leader-referral", key: "nav.leaderReferral" },
   { id: "partners", key: "nav.partners" },
   { id: "resources", key: "nav.resources" },
 ];

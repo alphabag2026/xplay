@@ -8,6 +8,9 @@ import {
   announcementComments, InsertAnnouncementComment,
   communicationPartners, InsertCommunicationPartner,
   auditLogs, InsertAuditLog,
+  csTickets, InsertCsTicket,
+  leaderReferrals, InsertLeaderReferral,
+  pushSubscriptions, InsertPushSubscription,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -377,8 +380,6 @@ export async function getAnnouncementsByStatus(status: string, limit = 100) {
 
 // ========== CS Ticket queries ==========
 
-import { csTickets, InsertCsTicket } from "../drizzle/schema";
-
 export async function generateTicketNo(): Promise<string> {
   const db = await getDb();
   if (!db) return `CS-${Date.now()}`;
@@ -491,4 +492,92 @@ export async function getCsTicketStats() {
     closed: closed?.count ?? 0,
     total: total?.count ?? 0,
   };
+}
+
+// ========== Leader Referral queries ==========
+
+export async function createLeaderReferral(data: InsertLeaderReferral) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(leaderReferrals).values(data);
+  return result[0].insertId;
+}
+
+export async function getLeaderReferrals(opts?: { status?: string; limit?: number; offset?: number }) {
+  const db = await getDb();
+  if (!db) return { referrals: [], total: 0 };
+  const limit = opts?.limit ?? 50;
+  const offset = opts?.offset ?? 0;
+  const conditions = [];
+  if (opts?.status) conditions.push(eq(leaderReferrals.status, opts.status));
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const [totalResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals).where(whereClause);
+  const referrals = await db.select().from(leaderReferrals)
+    .where(whereClause)
+    .orderBy(desc(leaderReferrals.createdAt))
+    .limit(limit)
+    .offset(offset);
+  return { referrals, total: totalResult?.count ?? 0 };
+}
+
+export async function getLeaderReferralById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(leaderReferrals).where(eq(leaderReferrals.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateLeaderReferralStatus(id: number, status: string, adminNote?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const data: Record<string, any> = { status };
+  if (adminNote !== undefined) data.adminNote = adminNote;
+  await db.update(leaderReferrals).set(data).where(eq(leaderReferrals.id, id));
+}
+
+export async function getLeaderReferralStats() {
+  const db = await getDb();
+  if (!db) return { pending: 0, reviewing: 0, approved: 0, rejected: 0, total: 0 };
+  const [total] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals);
+  const [pending] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals).where(eq(leaderReferrals.status, "pending"));
+  const [reviewing] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals).where(eq(leaderReferrals.status, "reviewing"));
+  const [approved] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals).where(eq(leaderReferrals.status, "approved"));
+  const [rejected] = await db.select({ count: sql<number>`COUNT(*)` }).from(leaderReferrals).where(eq(leaderReferrals.status, "rejected"));
+  return {
+    pending: pending?.count ?? 0,
+    reviewing: reviewing?.count ?? 0,
+    approved: approved?.count ?? 0,
+    rejected: rejected?.count ?? 0,
+    total: total?.count ?? 0,
+  };
+}
+
+// ========== Non-auth Contact Registration (by phone) ==========
+
+export async function registerContactPublic(data: {
+  name: string;
+  phone: string;
+  description?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await db.select().from(communicationPartners)
+    .where(eq(communicationPartners.phone, data.phone))
+    .limit(1);
+  if (existing.length > 0) {
+    await db.update(communicationPartners).set({
+      name: data.name,
+      description: data.description ?? null,
+    }).where(eq(communicationPartners.id, existing[0].id));
+    return { id: existing[0].id, isNew: false };
+  } else {
+    const result = await db.insert(communicationPartners).values({
+      name: data.name,
+      phone: data.phone,
+      description: data.description ?? null,
+      isUserRegistered: true,
+      isActive: true,
+    });
+    return { id: result[0].insertId, isNew: true };
+  }
 }

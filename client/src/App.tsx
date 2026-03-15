@@ -15,6 +15,7 @@ import AdminMedia from "./pages/admin/Media";
 import AdminUsers from "./pages/admin/Users";
 import AdminAuditLogs from "./pages/admin/AuditLogs";
 import AdminCsTickets from "./pages/admin/CsTickets";
+import AdminLeaderReferrals from "./pages/admin/LeaderReferrals";
 
 function Router() {
   return (
@@ -38,6 +39,9 @@ function Router() {
       </Route>
       <Route path="/admin/users">
         <AdminLayout><AdminUsers /></AdminLayout>
+      </Route>
+      <Route path="/admin/leader-referrals">
+        <AdminLayout><AdminLeaderReferrals /></AdminLayout>
       </Route>
       <Route path="/admin/cs">
         <AdminLayout><AdminCsTickets /></AdminLayout>

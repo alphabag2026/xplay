@@ -494,6 +494,7 @@ export const T: Record<string, Record<Lang, string>> = {
   "nav.media": { ko: "미디어", en: "Media", zh: "媒体", ja: "メディア", vi: "Media", th: "สื่อ" },
   "nav.livechat": { ko: "라이브 채팅", en: "Live Chat", zh: "实时聊天", ja: "ライブチャット", vi: "Chat trực tiếp", th: "แชทสด" },
   "nav.announcements": { ko: "공지방", en: "Notices", zh: "公告", ja: "お知らせ", vi: "Thông báo", th: "ประกาศ" },
+  "nav.leaderReferral": { ko: "리더 추천", en: "Leader Referral", zh: "领袖推荐", ja: "リーダー紹介", vi: "Giới thiệu lãnh đạo", th: "แนะนำผู้นำ" },
   "nav.partners": { ko: "소통 파트너", en: "Partners", zh: "合作伙伴", ja: "パートナー", vi: "Đối tác", th: "พาร์ทเนอร์" },
   "road.badge": { ko: "ROADMAP", en: "ROADMAP", zh: "ROADMAP", ja: "ROADMAP", vi: "ROADMAP", th: "ROADMAP" },
   "road.title": { ko: "XPLAY 로드맵", en: "XPLAY Roadmap", zh: "XPLAY 路线图", ja: "XPLAY ロードマップ", vi: "Lộ trình XPLAY", th: "แผนงาน XPLAY" },

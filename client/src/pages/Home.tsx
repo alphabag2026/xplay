@@ -45,6 +45,7 @@ import MediaGallerySection from "@/components/sections/MediaGallerySection";
 import TutorialSection from "@/components/sections/TutorialSection";
 import AnnouncementBoard from "@/components/sections/AnnouncementBoard";
 import CommunicationPartners from "@/components/sections/CommunicationPartners";
+import LeaderReferralSection from "@/components/sections/LeaderReferralSection";
 
 export default function Home() {
   return (
@@ -63,6 +64,7 @@ export default function Home() {
       <SimulatorSection />
       <LiveChatSection />
       <AnnouncementBoard />
+      <LeaderReferralSection />
       <CommunicationPartners />
       <ResourcesSection />
       <TutorialSection />

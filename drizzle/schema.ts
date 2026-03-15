@@ -173,3 +173,66 @@ export const csTickets = mysqlTable("csTickets", {
 
 export type CsTicket = typeof csTickets.$inferSelect;
 export type InsertCsTicket = typeof csTickets.$inferInsert;
+
+/**
+ * Leader Referrals — recommend leaders for business partnership.
+ * Collects detailed info: referrer, contact, type (self/acquaintance),
+ * previous experience, team size, organization structure, introduction.
+ */
+export const leaderReferrals = mysqlTable("leaderReferrals", {
+  id: int("id").autoincrement().primaryKey(),
+  /** 추천 유형: self (본인 추천), acquaintance (지인 추천) */
+  referralType: mysqlEnum("referralType", ["self", "acquaintance"]).notNull(),
+  /** 추천자 이름 (본인 or 지인 추천 시 추천하는 사람) */
+  referrerName: varchar("referrerName", { length: 200 }).notNull(),
+  /** 추천자 연락처 */
+  referrerContact: varchar("referrerContact", { length: 300 }).notNull(),
+  /** 추천자 이메일 */
+  referrerEmail: varchar("referrerEmail", { length: 320 }),
+  /** 리더 이름 (추천 대상 - 지인 추천 시) */
+  leaderName: varchar("leaderName", { length: 200 }),
+  /** 리더 연락처 (추천 대상 - 지인 추천 시) */
+  leaderContact: varchar("leaderContact", { length: 300 }),
+  /** 이전 이력 / 경력 */
+  previousExperience: text("previousExperience"),
+  /** 팀 규모 (몇 명) */
+  teamSize: varchar("teamSize", { length: 100 }),
+  /** 조직 구성 설명 */
+  organizationStructure: text("organizationStructure"),
+  /** 활동 지역 / 국가 */
+  region: varchar("region", { length: 200 }),
+  /** 주요 활동 분야 (crypto, forex, MLM, etc.) */
+  expertise: varchar("expertise", { length: 300 }),
+  /** 소개글 / 자기소개 */
+  introduction: text("introduction"),
+  /** 추가 메모 */
+  additionalNotes: text("additionalNotes"),
+  /** 상태: pending, reviewing, approved, rejected */
+  status: varchar("status", { length: 20 }).default("pending").notNull(),
+  /** 관리자 메모 */
+  adminNote: text("adminNote"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LeaderReferral = typeof leaderReferrals.$inferSelect;
+export type InsertLeaderReferral = typeof leaderReferrals.$inferInsert;
+
+/**
+ * Push subscriptions — stores browser push notification subscriptions.
+ */
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Browser push subscription endpoint */
+  endpoint: text("endpoint").notNull(),
+  /** p256dh key */
+  p256dh: text("p256dh").notNull(),
+  /** auth key */
+  auth: text("auth").notNull(),
+  /** Optional user agent for debugging */
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;

@@ -1,5 +1,6 @@
 /*
- * CommunicationPartners — Referral Contact Cards + My Contact Registration + CS Support
+ * CommunicationPartners — Referral Contact Cards + Public Contact Registration + CS Support
+ * Contact registration NO LONGER requires login — just name, phone, and brief intro.
  */
 
 import { useApp } from "@/contexts/AppContext";
@@ -8,9 +9,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, MessageCircle, Users, UserPlus, X, Headphones, Send, CheckCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 
 const PARTNER_I18N: Record<string, Record<string, string>> = {
   "partner.badge": { ko: "COMMUNICATION", en: "COMMUNICATION", zh: "沟通", ja: "コミュニケーション", vi: "LIÊN LẠC", th: "การสื่อสาร" },
@@ -19,9 +18,6 @@ const PARTNER_I18N: Record<string, Record<string, string>> = {
   "partner.noPartners": { ko: "등록된 파트너가 없습니다", en: "No partners registered yet", zh: "暂无合作伙伴", ja: "パートナーはまだ登録されていません", vi: "Chưa có đối tác", th: "ยังไม่มีพาร์ทเนอร์" },
   "partner.registerBtn": { ko: "내 연락처 등록", en: "Register My Contact", zh: "注册我的联系方式", ja: "連絡先を登録", vi: "Đăng ký liên hệ", th: "ลงทะเบียนข้อมูลติดต่อ" },
   "partner.csBtn": { ko: "CS 문의하기", en: "Contact Support", zh: "联系客服", ja: "サポートに問い合わせ", vi: "Liên hệ hỗ trợ", th: "ติดต่อฝ่ายสนับสนุน" },
-  "partner.editBtn": { ko: "내 연락처 수정", en: "Edit My Contact", zh: "编辑联系方式", ja: "連絡先を編集", vi: "Chỉnh sửa liên hệ", th: "แก้ไขข้อมูลติดต่อ" },
-  "partner.myBadge": { ko: "내 연락처", en: "MY CONTACT", zh: "我的联系方式", ja: "マイ連絡先", vi: "LIÊN HỆ CỦA TÔI", th: "ข้อมูลติดต่อของฉัน" },
-  "partner.loginRequired": { ko: "로그인 후 등록할 수 있습니다", en: "Login required to register", zh: "登录后可注册", ja: "登録にはログインが必要です", vi: "Cần đăng nhập để đăng ký", th: "ต้องเข้าสู่ระบบเพื่อลงทะเบียน" },
   "cs.title": { ko: "CS 문의", en: "Customer Support", zh: "客服咨询", ja: "カスタマーサポート", vi: "Hỗ trợ khách hàng", th: "ฝ่ายสนับสนุนลูกค้า" },
   "cs.subtitle": { ko: "문의사항을 남겨주시면 빠르게 답변드리겠습니다", en: "Leave your inquiry and we'll respond promptly", zh: "留下您的咨询，我们会尽快回复", ja: "お問い合わせを残していただければ、迅速にお答えします", vi: "Để lại câu hỏi và chúng tôi sẽ phản hồi nhanh chóng", th: "ฝากคำถามของคุณแล้วเราจะตอบกลับอย่างรวดเร็ว" },
   "cs.name": { ko: "이름", en: "Name", zh: "姓名", ja: "名前", vi: "Tên", th: "ชื่อ" },
@@ -56,26 +52,20 @@ const MESSENGER_CONFIGS: { key: keyof PartnerItem; label: string; color: string;
   { key: "phone", label: "Phone", color: "#00f5ff", bgColor: "rgba(0,245,255,0.08)", borderColor: "rgba(0,245,255,0.15)", getUrl: (v) => `tel:${v}`, icon: "📞" },
 ];
 
-function PartnerCard({ partner, isMine }: { partner: PartnerItem; isMine?: boolean }) {
+function PartnerCard({ partner }: { partner: PartnerItem }) {
   const initials = partner.name.split(/[\s()（）]+/).filter(Boolean).map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
       className="rounded-xl overflow-hidden relative"
-      style={{ background: isMine ? "rgba(0,245,255,0.03)" : "rgba(10,14,26,0.7)", border: isMine ? "1px solid rgba(0,245,255,0.25)" : "1px solid rgba(0,245,255,0.1)" }}>
-      {isMine && (
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-bold"
-          style={{ background: "rgba(0,245,255,0.15)", color: "#00f5ff", border: "1px solid rgba(0,245,255,0.3)" }}>
-          MY
-        </div>
-      )}
+      style={{ background: "rgba(10,14,26,0.7)", border: "1px solid rgba(0,245,255,0.1)" }}>
       <div className="p-4 sm:p-5">
         <div className="flex items-center gap-3 mb-3">
           {partner.avatarUrl ? (
             <img src={partner.avatarUrl} alt={partner.name} className="w-12 h-12 rounded-full object-cover" />
           ) : (
             <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{ background: isMine ? "linear-gradient(135deg, rgba(0,245,255,0.25), rgba(168,85,247,0.25))" : "linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15))", border: "1px solid rgba(0,245,255,0.2)", color: "#00f5ff" }}>
+              style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15))", border: "1px solid rgba(0,245,255,0.2)", color: "#00f5ff" }}>
               {initials}
             </div>
           )}
@@ -103,44 +93,22 @@ function PartnerCard({ partner, isMine }: { partner: PartnerItem; isMine?: boole
   );
 }
 
-// ========== My Contact Registration Modal ==========
+// ========== Public Contact Registration Modal (no login required) ==========
 function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: string; bt: (k: string) => string }) {
-  const { user } = useAuth();
-  const myContactQuery = trpc.myContact.get.useQuery(undefined, { enabled: !!user });
-  const upsertMutation = trpc.myContact.upsert.useMutation({
-    onSuccess: () => { setSaved(true); myContactQuery.refetch(); setTimeout(onClose, 1500); },
+  const registerMutation = trpc.myContact.register.useMutation({
+    onSuccess: () => { setSaved(true); setTimeout(onClose, 2000); },
   });
 
   const [saved, setSaved] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "", phone: "", telegram: "", kakao: "", whatsapp: "", wechat: "" });
-
-  useEffect(() => {
-    if (myContactQuery.data) {
-      setForm({
-        name: myContactQuery.data.name || user?.name || "",
-        description: myContactQuery.data.description || "",
-        phone: myContactQuery.data.phone || "",
-        telegram: myContactQuery.data.telegram || "",
-        kakao: myContactQuery.data.kakao || "",
-        whatsapp: myContactQuery.data.whatsapp || "",
-        wechat: myContactQuery.data.wechat || "",
-      });
-    } else if (user) {
-      setForm(f => ({ ...f, name: user.name || "" }));
-    }
-  }, [myContactQuery.data, user]);
+  const [form, setForm] = useState({ name: "", phone: "", description: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim()) return;
-    upsertMutation.mutate({
+    if (!form.name.trim() || !form.phone.trim()) return;
+    registerMutation.mutate({
       name: form.name.trim(),
+      phone: form.phone.trim(),
       description: form.description.trim() || null,
-      phone: form.phone.trim() || null,
-      telegram: form.telegram.trim() || null,
-      kakao: form.kakao.trim() || null,
-      whatsapp: form.whatsapp.trim() || null,
-      wechat: form.wechat.trim() || null,
     });
   };
 
@@ -168,43 +136,31 @@ function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
           <div className="p-8 text-center">
             <CheckCircle size={48} className="mx-auto mb-3" style={{ color: "#00f5ff" }} />
             <p className="font-bold" style={{ color: "rgba(226,232,240,0.95)" }}>등록 완료!</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>연락처가 등록되었습니다.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
+            <p className="text-xs mb-2" style={{ color: "rgba(226,232,240,0.4)" }}>
+              로그인 없이 간편하게 등록할 수 있습니다.
+            </p>
             <div>
               <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>이름 *</label>
               <input className={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="표시될 이름" />
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>소개</label>
-              <input className={inputStyle} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="간단한 자기소개" />
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📞 전화번호 *</label>
+              <input className={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} required placeholder="+82-10-1234-5678" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📞 전화번호</label>
-                <input className={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+82-10-..." />
-              </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>✈️ Telegram</label>
-                <input className={inputStyle} value={form.telegram} onChange={e => setForm(f => ({ ...f, telegram: e.target.value }))} placeholder="@username" />
-              </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>💬 KakaoTalk</label>
-                <input className={inputStyle} value={form.kakao} onChange={e => setForm(f => ({ ...f, kakao: e.target.value }))} placeholder="오픈채팅 ID" />
-              </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>📱 WhatsApp</label>
-                <input className={inputStyle} value={form.whatsapp} onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} placeholder="+82..." />
-              </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>💚 WeChat</label>
-                <input className={inputStyle} value={form.wechat} onChange={e => setForm(f => ({ ...f, wechat: e.target.value }))} placeholder="WeChat ID" />
-              </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>간단한 소개</label>
+              <textarea className={`${inputStyle} resize-none`} rows={3} value={form.description}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                placeholder="간단한 자기소개를 작성해주세요" />
             </div>
-            <button type="submit" disabled={upsertMutation.isPending}
+            <button type="submit" disabled={registerMutation.isPending}
               className="w-full py-2.5 rounded-lg text-sm font-bold transition-all"
               style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.2), rgba(168,85,247,0.2))", border: "1px solid rgba(0,245,255,0.3)", color: "#00f5ff" }}>
-              {upsertMutation.isPending ? "저장 중..." : myContactQuery.data ? "수정하기" : "등록하기"}
+              {registerMutation.isPending ? "등록 중..." : "등록하기"}
             </button>
           </form>
         )}
@@ -310,7 +266,6 @@ function CsSupportModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
 // ========== Main Component ==========
 export default function CommunicationPartners() {
   const { lang } = useApp();
-  const { user } = useAuth();
   const [showMyContact, setShowMyContact] = useState(false);
   const [showCs, setShowCs] = useState(false);
 
@@ -323,10 +278,6 @@ export default function CommunicationPartners() {
   const { data: apiPartners } = trpc.partners.list.useQuery(undefined, { retry: 1, refetchInterval: 60000 });
   const partners: PartnerItem[] = apiPartners && apiPartners.length > 0 ? apiPartners : [];
 
-  // Check if user has registered their contact
-  const myContactQuery = trpc.myContact.get.useQuery(undefined, { enabled: !!user, retry: 1 });
-  const hasMyContact = !!myContactQuery.data;
-
   return (
     <SectionWrapper id="partners">
       <SectionTitle badge={bt("partner.badge")} title={bt("partner.title")} subtitle={bt("partner.subtitle")} />
@@ -334,11 +285,11 @@ export default function CommunicationPartners() {
       <div className="max-w-4xl mx-auto">
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
-          <button onClick={() => { if (!user) { window.location.href = getLoginUrl(); return; } setShowMyContact(true); }}
+          <button onClick={() => setShowMyContact(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.1), rgba(0,245,255,0.05))", border: "1px solid rgba(0,245,255,0.25)", color: "#00f5ff" }}>
             <UserPlus size={16} />
-            {hasMyContact ? bt("partner.editBtn") : bt("partner.registerBtn")}
+            {bt("partner.registerBtn")}
           </button>
           <button onClick={() => setShowCs(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
@@ -352,8 +303,7 @@ export default function CommunicationPartners() {
         {partners.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {partners.map(partner => (
-              <PartnerCard key={partner.id} partner={partner}
-                isMine={!!myContactQuery.data && myContactQuery.data.id === partner.id} />
+              <PartnerCard key={partner.id} partner={partner} />
             ))}
           </div>
         ) : (
@@ -361,7 +311,7 @@ export default function CommunicationPartners() {
             <Users size={48} className="mx-auto mb-4" style={{ color: "rgba(226,232,240,0.2)" }} />
             <p style={{ color: "rgba(226,232,240,0.4)" }}>{bt("partner.noPartners")}</p>
             <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.25)" }}>
-              {user ? "위의 '내 연락처 등록' 버튼을 눌러 첫 번째 파트너가 되어보세요!" : bt("partner.loginRequired")}
+              위의 '내 연락처 등록' 버튼을 눌러 첫 번째 파트너가 되어보세요!
             </p>
           </div>
         )}
