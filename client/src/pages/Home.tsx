@@ -20,10 +20,10 @@
  * 13. SimulatorSection
  * 14. LiveChatSection
  * 15. AnnouncementBoard (공지방 + 뉴스)
- * 16. CommunicationPartners (소통 파트너)
- * 17. ResourcesSection (자료실)
- * 18. TutorialSection
- * 19. MediaGallerySection
+ * 16. ResourcesSection (자료실)
+ * 17. TutorialSection
+ * 18. MediaGallerySection
+ * 19. CommunicationPartners (소통 파트너 — 맨 아래)
  * 20. LeaderReferralSection (리더 추천 — 맨 아래)
  * 21. ReferralSection (소개자 — 맨 아래)
  * 22. Footer
@@ -68,10 +68,10 @@ export default function Home() {
       <SimulatorSection />
       <LiveChatSection />
       <AnnouncementBoard />
-      <CommunicationPartners />
       <ResourcesSection />
       <TutorialSection />
       <MediaGallerySection />
+      <CommunicationPartners />
       <LeaderReferralSection />
       <ReferralSection />
       <Footer />
