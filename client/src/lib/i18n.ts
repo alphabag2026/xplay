@@ -17,12 +17,13 @@ export const LANG_LABELS: Record<Lang, string> = {
 // Ordered list for dropdown
 export const LANG_ORDER: Lang[] = ["ko", "en", "zh", "ja", "vi", "th"];
 
-// Helper to get browser default language
-export function getDefaultLang(): Lang {
-  const params = new URLSearchParams(window.location.search);
-  const paramLang = params.get("lang");
-  if (paramLang && LANG_ORDER.includes(paramLang as Lang)) return paramLang as Lang;
+const LANG_STORAGE_KEY = "xplay_lang";
 
+/**
+ * Detect language from browser navigator.language
+ * Maps browser language codes to supported Lang values
+ */
+function detectBrowserLang(): Lang {
   const nav = navigator.language.toLowerCase();
   if (nav.startsWith("ko")) return "ko";
   if (nav.startsWith("zh")) return "zh";
@@ -30,6 +31,45 @@ export function getDefaultLang(): Lang {
   if (nav.startsWith("vi")) return "vi";
   if (nav.startsWith("th")) return "th";
   return "en";
+}
+
+/**
+ * Get default language with priority:
+ * 1. URL ?lang= parameter (highest — for shared links)
+ * 2. localStorage saved preference (user's previous choice)
+ * 3. navigator.language auto-detection (first visit)
+ */
+export function getDefaultLang(): Lang {
+  // 1. URL parameter — highest priority (shared links, referral links)
+  const params = new URLSearchParams(window.location.search);
+  const paramLang = params.get("lang");
+  if (paramLang && LANG_ORDER.includes(paramLang as Lang)) {
+    const lang = paramLang as Lang;
+    // Save URL language to localStorage so it persists
+    try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch {}
+    return lang;
+  }
+
+  // 2. localStorage — user's previously selected language
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    if (saved && LANG_ORDER.includes(saved as Lang)) {
+      return saved as Lang;
+    }
+  } catch {}
+
+  // 3. Browser language auto-detection — first visit
+  const detected = detectBrowserLang();
+  try { localStorage.setItem(LANG_STORAGE_KEY, detected); } catch {}
+  return detected;
+}
+
+/**
+ * Save language preference to localStorage
+ * Called when user manually selects a language
+ */
+export function saveLangPreference(lang: Lang): void {
+  try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch {}
 }
 
 // ===================================================================

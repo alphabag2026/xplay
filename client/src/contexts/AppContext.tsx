@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import { type Lang, getDefaultLang, T } from "@/lib/i18n";
+import { type Lang, getDefaultLang, saveLangPreference, T } from "@/lib/i18n";
 
 interface AppContextType {
   lang: Lang;
@@ -22,6 +22,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
+    // Save to localStorage so the preference persists across visits
+    saveLangPreference(l);
+    // Update URL parameter
     const url = new URL(window.location.href);
     url.searchParams.set("lang", l);
     window.history.replaceState({}, "", url.toString());
