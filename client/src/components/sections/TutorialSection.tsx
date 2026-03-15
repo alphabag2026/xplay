@@ -114,16 +114,16 @@ const CATEGORIES = [
   { key: "advanced", label: { ko: "고급", en: "Advanced", zh: "高级", ja: "上級", vi: "Nâng cao", th: "ขั้นสูง" } },
 ];
 
-// Tab order: FAQ first, then Tutorials
+// Tab order: Tutorials first, then FAQ
 const TAB_ITEMS = [
-  { key: "faq", icon: <MessageCircleQuestion size={14} />, label: { ko: "자주 묻는 질문", en: "FAQ", zh: "常见问题", ja: "よくある質問", vi: "Câu hỏi thường gặp", th: "คำถามที่พบบ่อย" } },
   { key: "tutorials", icon: <BookOpen size={14} />, label: { ko: "튜토리얼", en: "Tutorials", zh: "教程", ja: "チュートリアル", vi: "Hướng dẫn", th: "บทเรียน" } },
+  { key: "faq", icon: <MessageCircleQuestion size={14} />, label: { ko: "자주 묻는 질문", en: "FAQ", zh: "常见问题", ja: "よくある質問", vi: "Câu hỏi thường gặp", th: "คำถามที่พบบ่อย" } },
 ];
 
 export default function TutorialSection() {
   const { t, lang } = useApp();
-  // Default to FAQ tab
-  const [activeTab, setActiveTab] = useState("faq");
+  // Default to Tutorials tab
+  const [activeTab, setActiveTab] = useState("tutorials");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);

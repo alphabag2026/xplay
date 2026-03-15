@@ -374,6 +374,11 @@ export const T: Record<string, Record<CoreLang, string>> = {
   },
   "token.supply": { ko: "총 발행량", en: "Total Supply", zh: "总发行量", ja: "総発行量", vi: "Tổng cung", th: "อุปทานรวม" },
   "token.burn": { ko: "소각 목표", en: "Burn Target", zh: "销毁目标", ja: "焼却目標", vi: "Mục tiêu đốt", th: "เป้าหมายเผา" },
+  "token.remaining": { ko: "잔여량", en: "Remaining", zh: "剩余量", ja: "残余量", vi: "Còn lại", th: "คงเหลือ" },
+  "token.burnRate": { ko: "소각률", en: "Burn Rate", zh: "销毁率", ja: "焼却率", vi: "Tỷ lệ đốt", th: "อัตราการเผา" },
+  "token.supplyValue": { ko: "2100만개", en: "21M", zh: "2100万", ja: "2100万", vi: "21 triệu", th: "21 ล้าน" },
+  "token.remainingValue": { ko: "100만개", en: "1M", zh: "100万", ja: "100万", vi: "1 triệu", th: "1 ล้าน" },
+  "token.burnAmount": { ko: "-2000만개 소각", en: "-20M Burned", zh: "-2000万销毁", ja: "-2000万焼却", vi: "-20 triệu đã đốt", th: "-20 ล้านเผาแล้ว" },
   "token.deflation": { ko: "극한 디플레이션 프로세스", en: "Extreme Deflation Process", zh: "极致通缩流程", ja: "究極デフレプロセス", vi: "Quy trình giảm phát cực đại", th: "กระบวนการเงินฝืดสุดขีด" },
   "token.purchase": { ko: "수익형 구매 한도 시스템", en: "Revenue-based Purchase Limit System", zh: "收益型购买限额系统", ja: "収益型購入限度システム", vi: "Hệ thống giới hạn mua dựa trên doanh thu", th: "ระบบจำกัดการซื้อตามรายได้" },
   "token.purchase.desc": {

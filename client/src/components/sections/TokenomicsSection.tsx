@@ -18,10 +18,10 @@ export default function TokenomicsSection() {
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
-        <StatBox label={t("token.supply")} value="2100만개" sub="21,000,000 XP" color="#00f5ff" delay={0} />
+        <StatBox label={t("token.supply")} value={t("token.supplyValue")} sub="21,000,000 XP" color="#00f5ff" delay={0} />
         <StatBox label={t("token.burn")} value="20M" sub="20,000,000 XP" color="#ef4444" delay={0.1} />
-        <StatBox label="Remaining" value="100만개" sub="1,000,000 XP" color="#a855f7" delay={0.2} />
-        <StatBox label="Burn Rate" value="95.2%" color="#e879f9" delay={0.3} />
+        <StatBox label={t("token.remaining")} value={t("token.remainingValue")} sub="1,000,000 XP" color="#a855f7" delay={0.2} />
+        <StatBox label={t("token.burnRate")} value="95.2%" color="#e879f9" delay={0.3} />
       </div>
 
       <GlassCard className="mb-10">
@@ -47,7 +47,7 @@ export default function TokenomicsSection() {
                 className="text-sm sm:text-lg font-bold"
                 style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                2100만개
+                {t("token.supplyValue")}
               </span>
             </motion.div>
             <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>
@@ -61,7 +61,7 @@ export default function TokenomicsSection() {
             </span>
             <div className="w-12 sm:w-20 h-px my-2" style={{ background: "linear-gradient(90deg, #00f5ff, #ef4444)" }} />
             <p className="text-xs" style={{ color: "rgba(239,68,68,0.8)" }}>
-              -2000만개 소각
+              {t("token.burnAmount")}
             </p>
           </div>
 
@@ -81,11 +81,11 @@ export default function TokenomicsSection() {
                 className="text-xs sm:text-sm font-bold"
                 style={{ color: "#e879f9", fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                100만개
+                {t("token.remainingValue")}
               </span>
             </motion.div>
             <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>
-              Remaining
+              {t("token.remaining")}
             </p>
           </div>
         </div>
