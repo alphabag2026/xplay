@@ -31,6 +31,9 @@ import {
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
+import { eq, and, or, isNull } from "drizzle-orm";
+import { resources } from "../drizzle/schema";
+import { getDb } from "./db";
 
 // ========== Audit log helper ==========
 async function logAction(ctx: { user: { id: number; name: string | null; role: string }; req: { ip?: string; headers: Record<string, any> } }, action: string, targetType: string, targetId?: number, details?: string) {
@@ -926,6 +929,32 @@ export const appRouter = router({
           } catch (e) {
             return { success: false, imageUrl: null };
           }
+        }),
+
+      /** Batch fetch OG images for all blog/video resources missing thumbnails */
+      batchFetchOgImages: subAdminProcedure
+        .mutation(async () => {
+          const db = await getDb();
+          if (!db) throw new Error("DB unavailable");
+          const allResources = await db.select().from(resources).where(
+            and(
+              or(eq(resources.type, "blog"), eq(resources.type, "video")),
+              isNull(resources.thumbnailUrl)
+            )
+          );
+          let updated = 0;
+          for (const r of allResources) {
+            try {
+              const imageUrl = await fetchOgImage(r.url);
+              if (imageUrl) {
+                await db.update(resources).set({ thumbnailUrl: imageUrl }).where(eq(resources.id, r.id));
+                updated++;
+              }
+            } catch (e) {
+              console.log(`[Batch OG] Failed for resource ${r.id}:`, e);
+            }
+          }
+          return { total: allResources.length, updated };
         }),
 
       update: subAdminProcedure

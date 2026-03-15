@@ -146,6 +146,14 @@ export default function AdminResources() {
     onError: (e) => toast.error(`OG 이미지 가져오기 실패: ${e.message}`),
   });
 
+  const batchOgMutation = trpc.admin.resources.batchFetchOgImages.useMutation({
+    onSuccess: (data) => {
+      utils.admin.resources.list.invalidate();
+      toast.success(`${data.total}개 중 ${data.updated}개 OG 이미지를 가져왔습니다`);
+    },
+    onError: (e) => toast.error(`일괄 OG 가져오기 실패: ${e.message}`),
+  });
+
   const closeDialog = () => {
     setDialogOpen(false);
     setEditId(null);
@@ -234,10 +242,21 @@ export default function AdminResources() {
           <h1 className="text-2xl font-bold tracking-tight">자료 관리</h1>
           <p className="text-muted-foreground mt-1">문서, 블로그, 영상 자료를 언어별로 관리합니다</p>
         </div>
-        <Button onClick={openCreate} className="gap-2">
-          <Plus className="h-4 w-4" />
-          자료 등록
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => batchOgMutation.mutate()}
+            disabled={batchOgMutation.isPending}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${batchOgMutation.isPending ? 'animate-spin' : ''}`} />
+            {batchOgMutation.isPending ? 'OG 이미지 가져오는 중...' : 'OG 이미지 일괄 가져오기'}
+          </Button>
+          <Button onClick={openCreate} className="gap-2">
+            <Plus className="h-4 w-4" />
+            자료 등록
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
