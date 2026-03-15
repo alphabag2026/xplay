@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, type, lang, title, thumbnailUrl, url FROM resources WHERE type = 'blog' OR type = 'video' ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT id, type, lang, title, thumbnailUrl, url FROM resources WHERE type = 'blog' OR type = 'video' ORDER BY id;",
+  "rows": [
+    {
+      "id": "9",
+      "type": "blog",
+      "lang": "ko",
+      "title": "XPLAY 수익 구조 완전 분석",
+      "thumbnailUrl": "https://blogthumb.pstatic.net/MjAyNjAzMTNfMTA2/MDAxNzczMzc4MjIzMTU1.Tig91Ik_eUyn73FpbM7QDFL0KGub6hvMdEK5WA-PTV4g.VclrdHVniS9f6qI8hfxO6ZQ-R1yvWG3Dzq-nkpL2fJAg.PNG/xplay_blog_thumbnail.png?type=w2",
+      "url": "https://m.blog.naver.com/brodao/224215133571"
+    },
+    {
+      "id": "10",
+      "type": "video",
+      "lang": "all",
+      "title": "X Play Movie 소개영상",
+      "thumbnailUrl": "NULL",
+      "url": "https://www.youtube.com/watch?v=fzsxiru7hAw"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttype\tlang\ttitle\tthumbnailUrl\turl\n9\tblog\tko\tXPLAY 수익 구조 완전 분석\thttps://blogthumb.pstatic.net/MjAyNjAzMTNfMTA2/MDAxNzczMzc4MjIzMTU1.Tig91Ik_eUyn73FpbM7QDFL0KGub6hvMdEK5WA-PTV4g.VclrdHVniS9f6qI8hfxO6ZQ-R1yvWG3Dzq-nkpL2fJAg.PNG/xplay_blog_thumbnail.png?type=w2\thttps://m.blog.naver.com/brodao/224215133571\n10\tvideo\tall\tX Play Movie 소개영상\tNULL\thttps://www.youtube.com/watch?v=fzsxiru7hAw\n",
+  "stderr": "",
+  "execution_time_ms": 1582
+}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import { type Lang, getDefaultLang, saveLangPreference, T } from "@/lib/i18n";
+import { type Lang, type CoreLang, CORE_LANGS, getDefaultLang, saveLangPreference, T } from "@/lib/i18n";
 
 interface AppContextType {
   lang: Lang;
@@ -54,7 +54,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (key: string) => {
       const entry = T[key];
       if (!entry) return key;
-      return entry[lang] || entry["en"] || key;
+      // For extended languages, fallback to English
+      const coreLang: CoreLang = (CORE_LANGS as readonly string[]).includes(lang) ? (lang as CoreLang) : "en";
+      return entry[coreLang] || entry["en"] || key;
     },
     [lang],
   );

@@ -5,6 +5,9 @@ import SectionWrapper from "@/components/SectionWrapper";
 import StatBox from "@/components/StatBox";
 import { useApp } from "@/contexts/AppContext";
 import { GAME_PREDICTION, IMAGES, LOTTO_DISTRIBUTION } from "@/lib/data";
+import { Rocket, ExternalLink } from "lucide-react";
+
+const K_PLAY_URL = "https://k-play.net";
 
 export default function GameSection() {
   const { t } = useApp();
@@ -16,6 +19,61 @@ export default function GameSection() {
         title={t("game.title")}
         subtitle={t("game.subtitle")}
       />
+
+      {/* Test Service Open Banner */}
+      <div
+        className="mb-8 p-4 flex flex-col sm:flex-row items-center justify-between gap-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(0,245,255,0.08))",
+          border: "1px solid rgba(34,197,94,0.3)",
+          borderRadius: "12px",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span
+            className="relative flex h-3 w-3"
+          >
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#22c55e" }} />
+            <span className="relative inline-flex rounded-full h-3 w-3" style={{ background: "#22c55e" }} />
+          </span>
+          <span
+            className="text-sm sm:text-base font-bold"
+            style={{
+              color: "#22c55e",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
+            {t("game.testService")}
+          </span>
+          <span
+            className="text-xs px-2 py-0.5 rounded-full"
+            style={{
+              background: "rgba(34,197,94,0.15)",
+              border: "1px solid rgba(34,197,94,0.3)",
+              color: "#4ade80",
+            }}
+          >
+            LIVE
+          </span>
+        </div>
+        <a
+          href={K_PLAY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:scale-105"
+          style={{
+            background: "linear-gradient(135deg, #22c55e, #00f5ff)",
+            color: "#0a0e1a",
+            fontFamily: "'Space Grotesk', sans-serif",
+            boxShadow: "0 0 20px rgba(34,197,94,0.3)",
+          }}
+        >
+          <Rocket size={16} />
+          {t("game.tryNow")}
+          <ExternalLink size={14} />
+        </a>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
         <StatBox label={t("game.round")} value="30s" sub={t("game.round.sub")} delay={0} />

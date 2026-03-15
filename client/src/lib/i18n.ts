@@ -1,21 +1,58 @@
 // ===================================================================
 // XPLAY i18n — Multi-language support
-// Languages: ko (한국어), en (English), zh (中文), ja (日本語), vi (Tiếng Việt), th (ภาษาไทย)
+// Core languages: ko, en, zh, ja, vi, th (full translations)
+// Extended languages: fallback to English
 // ===================================================================
 
-export type Lang = "ko" | "en" | "zh" | "ja" | "vi" | "th";
+export type CoreLang = "ko" | "en" | "zh" | "ja" | "vi" | "th";
+export type Lang = CoreLang | "es" | "pt" | "fr" | "de" | "ru" | "ar" | "hi" | "id" | "ms" | "tl" | "tr" | "it" | "nl" | "pl" | "sv" | "uk" | "bn" | "my" | "km";
 
 export const LANG_LABELS: Record<Lang, string> = {
-  ko: "한국어",
   en: "English",
   zh: "中文",
+  es: "Español",
+  pt: "Português",
+  fr: "Français",
+  ko: "한국어",
   ja: "日本語",
   vi: "Tiếng Việt",
   th: "ภาษาไทย",
+  de: "Deutsch",
+  ru: "Русский",
+  ar: "العربية",
+  hi: "हिन्दी",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  tl: "Filipino",
+  tr: "Türkçe",
+  it: "Italiano",
+  nl: "Nederlands",
+  pl: "Polski",
+  sv: "Svenska",
+  uk: "Українська",
+  bn: "বাংলা",
+  my: "မြန်မာ",
+  km: "ខ្មែរ",
 };
 
-// Ordered list for dropdown
-export const LANG_ORDER: Lang[] = ["ko", "en", "zh", "ja", "vi", "th"];
+// Ordered list for dropdown (Korean at 6th position)
+export const LANG_ORDER: Lang[] = [
+  "en", "zh", "es", "pt", "fr",
+  "ko", "ja", "vi", "th", "de",
+  "ru", "ar", "hi", "id", "ms",
+  "tl", "tr", "it", "nl", "pl",
+  "sv", "uk", "bn", "my", "km",
+];
+
+// Core languages that have full translations
+export const CORE_LANGS: CoreLang[] = ["ko", "en", "zh", "ja", "vi", "th"];
+
+/** Map extended lang to nearest core lang for fallback */
+function getFallbackCoreLang(lang: Lang): CoreLang {
+  if (CORE_LANGS.includes(lang as CoreLang)) return lang as CoreLang;
+  // Extended languages fallback to English
+  return "en";
+}
 
 const LANG_STORAGE_KEY = "xplay_lang";
 
@@ -25,11 +62,16 @@ const LANG_STORAGE_KEY = "xplay_lang";
  */
 function detectBrowserLang(): Lang {
   const nav = navigator.language.toLowerCase();
-  if (nav.startsWith("ko")) return "ko";
-  if (nav.startsWith("zh")) return "zh";
-  if (nav.startsWith("ja")) return "ja";
-  if (nav.startsWith("vi")) return "vi";
-  if (nav.startsWith("th")) return "th";
+  const langMap: Record<string, Lang> = {
+    ko: "ko", zh: "zh", ja: "ja", vi: "vi", th: "th",
+    es: "es", pt: "pt", fr: "fr", de: "de", ru: "ru",
+    ar: "ar", hi: "hi", id: "id", ms: "ms", tl: "tl",
+    tr: "tr", it: "it", nl: "nl", pl: "pl", sv: "sv",
+    uk: "uk", bn: "bn", my: "my", km: "km",
+  };
+  for (const [prefix, lang] of Object.entries(langMap)) {
+    if (nav.startsWith(prefix)) return lang;
+  }
   return "en";
 }
 
@@ -75,7 +117,7 @@ export function saveLangPreference(lang: Lang): void {
 // ===================================================================
 // Translation dictionary
 // ===================================================================
-export const T: Record<string, Record<Lang, string>> = {
+export const T: Record<string, Record<CoreLang, string>> = {
   // Navbar
   "nav.intro": { ko: "소개", en: "Intro", zh: "介绍", ja: "紹介", vi: "Giới thiệu", th: "แนะนำ" },
   "nav.business": { ko: "비즈니스 모델", en: "Business", zh: "商业模式", ja: "ビジネスモデル", vi: "Mô hình kinh doanh", th: "โมเดลธุรกิจ" },
@@ -210,6 +252,8 @@ export const T: Record<string, Record<Lang, string>> = {
   "game.lotto.r1": { ko: "1등 (Winner)", en: "1st (Winner)", zh: "第1名 (Winner)", ja: "1等 (Winner)", vi: "Giải nhất (Winner)", th: "อันดับ 1 (Winner)" },
   "game.lotto.r2": { ko: "2~10등", en: "2nd~10th", zh: "第2~10名", ja: "2~10等", vi: "Giải 2~10", th: "อันดับ 2~10" },
   "game.lotto.r3": { ko: "플랫폼 수수료", en: "Platform Fee", zh: "平台手续费", ja: "プラットフォーム手数料", vi: "Phí nền tảng", th: "ค่าธรรมเนียมแพลตฟอร์ม" },
+  "game.testService": { ko: "테스트 서비스 오픈", en: "Test Service Open", zh: "测试服务已开放", ja: "テストサービス公開", vi: "Dịch vụ thử nghiệm đã mở", th: "เปิดบริการทดสอบ" },
+  "game.tryNow": { ko: "지금 체험하기", en: "Try Now", zh: "立即体验", ja: "今すぐ体験", vi: "Trải nghiệm ngay", th: "ลองเลย" },
 
   // Staking Section
   "staking.badge": { ko: "Personal Revenue", en: "Personal Revenue", zh: "Personal Revenue", ja: "Personal Revenue", vi: "Personal Revenue", th: "Personal Revenue" },

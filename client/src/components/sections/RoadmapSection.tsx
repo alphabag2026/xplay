@@ -3,7 +3,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import { useApp } from "@/contexts/AppContext";
 import { IMAGES } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Globe, Bot, Blocks, Users, Rocket, Code } from "lucide-react";
+import { Globe, Bot, Blocks, Users, Rocket, Code, ExternalLink } from "lucide-react";
 
 export default function RoadmapSection() {
   const { t } = useApp();
@@ -21,6 +21,7 @@ export default function RoadmapSection() {
       highlightIcon: <Users size={14} />,
       accentColor: "#00f5ff",
       lineActive: true,
+      link: "https://k-play.net",
     },
     {
       icon: <Bot size={24} />,
@@ -34,6 +35,7 @@ export default function RoadmapSection() {
       highlightIcon: null,
       accentColor: "#a855f7",
       lineActive: false,
+      link: null,
     },
     {
       icon: <Blocks size={24} />,
@@ -47,6 +49,7 @@ export default function RoadmapSection() {
       highlightIcon: null,
       accentColor: "#e879f9",
       lineActive: false,
+      link: null,
     },
   ];
 
@@ -159,6 +162,25 @@ export default function RoadmapSection() {
                     {phase.highlight}
                   </span>
                 </div>
+              )}
+
+              {phase.link && (
+                <a
+                  href={phase.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 mt-3 rounded-full text-xs font-semibold transition-all hover:scale-105"
+                  style={{
+                    background: `linear-gradient(135deg, ${phase.accentColor}20, ${phase.accentColor}10)`,
+                    border: `1px solid ${phase.accentColor}40`,
+                    color: phase.accentColor,
+                    fontFamily: "'Space Grotesk', sans-serif",
+                  }}
+                >
+                  <Rocket size={14} />
+                  {t("game.testService")}
+                  <ExternalLink size={12} />
+                </a>
               )}
             </div>
           </motion.div>
