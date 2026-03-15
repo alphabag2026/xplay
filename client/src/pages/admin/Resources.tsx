@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import {
   Plus, Trash2, Pencil, FileText, Globe, Image as ImageIcon,
-  Film, BookOpen, Eye, EyeOff, Upload, RefreshCw, GripVertical,
+  Film, BookOpen, Eye, EyeOff, Upload, RefreshCw, GripVertical, LinkIcon,
 } from "lucide-react";
 
 const LANG_OPTIONS = [
@@ -132,6 +132,18 @@ export default function AdminResources() {
       }
     },
     onError: (e) => toast.error(`썸네일 업로드 실패: ${e.message}`),
+  });
+
+  const fetchOgMutation = trpc.admin.resources.fetchOgImage.useMutation({
+    onSuccess: (data) => {
+      if (data.success && data.imageUrl) {
+        setForm((prev) => ({ ...prev, thumbnailUrl: data.imageUrl! }));
+        toast.success("OG 이미지를 가져왔습니다");
+      } else {
+        toast.error("OG 이미지를 찾을 수 없습니다");
+      }
+    },
+    onError: (e) => toast.error(`OG 이미지 가져오기 실패: ${e.message}`),
   });
 
   const closeDialog = () => {
@@ -430,6 +442,17 @@ export default function AdminResources() {
                     <Upload className="h-3.5 w-3.5" />
                     {uploadThumbMutation.isPending ? "업로드 중..." : "이미지 업로드"}
                   </Button>
+                  {(form.type === "blog" || form.type === "video") && form.url && (
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => fetchOgMutation.mutate({ url: form.url })}
+                      disabled={fetchOgMutation.isPending}
+                      className="gap-1"
+                    >
+                      <LinkIcon className="h-3.5 w-3.5" />
+                      {fetchOgMutation.isPending ? "가져오는 중..." : "OG 이미지 가져오기"}
+                    </Button>
+                  )}
                   <Input
                     value={form.thumbnailUrl}
                     onChange={(e) => setForm((p) => ({ ...p, thumbnailUrl: e.target.value }))}

@@ -27,6 +27,7 @@ import {
   updateUrgentNoticeActive, deleteUrgentNotice, deactivateAllUrgentNotices,
   getResources, getAllResources, getResourceById, createResource, updateResource, deleteResource,
   getAllLiveFeedConfigs, getLiveFeedConfig, upsertLiveFeedConfig,
+  fetchOgImage,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -901,9 +902,30 @@ export const appRouter = router({
           sortOrder: z.number().optional(),
         }))
         .mutation(async ({ input, ctx }) => {
-          const result = await createResource(input);
+          // Auto-fetch OG image for blog type if no thumbnail provided
+          let thumbnailUrl = input.thumbnailUrl;
+          if ((input.type === "blog" || input.type === "video") && !thumbnailUrl && input.url) {
+            try {
+              thumbnailUrl = (await fetchOgImage(input.url)) ?? undefined;
+            } catch (e) {
+              console.log("[OG Image] Failed to fetch:", e);
+            }
+          }
+          const result = await createResource({ ...input, thumbnailUrl: thumbnailUrl || undefined });
           await logAction(ctx, "create", "resource", result.id, `${input.type}: ${input.title} [${input.lang}]`);
           return result;
+        }),
+
+      /** Fetch OG image from a URL */
+      fetchOgImage: subAdminProcedure
+        .input(z.object({ url: z.string().min(1) }))
+        .mutation(async ({ input }) => {
+          try {
+            const imageUrl = await fetchOgImage(input.url);
+            return { success: true, imageUrl };
+          } catch (e) {
+            return { success: false, imageUrl: null };
+          }
         }),
 
       update: subAdminProcedure

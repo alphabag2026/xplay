@@ -754,3 +754,35 @@ export async function upsertLiveFeedConfig(key: string, value: string) {
     await db.insert(liveFeedConfig).values({ configKey: key, configValue: value });
   }
 }
+
+// ========== OG Image Fetcher ==========
+
+/** Fetch Open Graph image from a URL */
+export async function fetchOgImage(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; XPLAYBot/1.0)",
+        "Accept": "text/html",
+      },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+    // Try og:image first
+    const ogMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+    if (ogMatch?.[1]) return ogMatch[1];
+    // Try twitter:image
+    const twMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
+    if (twMatch?.[1]) return twMatch[1];
+    return null;
+  } catch (e) {
+    console.log("[OG Image] Fetch error:", e);
+    return null;
+  }
+}

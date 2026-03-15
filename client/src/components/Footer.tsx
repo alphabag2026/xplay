@@ -161,31 +161,49 @@ export default function Footer() {
           {t("footer.disclaimer")}
         </p>
 
-        {/* infoweb4 Project Registration */}
-        <a
-          href="https://addinfo.infoweb4.vip"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold transition-all"
+        {/* infoweb4 Introduction & Registration */}
+        <div
+          className="mt-6 p-5 mx-auto max-w-md"
           style={{
-            background: "rgba(0,245,255,0.08)",
-            border: "1px solid rgba(0,245,255,0.2)",
-            borderRadius: "8px",
-            color: "#00f5ff",
-            fontFamily: "'Space Grotesk', sans-serif",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(0,245,255,0.15)";
-            e.currentTarget.style.borderColor = "rgba(0,245,255,0.4)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(0,245,255,0.08)";
-            e.currentTarget.style.borderColor = "rgba(0,245,255,0.2)";
+            background: "rgba(0,245,255,0.03)",
+            border: "1px solid rgba(0,245,255,0.1)",
+            borderRadius: "12px",
           }}
         >
-          <Rocket size={12} />
-          {t("footer.infoweb4")}
-        </a>
+          <p
+            className="text-xs font-bold mb-2"
+            style={{ color: "#00f5ff", fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            infoweb4
+          </p>
+          <p className="text-[11px] mb-4 leading-relaxed" style={{ color: "rgba(226,232,240,0.5)" }}>
+            infoweb4는 프로젝트 자동화로 프로젝트 및 리더들이 원하는 프로젝트 소개 페이지 및 글로벌 20개 이상의 프로젝트 언어 번역과 소개 페이지를 구상해드립니다.
+          </p>
+          <a
+            href="https://addinfo.infoweb4.vip"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold transition-all"
+            style={{
+              background: "rgba(0,245,255,0.08)",
+              border: "1px solid rgba(0,245,255,0.2)",
+              borderRadius: "8px",
+              color: "#00f5ff",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(0,245,255,0.15)";
+              e.currentTarget.style.borderColor = "rgba(0,245,255,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(0,245,255,0.08)";
+              e.currentTarget.style.borderColor = "rgba(0,245,255,0.2)";
+            }}
+          >
+            <Rocket size={12} />
+            infoweb4 바로가기
+          </a>
+        </div>
       </div>
 
       {/* Share Modal */}
