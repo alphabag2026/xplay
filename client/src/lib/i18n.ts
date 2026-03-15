@@ -430,6 +430,10 @@ export const T: Record<string, Record<Lang, string>> = {
   "res.blog": { ko: "블로그", en: "Blog", zh: "博客", ja: "ブログ", vi: "Blog", th: "บล็อก" },
   "res.blog.title": { ko: "XPLAY 상세 분석 블로그", en: "XPLAY Detailed Analysis Blog", zh: "XPLAY详细分析博客", ja: "XPLAY詳細分析ブログ", vi: "Blog phân tích chi tiết XPLAY", th: "บล็อกวิเคราะห์ XPLAY โดยละเอียด" },
   "res.blog.read": { ko: "블로그 읽기", en: "Read Blog", zh: "阅读博客", ja: "ブログを読む", vi: "Đọc blog", th: "อ่านบล็อก" },
+  "res.noData": { ko: "등록된 자료가 없습니다", en: "No resources available", zh: "暂无资料", ja: "資料がありません", vi: "Không có tài liệu", th: "ไม่มีข้อมูล" },
+  "res.readMore": { ko: "자세히 보기", en: "Read More", zh: "查看详情", ja: "詳細を見る", vi: "Xem thêm", th: "อ่านเพิ่มเติม" },
+  "res.all": { ko: "전체", en: "All", zh: "全部", ja: "全て", vi: "Tất cả", th: "ทั้งหมด" },
+  "res.watchVideo": { ko: "영상 보기", en: "Watch Video", zh: "观看视频", ja: "動画を見る", vi: "Xem video", th: "ดูวิดีโอ" },
 
   // Referral modal
   "referral.modal.title": { ko: "나의 레퍼럴 링크 설정", en: "Set My Referral Link", zh: "设置我的推荐链接", ja: "マイリファラルリンク設定", vi: "Cài đặt liên kết giới thiệu", th: "ตั้งค่าลิงก์แนะนำ" },

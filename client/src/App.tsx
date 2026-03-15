@@ -17,6 +17,7 @@ import AdminAuditLogs from "./pages/admin/AuditLogs";
 import AdminCsTickets from "./pages/admin/CsTickets";
 import AdminLeaderReferrals from "./pages/admin/LeaderReferrals";
 import AdminUrgentNotices from "./pages/admin/UrgentNotices";
+import AdminResources from "./pages/admin/Resources";
 
 function Router() {
   return (
@@ -34,6 +35,9 @@ function Router() {
       </Route>
       <Route path="/admin/partners">
         <AdminLayout><AdminPartners /></AdminLayout>
+      </Route>
+      <Route path="/admin/resources">
+        <AdminLayout><AdminResources /></AdminLayout>
       </Route>
       <Route path="/admin/media">
         <AdminLayout><AdminMedia /></AdminLayout>

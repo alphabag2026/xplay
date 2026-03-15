@@ -25,6 +25,7 @@ import {
   registerContactPublic,
   createUrgentNotice, getActiveUrgentNotices, getAllUrgentNotices,
   updateUrgentNoticeActive, deleteUrgentNotice, deactivateAllUrgentNotices,
+  getResources, getAllResources, getResourceById, createResource, updateResource, deleteResource,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
@@ -295,6 +296,19 @@ export const appRouter = router({
     active: publicProcedure.query(async () => {
       return getActiveUrgentNotices();
     }),
+  }),
+
+  // ========== Resources (Public) ==========
+  resources: router({
+    /** Get resources filtered by language and optional type */
+    list: publicProcedure
+      .input(z.object({
+        lang: z.string().optional(),
+        type: z.enum(["document", "blog", "video"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return getResources({ lang: input?.lang, type: input?.type });
+      }),
   }),
 
   // ========== CS Support Tickets ==========
@@ -785,6 +799,85 @@ export const appRouter = router({
           await deactivateAllUrgentNotices();
           await logAction(ctx, "deactivateAll", "urgentNotice");
           return { success: true };
+        }),
+    }),
+
+    // ===== Resources Management =====
+    resources: router({
+      list: subAdminProcedure
+        .input(z.object({ type: z.string().optional(), lang: z.string().optional() }).optional())
+        .query(async ({ input }) => {
+          return getAllResources({ type: input?.type, lang: input?.lang });
+        }),
+
+      getById: subAdminProcedure
+        .input(z.object({ id: z.number() }))
+        .query(async ({ input }) => {
+          return getResourceById(input.id);
+        }),
+
+      create: subAdminProcedure
+        .input(z.object({
+          type: z.enum(["document", "blog", "video"]),
+          lang: z.string().default("all"),
+          title: z.string().min(1).max(500),
+          description: z.string().max(2000).optional(),
+          thumbnailUrl: z.string().optional(),
+          url: z.string().min(1),
+          fileType: z.string().optional(),
+          platform: z.string().optional(),
+          youtubeId: z.string().optional(),
+          sortOrder: z.number().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          const result = await createResource(input);
+          await logAction(ctx, "create", "resource", result.id, `${input.type}: ${input.title} [${input.lang}]`);
+          return result;
+        }),
+
+      update: subAdminProcedure
+        .input(z.object({
+          id: z.number(),
+          type: z.enum(["document", "blog", "video"]).optional(),
+          lang: z.string().optional(),
+          title: z.string().min(1).max(500).optional(),
+          description: z.string().max(2000).optional(),
+          thumbnailUrl: z.string().nullable().optional(),
+          url: z.string().min(1).optional(),
+          fileType: z.string().optional(),
+          platform: z.string().optional(),
+          youtubeId: z.string().optional(),
+          sortOrder: z.number().optional(),
+          isActive: z.boolean().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          const { id, ...data } = input;
+          await updateResource(id, data as any);
+          await logAction(ctx, "update", "resource", id, JSON.stringify(data));
+          return { success: true };
+        }),
+
+      delete: subAdminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input, ctx }) => {
+          await deleteResource(input.id);
+          await logAction(ctx, "delete", "resource", input.id);
+          return { success: true };
+        }),
+
+      /** Upload thumbnail to R2 and return URL */
+      uploadThumbnail: subAdminProcedure
+        .input(z.object({
+          fileName: z.string().min(1),
+          contentType: z.string().default("image/jpeg"),
+          base64Data: z.string().min(1),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          const buffer = Buffer.from(input.base64Data, "base64");
+          const key = generateFileKey("resources/thumbnails", input.fileName);
+          const result = await r2Upload(key, buffer, input.contentType);
+          await logAction(ctx, "upload", "resourceThumbnail", undefined, `파일: ${input.fileName}`);
+          return { success: true, ...result };
         }),
     }),
 

@@ -1,4 +1,4 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser, users,
@@ -12,6 +12,7 @@ import {
   leaderReferrals, InsertLeaderReferral,
   urgentNotices, InsertUrgentNotice,
   pushSubscriptions, InsertPushSubscription,
+  resources, InsertResource,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -631,4 +632,64 @@ export async function deactivateAllUrgentNotices() {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(urgentNotices).set({ isActive: false }).where(eq(urgentNotices.isActive, true));
+}
+
+
+// ========== Resources ==========
+
+/** Get resources filtered by language and type. lang='all' resources always included. */
+export async function getResources(opts?: { lang?: string; type?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = [eq(resources.isActive, true)];
+  if (opts?.type) {
+    conditions.push(eq(resources.type, opts.type as any));
+  }
+  if (opts?.lang && opts.lang !== "all") {
+    conditions.push(
+      sql`(${resources.lang} = ${opts.lang} OR ${resources.lang} = 'all')`
+    );
+  }
+  return db.select().from(resources)
+    .where(and(...conditions))
+    .orderBy(asc(resources.sortOrder), desc(resources.createdAt));
+}
+
+/** Get all resources for admin (no active filter) */
+export async function getAllResources(opts?: { type?: string; lang?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions: any[] = [];
+  if (opts?.type) conditions.push(eq(resources.type, opts.type as any));
+  if (opts?.lang) conditions.push(eq(resources.lang, opts.lang));
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  return db.select().from(resources)
+    .where(where)
+    .orderBy(asc(resources.sortOrder), desc(resources.createdAt));
+}
+
+export async function getResourceById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(resources).where(eq(resources.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createResource(data: Omit<InsertResource, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(resources).values(data as any);
+  return { id: Number(result[0].insertId) };
+}
+
+export async function updateResource(id: number, data: Partial<InsertResource>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(resources).set(data as any).where(eq(resources.id, id));
+}
+
+export async function deleteResource(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(resources).where(eq(resources.id, id));
 }

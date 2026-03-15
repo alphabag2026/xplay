@@ -262,3 +262,40 @@ export const pushSubscriptions = mysqlTable("pushSubscriptions", {
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+/**
+ * Resources — documents, blog posts, videos managed via back-office.
+ * Each resource has a language tag so content is filtered per user language.
+ * Supports thumbnail images for blog-style card display.
+ * Types: document (PDF/PPTX), blog (external URL), video (YouTube).
+ */
+export const resources = mysqlTable("resources", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Resource type: document, blog, video */
+  type: mysqlEnum("type", ["document", "blog", "video"]).notNull(),
+  /** Language tag: ko, en, zh, ja, vi, th, all */
+  lang: varchar("lang", { length: 10 }).default("all").notNull(),
+  /** Title */
+  title: varchar("title", { length: 500 }).notNull(),
+  /** Description / subtitle */
+  description: text("description"),
+  /** Thumbnail image URL (R2 or external) */
+  thumbnailUrl: text("thumbnailUrl"),
+  /** File URL (R2 for documents, external for blogs/videos) */
+  url: text("url").notNull(),
+  /** File type hint: pdf, pptx, link, youtube */
+  fileType: varchar("fileType", { length: 20 }),
+  /** Platform name for blogs (e.g., Naver Blog, Medium) */
+  platform: varchar("platform", { length: 100 }),
+  /** YouTube video ID (for video type) */
+  youtubeId: varchar("youtubeId", { length: 50 }),
+  /** Sort order (lower = first) */
+  sortOrder: int("sortOrder").default(0).notNull(),
+  /** Whether this resource is visible */
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = typeof resources.$inferInsert;
