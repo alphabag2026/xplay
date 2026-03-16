@@ -30,6 +30,8 @@ import {
   Shield,
   Target,
   Coins,
+  Search,
+  X,
 } from "lucide-react";
 
 // Icon mapping for DB-stored icon names
@@ -129,6 +131,7 @@ export default function TutorialSection() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [expandedFaqId, setExpandedFaqId] = useState<number | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [faqSearchQuery, setFaqSearchQuery] = useState("");
 
   // Fetch from DB
   const { data: dbTutorials } = trpc.tutorials.list.useQuery();
@@ -144,6 +147,20 @@ export default function TutorialSection() {
     if (dbFaq && dbFaq.length > 0) return dbFaq;
     return FALLBACK_FAQ;
   }, [dbFaq]);
+
+  // FAQ search filtering
+  const filteredFaqItems = useMemo(() => {
+    if (!faqSearchQuery.trim()) return faqItems;
+    const query = faqSearchQuery.trim().toLowerCase();
+    return faqItems.filter((faq) => {
+      const qMap = parseJson<Record<string, string>>(faq.question, {});
+      const aMap = parseJson<Record<string, string>>(faq.answer, {});
+      // Search in all languages
+      const allQTexts = Object.values(qMap).join(" ").toLowerCase();
+      const allATexts = Object.values(aMap).join(" ").toLowerCase();
+      return allQTexts.includes(query) || allATexts.includes(query);
+    });
+  }, [faqItems, faqSearchQuery]);
 
   const filteredTutorials = useMemo(() => {
     if (selectedCategory === "all") return tutorials;
@@ -193,7 +210,48 @@ export default function TutorialSection() {
       {/* ===== FAQ TAB (now first) ===== */}
       {activeTab === "faq" && (
         <div className="space-y-3">
-          {faqItems.map((faq, idx) => (
+          {/* FAQ Search Bar */}
+          <div className="relative mb-2">
+            <div
+              className="flex items-center gap-2 px-4 py-3"
+              style={{
+                background: "rgba(10,14,26,0.8)",
+                border: "1px solid rgba(0,245,255,0.15)",
+                borderRadius: "12px",
+              }}
+            >
+              <Search size={16} style={{ color: "rgba(0,245,255,0.5)", flexShrink: 0 }} />
+              <input
+                type="text"
+                value={faqSearchQuery}
+                onChange={(e) => setFaqSearchQuery(e.target.value)}
+                placeholder={lang === "ko" ? "FAQ 검색..." : lang === "zh" ? "搜索FAQ..." : lang === "ja" ? "FAQ検索..." : lang === "vi" ? "Tìm kiếm FAQ..." : lang === "th" ? "ค้นหา FAQ..." : "Search FAQ..."}
+                className="flex-1 bg-transparent outline-none text-sm"
+                style={{
+                  color: "#e2e8f0",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              />
+              {faqSearchQuery && (
+                <button
+                  onClick={() => setFaqSearchQuery("")}
+                  className="shrink-0 p-1 rounded-full transition-colors"
+                  style={{ background: "rgba(255,255,255,0.06)" }}
+                >
+                  <X size={12} style={{ color: "rgba(226,232,240,0.5)" }} />
+                </button>
+              )}
+            </div>
+            {faqSearchQuery && (
+              <div className="mt-2 text-xs" style={{ color: "rgba(226,232,240,0.4)" }}>
+                {filteredFaqItems.length > 0
+                  ? `${filteredFaqItems.length} ${lang === "ko" ? "개 결과" : lang === "zh" ? "个结果" : lang === "ja" ? "件の結果" : "results"}`
+                  : lang === "ko" ? "검색 결과가 없습니다" : lang === "zh" ? "没有搜索结果" : lang === "ja" ? "検索結果がありません" : "No results found"}
+              </div>
+            )}
+          </div>
+
+          {filteredFaqItems.map((faq, idx) => (
             <motion.div
               key={faq.id}
               initial={{ opacity: 0, y: 10 }}
@@ -266,6 +324,22 @@ export default function TutorialSection() {
               </div>
             </motion.div>
           ))}
+
+          {/* No results message */}
+          {faqSearchQuery && filteredFaqItems.length === 0 && (
+            <div
+              className="flex flex-col items-center justify-center py-12"
+              style={{ color: "rgba(226,232,240,0.4)" }}
+            >
+              <Search size={40} style={{ color: "rgba(0,245,255,0.2)", marginBottom: "12px" }} />
+              <p className="text-sm font-medium" style={{ color: "rgba(226,232,240,0.5)" }}>
+                {lang === "ko" ? "일치하는 FAQ가 없습니다" : lang === "zh" ? "没有匹配的FAQ" : lang === "ja" ? "一致するFAQがありません" : "No matching FAQ found"}
+              </p>
+              <p className="text-xs mt-1">
+                {lang === "ko" ? "다른 키워드로 검색해보세요" : lang === "zh" ? "请尝试其他关键词" : lang === "ja" ? "別のキーワードで検索してください" : "Try different keywords"}
+              </p>
+            </div>
+          )}
         </div>
       )}
 

@@ -35,6 +35,10 @@ jobs:
             echo "📦 의존성 설치..."
             pnpm install --frozen-lockfile 2>/dev/null || pnpm install
             
+            # DB 마이그레이션 (스키마 변경 적용)
+            echo "🗄️ DB 스키마 마이그레이션..."
+            pnpm db:push 2>/dev/null || true
+            
             # 프로덕션 빌드
             echo "🔨 프로덕션 빌드..."
             pnpm build
@@ -50,6 +54,10 @@ jobs:
             # 관리자 비밀번호 설정 (passwordHash가 null인 경우)
             echo "🔑 관리자 비밀번호 확인..."
             docker compose exec -T xplay-web node scripts/ensure-admin-pw.mjs || true
+            
+            # 데이터 마이그레이션 (FAQ, 자료실, 튜토리얼 등 콘텐츠 동기화)
+            echo "📋 콘텐츠 데이터 마이그레이션..."
+            docker compose exec -T xplay-web node scripts/apply-migration-to-vultr.mjs || true
             
             # 상태 확인
             sleep 10

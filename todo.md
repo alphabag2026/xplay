@@ -289,3 +289,8 @@
 - [x] FAQ 답변 입력란 확인 (정상 작동 - LangMapEditor multiline Textarea 사용)
 - [x] Manus DB → Vultr DB 데이터 마이그레이션 스크립트 작성 (export-data-for-vultr.mjs + sync-data-to-vultr.mjs)
 - [ ] 최신 코드 Vultr 배포 및 검증
+
+## Manus → Vultr 데이터 완전 동기화 + FAQ 검색
+- [ ] Manus DB의 모든 데이터를 Vultr 프로덕션 DB로 직접 동기화 (FAQ, 자료실, 튜토리얼, 공지사항, 긴급공지 등)
+- [x] FAQ 프론트엔드 섹션에 검색 기능 추가 (질문/답변 키워드 검색 + 결과 수 표시 + 빈 결과 UI)
+- [ ] Vultr 프로덕션 사이트에서 데이터 표시 및 검색 기능 확인
