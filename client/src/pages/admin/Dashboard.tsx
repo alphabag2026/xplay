@@ -87,6 +87,11 @@ export default function AdminDashboard() {
                           </Badge>
                         )}
                       </div>
+                      {ann.content && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                          {ann.content.length > 100 ? ann.content.slice(0, 100) + "..." : ann.content}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {new Date(ann.createdAt).toLocaleDateString()} · ❤️ {ann.likeCount}
                       </p>
