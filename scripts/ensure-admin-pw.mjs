@@ -1,7 +1,7 @@
 /**
- * Ensure admin password is set in the database.
+ * Force-reset admin password in the database.
  * Run after deployment: node scripts/ensure-admin-pw.mjs
- * Reads DATABASE_URL from .env.production
+ * Reads DATABASE_URL from environment or .env.production
  */
 import { createConnection } from "mysql2/promise";
 import bcryptjs from "bcryptjs";
@@ -12,7 +12,7 @@ const DEFAULT_PASSWORD = "admin123";
 const ADMIN_EMAIL = "bro202411@gmail.com";
 
 async function main() {
-  // Read DATABASE_URL from .env.production
+  // Read DATABASE_URL from env or .env.production
   let dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     try {
@@ -31,7 +31,7 @@ async function main() {
   const conn = await createConnection(dbUrl);
 
   try {
-    // Check if admin has a password
+    // Check if admin exists
     const [rows] = await conn.execute(
       "SELECT id, email, passwordHash FROM users WHERE email = ? LIMIT 1",
       [ADMIN_EMAIL]
@@ -43,19 +43,31 @@ async function main() {
     }
 
     const user = rows[0];
-    if (user.passwordHash && user.passwordHash.length > 0) {
-      console.log(`[EnsureAdminPW] Admin ${ADMIN_EMAIL} already has a password set`);
-      return;
-    }
-
-    // Set password
+    
+    // Always force-reset the password to ensure it works
     const hash = bcryptjs.hashSync(DEFAULT_PASSWORD, 10);
+    
+    // Verify the hash works before saving
+    const verifyOk = bcryptjs.compareSync(DEFAULT_PASSWORD, hash);
+    console.log(`[EnsureAdminPW] Hash verification: ${verifyOk}`);
+    
     await conn.execute(
       "UPDATE users SET passwordHash = ? WHERE id = ?",
       [hash, user.id]
     );
 
-    console.log(`[EnsureAdminPW] Password set for ${ADMIN_EMAIL}`);
+    // Double-check: read back and verify
+    const [updated] = await conn.execute(
+      "SELECT passwordHash FROM users WHERE id = ? LIMIT 1",
+      [user.id]
+    );
+    if (updated && updated.length > 0) {
+      const savedHash = updated[0].passwordHash;
+      const finalCheck = bcryptjs.compareSync(DEFAULT_PASSWORD, savedHash);
+      console.log(`[EnsureAdminPW] Final DB verification: ${finalCheck} (hash length: ${savedHash?.length})`);
+    }
+
+    console.log(`[EnsureAdminPW] Password force-reset for ${ADMIN_EMAIL}`);
   } finally {
     await conn.end();
   }
