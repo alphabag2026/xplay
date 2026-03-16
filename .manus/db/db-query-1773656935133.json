@@ -1,0 +1,21 @@
+{
+  "query": "SELECT id, openId, name, email, role, passwordHash IS NOT NULL as hasPassword, totpEnabled, loginMethod, lastSignedIn FROM users WHERE role IN ('admin', 'sub_admin') ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT id, openId, name, email, role, passwordHash IS NOT NULL as hasPassword, totpEnabled, loginMethod, lastSignedIn FROM users WHERE role IN ('admin', 'sub_admin') ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "gDWarbaKmB2NtkesgyDNhs",
+      "name": "bro bro",
+      "email": "bro202411@gmail.com",
+      "role": "admin",
+      "hasPassword": "0",
+      "totpEnabled": "0",
+      "loginMethod": "google",
+      "lastSignedIn": "2026-03-16 10:28:52"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\thasPassword\ttotpEnabled\tloginMethod\tlastSignedIn\n1\tgDWarbaKmB2NtkesgyDNhs\tbro bro\tbro202411@gmail.com\tadmin\t0\t0\tgoogle\t2026-03-16 10:28:52\n",
+  "stderr": "",
+  "execution_time_ms": 1658
+}

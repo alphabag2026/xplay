@@ -98,12 +98,12 @@ export default function AdminAnnouncements() {
 
   const LANG_LABELS: Record<string, string> = { en: "🇺🇸 English", zh: "🇨🇳 中文", ja: "🇯🇵 日本語", vi: "🇻🇳 Tiếng Việt", th: "🇹🇭 ภาษาไทย" };
 
-  // ===== Announcement Form (shared between create & edit) =====
-  const AnnouncementForm = ({ mode }: { mode: "create" | "edit" }) => (
+  // ===== Announcement Form JSX (inline to avoid remount on state change) =====
+  const announcementFormJsx = (mode: "create" | "edit") => (
     <div className="space-y-4">
       <div>
         <Label>{t("ann.titleLabel")}</Label>
-        <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={t("ann.titleLabel")} />
+        <Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t("ann.titleLabel")} />
       </div>
       <div>
         <div className="flex items-center justify-between mb-1">
@@ -114,7 +114,7 @@ export default function AdminAnnouncements() {
             {polishMutation.isPending ? t("ann.aiPolishing") : t("ann.aiPolish")}
           </Button>
         </div>
-        <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder={t("ann.contentPlaceholder")} rows={20}
+        <Textarea value={form.content} onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))} placeholder={t("ann.contentPlaceholder")} rows={20}
           className="min-h-[400px] text-sm leading-relaxed resize-y" />
       </div>
 
@@ -122,7 +122,7 @@ export default function AdminAnnouncements() {
       <div>
         <Label>{t("admin.image")}</Label>
         <div className="flex gap-2 mt-1">
-          <Input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} placeholder={t("ann.imageUrlPlaceholder")} className="flex-1" />
+          <Input value={form.imageUrl} onChange={(e) => setForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder={t("ann.imageUrlPlaceholder")} className="flex-1" />
           <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
           <Button variant="outline" size="sm" className="gap-1 shrink-0" onClick={() => fileInputRef.current?.click()} disabled={uploadImageMutation.isPending}>
             <Upload className="h-3 w-3" />
@@ -141,7 +141,7 @@ export default function AdminAnnouncements() {
 
       <div>
         <Label>{t("ann.author")}</Label>
-        <Input value={form.authorName} onChange={(e) => setForm({ ...form, authorName: e.target.value })} />
+        <Input value={form.authorName} onChange={(e) => setForm(f => ({ ...f, authorName: e.target.value }))} />
       </div>
       {mode === "create" && (
         <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ export default function AdminAnnouncements() {
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t("ann.create")}</DialogTitle></DialogHeader>
-          <AnnouncementForm mode="create" />
+          {announcementFormJsx("create")}
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setShowPreview(true); }} disabled={!form.title || !form.content} className="gap-1">
               <Eye className="h-4 w-4" /> {t("admin.preview")}
@@ -272,7 +272,7 @@ export default function AdminAnnouncements() {
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t("ann.editTitle")}</DialogTitle></DialogHeader>
-          <AnnouncementForm mode="edit" />
+          {announcementFormJsx("edit")}
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowPreview(true)} disabled={!form.title || !form.content} className="gap-1">
               <Eye className="h-4 w-4" /> {t("admin.preview")}

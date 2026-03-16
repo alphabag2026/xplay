@@ -59,55 +59,55 @@ export default function AdminPartners() {
     return badges;
   };
 
-  const PartnerForm = ({ isEdit = false }: { isEdit?: boolean }) => (
+  const partnerFormJsx = (isEdit = false) => (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>{t("partner.name")} *</Label>
-          <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t("partner.name")} />
+          <Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t("partner.name")} />
         </div>
         <div>
           <Label>Sort Order</Label>
-          <Input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} />
+          <Input type="number" value={form.sortOrder} onChange={(e) => setForm(f => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))} />
         </div>
       </div>
       <div>
         <Label>{t("admin.content")}</Label>
-        <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t("admin.content")} rows={2} />
+        <Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder={t("admin.content")} rows={2} />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>{t("partner.phone")}</Label>
-          <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+82-10-xxxx-xxxx" />
+          <Input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+82-10-xxxx-xxxx" />
         </div>
         <div>
           <Label>{t("partner.telegram")}</Label>
-          <Input value={form.telegram} onChange={(e) => setForm({ ...form, telegram: e.target.value })} placeholder="@username" />
+          <Input value={form.telegram} onChange={(e) => setForm(f => ({ ...f, telegram: e.target.value }))} placeholder="@username" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>{t("partner.kakao")}</Label>
-          <Input value={form.kakao} onChange={(e) => setForm({ ...form, kakao: e.target.value })} placeholder="KakaoTalk ID" />
+          <Input value={form.kakao} onChange={(e) => setForm(f => ({ ...f, kakao: e.target.value }))} placeholder="KakaoTalk ID" />
         </div>
         <div>
           <Label>{t("partner.whatsapp")}</Label>
-          <Input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} placeholder="+82-10-xxxx-xxxx" />
+          <Input value={form.whatsapp} onChange={(e) => setForm(f => ({ ...f, whatsapp: e.target.value }))} placeholder="+82-10-xxxx-xxxx" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>{t("partner.wechat")}</Label>
-          <Input value={form.wechat} onChange={(e) => setForm({ ...form, wechat: e.target.value })} placeholder="WeChat ID" />
+          <Input value={form.wechat} onChange={(e) => setForm(f => ({ ...f, wechat: e.target.value }))} placeholder="WeChat ID" />
         </div>
         <div>
           <Label>Avatar URL</Label>
-          <Input value={form.avatarUrl} onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })} placeholder="https://..." />
+          <Input value={form.avatarUrl} onChange={(e) => setForm(f => ({ ...f, avatarUrl: e.target.value }))} placeholder="https://..." />
         </div>
       </div>
       {isEdit && (
         <div className="flex items-center gap-2">
-          <Switch checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} />
+          <Switch checked={form.isActive} onCheckedChange={(v) => setForm(f => ({ ...f, isActive: v }))} />
           <Label>{t("admin.active")}</Label>
         </div>
       )}
@@ -172,7 +172,7 @@ export default function AdminPartners() {
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t("partner.new")}</DialogTitle></DialogHeader>
-          <PartnerForm />
+          {partnerFormJsx()}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>{t("admin.cancel")}</Button>
             <Button onClick={() => createMutation.mutate({
@@ -190,7 +190,7 @@ export default function AdminPartners() {
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t("admin.edit")}</DialogTitle></DialogHeader>
-          <PartnerForm isEdit />
+          {partnerFormJsx(true)}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEdit(false)}>{t("admin.cancel")}</Button>
             <Button onClick={() => editId && updateMutation.mutate({

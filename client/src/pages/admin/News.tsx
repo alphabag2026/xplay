@@ -89,28 +89,28 @@ export default function AdminNews() {
           <div className="space-y-4">
             <div>
               <Label>URL *</Label>
-              <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://..." />
+              <Input value={form.url} onChange={(e) => setForm(f => ({ ...f, url: e.target.value }))} placeholder="https://..." />
             </div>
             <div>
               <Label>{t("admin.title")} *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={t("news.urlPlaceholder")} />
+              <Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t("news.urlPlaceholder")} />
             </div>
             <div>
               <Label>{t("admin.content")}</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t("admin.content")} rows={3} />
+              <Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder={t("admin.content")} rows={3} />
             </div>
             <div>
               <Label>{t("admin.image")} URL</Label>
-              <Input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} placeholder="https://..." />
+              <Input value={form.imageUrl} onChange={(e) => setForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Site Name</Label>
-                <Input value={form.siteName} onChange={(e) => setForm({ ...form, siteName: e.target.value })} placeholder="CoinDesk" />
+                <Input value={form.siteName} onChange={(e) => setForm(f => ({ ...f, siteName: e.target.value }))} placeholder="CoinDesk" />
               </div>
               <div>
                 <Label>{t("ann.author")}</Label>
-                <Input value={form.authorName} onChange={(e) => setForm({ ...form, authorName: e.target.value })} />
+                <Input value={form.authorName} onChange={(e) => setForm(f => ({ ...f, authorName: e.target.value }))} />
               </div>
             </div>
           </div>

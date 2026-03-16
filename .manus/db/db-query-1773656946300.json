@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, openId, name, email, role, LEFT(passwordHash, 20) as hashPrefix, totpEnabled, loginMethod FROM users WHERE role IN ('admin', 'sub_admin');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT id, openId, name, email, role, LEFT(passwordHash, 20) as hashPrefix, totpEnabled, loginMethod FROM users WHERE role IN ('admin', 'sub_admin');",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "gDWarbaKmB2NtkesgyDNhs",
+      "name": "bro bro",
+      "email": "bro202411@gmail.com",
+      "role": "admin",
+      "hashPrefix": "NULL",
+      "totpEnabled": "0",
+      "loginMethod": "google"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\thashPrefix\ttotpEnabled\tloginMethod\n1\tgDWarbaKmB2NtkesgyDNhs\tbro bro\tbro202411@gmail.com\tadmin\tNULL\t0\tgoogle\n",
+  "stderr": "",
+  "execution_time_ms": 1492
+}
