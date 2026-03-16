@@ -122,7 +122,7 @@ authRouter.post("/api/auth/logout", async (req: Request, res: Response) => {
 authRouter.post("/api/auth/change-password", async (req: Request, res: Response) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
-    if (!email || !currentPassword || !newPassword) {
+    if (!currentPassword || !newPassword) {
       res.status(400).json({ error: "모든 필드를 입력해주세요" });
       return;
     }
@@ -131,7 +131,32 @@ authRouter.post("/api/auth/change-password", async (req: Request, res: Response)
       return;
     }
 
-    const user = await db.getUserByEmail(email);
+    // Try to identify user from JWT session cookie first, then fall back to email
+    let user;
+    try {
+      const cookies = new Map(
+        (req.headers.cookie || "").split(";").map((c) => {
+          const [k, ...v] = c.trim().split("=");
+          return [k, v.join("=")] as [string, string];
+        })
+      );
+      const sessionCookie = cookies.get(COOKIE_NAME);
+      if (sessionCookie) {
+        const { payload } = await jwtVerify(sessionCookie, getSecretKey());
+        const openId = payload.openId as string;
+        if (openId) {
+          user = await db.getUserByOpenId(openId);
+        }
+      }
+    } catch (_) {
+      // JWT verification failed, fall back to email
+    }
+
+    // Fall back to email if JWT didn't work
+    if (!user && email) {
+      user = await db.getUserByEmail(email);
+    }
+
     if (!user || !user.passwordHash) {
       res.status(401).json({ error: "인증 실패" });
       return;

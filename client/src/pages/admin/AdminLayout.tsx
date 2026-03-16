@@ -21,9 +21,11 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
+import { useApp } from "@/contexts/AppContext";
+import { LANG_LABELS, LANG_ORDER, type Lang } from "@/lib/i18n";
 import {
   LayoutDashboard, Megaphone, Newspaper, Users, HardDrive, UserCog,
-  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown, AlertTriangle, FolderOpen, KeyRound, BarChart3, BookOpen,
+  LogOut, PanelLeft, ArrowLeft, Shield, ShieldCheck, ScrollText, Headphones, Crown, AlertTriangle, FolderOpen, KeyRound, BarChart3, BookOpen, Globe,
 } from "lucide-react";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
@@ -32,27 +34,27 @@ import { Button } from "@/components/ui/button";
 
 type MenuItem = {
   icon: React.ComponentType<{ className?: string }>;
-  label: string;
+  labelKey: string;
   path: string;
   /** Which roles can see this menu item */
   roles: Array<"admin" | "sub_admin">;
 };
 
 const allMenuItems: MenuItem[] = [
-  { icon: LayoutDashboard, label: "대시보드", path: "/admin", roles: ["admin", "sub_admin"] },
-  { icon: Megaphone, label: "공지사항", path: "/admin/announcements", roles: ["admin"] },
-  { icon: Newspaper, label: "뉴스", path: "/admin/news", roles: ["admin", "sub_admin"] },
-  { icon: Users, label: "소통 파트너", path: "/admin/partners", roles: ["admin", "sub_admin"] },
-  { icon: FolderOpen, label: "자료 관리", path: "/admin/resources", roles: ["admin", "sub_admin"] },
-  { icon: HardDrive, label: "미디어 (R2)", path: "/admin/media", roles: ["admin"] },
-  { icon: UserCog, label: "사용자 관리", path: "/admin/users", roles: ["admin"] },
-  { icon: Crown, label: "리더 추천", path: "/admin/leader-referrals", roles: ["admin", "sub_admin"] },
-  { icon: AlertTriangle, label: "긴급 공지", path: "/admin/urgent-notices", roles: ["admin", "sub_admin"] },
-  { icon: Headphones, label: "CS 관리", path: "/admin/cs", roles: ["admin", "sub_admin"] },
-  { icon: BarChart3, label: "실시간 매출 설정", path: "/admin/live-feed", roles: ["admin"] },
-  { icon: BookOpen, label: "튜토리얼 & FAQ", path: "/admin/tutorials", roles: ["admin", "sub_admin"] },
-  { icon: ScrollText, label: "감사 로그", path: "/admin/audit-logs", roles: ["admin"] },
-  { icon: KeyRound, label: "비밀번호 변경", path: "/admin/change-password", roles: ["admin", "sub_admin"] },
+  { icon: LayoutDashboard, labelKey: "menu.dashboard", path: "/admin", roles: ["admin", "sub_admin"] },
+  { icon: Megaphone, labelKey: "menu.announcements", path: "/admin/announcements", roles: ["admin"] },
+  { icon: Newspaper, labelKey: "menu.news", path: "/admin/news", roles: ["admin", "sub_admin"] },
+  { icon: Users, labelKey: "menu.partners", path: "/admin/partners", roles: ["admin", "sub_admin"] },
+  { icon: FolderOpen, labelKey: "menu.resources", path: "/admin/resources", roles: ["admin", "sub_admin"] },
+  { icon: HardDrive, labelKey: "menu.media", path: "/admin/media", roles: ["admin"] },
+  { icon: UserCog, labelKey: "menu.users", path: "/admin/users", roles: ["admin"] },
+  { icon: Crown, labelKey: "menu.leaderReferrals", path: "/admin/leader-referrals", roles: ["admin", "sub_admin"] },
+  { icon: AlertTriangle, labelKey: "menu.urgentNotices", path: "/admin/urgent-notices", roles: ["admin", "sub_admin"] },
+  { icon: Headphones, labelKey: "menu.cs", path: "/admin/cs", roles: ["admin", "sub_admin"] },
+  { icon: BarChart3, labelKey: "menu.liveFeed", path: "/admin/live-feed", roles: ["admin"] },
+  { icon: BookOpen, labelKey: "menu.tutorials", path: "/admin/tutorials", roles: ["admin", "sub_admin"] },
+  { icon: ScrollText, labelKey: "menu.auditLogs", path: "/admin/audit-logs", roles: ["admin"] },
+  { icon: KeyRound, labelKey: "menu.changePassword", path: "/admin/change-password", roles: ["admin", "sub_admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "admin-sidebar-width";
@@ -60,12 +62,56 @@ const DEFAULT_WIDTH = 260;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 400;
 
+/** Compact language selector for admin sidebar */
+function AdminLangSelector({ collapsed }: { collapsed: boolean }) {
+  const { lang, setLang } = useApp();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative px-2 mb-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 w-full px-3 py-2 text-xs font-medium rounded-lg transition-colors hover:bg-accent/50 text-muted-foreground"
+      >
+        <Globe className="h-4 w-4 shrink-0" />
+        {!collapsed && <span className="truncate">{LANG_LABELS[lang]}</span>}
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-0 bottom-full mb-1 py-1 min-w-[160px] max-h-[400px] overflow-y-auto z-50 rounded-lg border bg-popover text-popover-foreground shadow-lg"
+        >
+          {LANG_ORDER.map((l) => (
+            <button
+              key={l}
+              onClick={() => { setLang(l); setOpen(false); }}
+              className={`block w-full text-left px-4 py-2 text-sm transition-colors hover:bg-accent ${l === lang ? "text-primary font-medium bg-accent/50" : ""}`}
+            >
+              {LANG_LABELS[l]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
+  const { t } = useApp();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -78,10 +124,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <Shield className="h-16 w-16 text-muted-foreground opacity-50" />
-          <h1 className="text-2xl font-semibold tracking-tight text-center">관리자 로그인 필요</h1>
-          <p className="text-sm text-muted-foreground text-center">백오피스에 접근하려면 관리자 계정으로 로그인해야 합니다.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-center">{t("sidebar.loginRequired")}</h1>
+          <p className="text-sm text-muted-foreground text-center">{t("sidebar.loginDesc")}</p>
           <Button onClick={() => { window.location.href = getLoginUrl(); }} size="lg" className="w-full">
-            로그인
+            {t("login.submit")}
           </Button>
         </div>
       </div>
@@ -94,11 +140,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-6 p-8 max-w-md w-full">
           <Shield className="h-16 w-16 text-destructive opacity-50" />
-          <h1 className="text-2xl font-semibold tracking-tight text-center">접근 권한 없음</h1>
-          <p className="text-sm text-muted-foreground text-center">관리자 또는 부관리자 권한이 필요합니다. 관리자에게 문의하세요.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-center">{t("sidebar.noAccess")}</h1>
+          <p className="text-sm text-muted-foreground text-center">{t("sidebar.noAccessDesc")}</p>
           <Link href="/">
             <Button variant="outline" className="gap-2">
-              <ArrowLeft className="h-4 w-4" /> 메인으로 돌아가기
+              <ArrowLeft className="h-4 w-4" /> {t("sidebar.backToMain")}
             </Button>
           </Link>
         </div>
@@ -121,6 +167,7 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { t } = useApp();
 
   const userRole = (user?.role ?? "user") as "admin" | "sub_admin" | "user";
 
@@ -176,7 +223,7 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
                   ) : (
                     <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
                   )}
-                  <span className="font-semibold tracking-tight truncate text-sm">XPLAY 백오피스</span>
+                  <span className="font-semibold tracking-tight truncate text-sm">{t("sidebar.backoffice")}</span>
                 </div>
               )}
             </div>
@@ -190,7 +237,7 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
                   userRole === "admin" ? "text-red-500 bg-red-500/10" : "text-amber-500 bg-amber-500/10"
                 }`}>
                   {userRole === "admin" ? <Shield className="h-3 w-3" /> : <ShieldCheck className="h-3 w-3" />}
-                  {userRole === "admin" ? "관리자" : "부관리자"}
+                  {userRole === "admin" ? t("sidebar.admin") : t("sidebar.subAdmin")}
                 </span>
               </div>
             )}
@@ -198,11 +245,12 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
             <SidebarMenu className="px-2 py-1">
               {visibleMenuItems.map(item => {
                 const isActive = location === item.path;
+                const label = t(item.labelKey);
                 return (
                   <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton isActive={isActive} onClick={() => setLocation(item.path)} tooltip={item.label} className="h-10 transition-all font-normal">
+                    <SidebarMenuButton isActive={isActive} onClick={() => setLocation(item.path)} tooltip={label} className="h-10 transition-all font-normal">
                       <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
-                      <span>{item.label}</span>
+                      <span>{label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -211,14 +259,17 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
 
             {/* Back to site */}
             <div className="px-2 mt-4">
-              <SidebarMenuButton onClick={() => setLocation("/")} tooltip="사이트로 돌아가기" className="h-10 font-normal text-muted-foreground">
+              <SidebarMenuButton onClick={() => setLocation("/")} tooltip={t("sidebar.backToSite")} className="h-10 font-normal text-muted-foreground">
                 <ArrowLeft className="h-4 w-4" />
-                <span>사이트로 돌아가기</span>
+                <span>{t("sidebar.backToSite")}</span>
               </SidebarMenuButton>
             </div>
           </SidebarContent>
 
           <SidebarFooter className="p-3">
+            {/* Language selector */}
+            <AdminLangSelector collapsed={isCollapsed} />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none">
@@ -233,7 +284,7 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" /><span>로그아웃</span>
+                  <LogOut className="mr-2 h-4 w-4" /><span>{t("sidebar.logout")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -248,7 +299,7 @@ function AdminLayoutContent({ children, setSidebarWidth }: { children: React.Rea
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <span className="tracking-tight text-foreground">{activeMenuItem?.label ?? "백오피스"}</span>
+              <span className="tracking-tight text-foreground">{activeMenuItem ? t(activeMenuItem.labelKey) : t("sidebar.backoffice")}</span>
             </div>
           </div>
         )}

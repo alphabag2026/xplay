@@ -2,34 +2,29 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Users as UsersIcon, Shield, ShieldCheck, User, Search, RefreshCw } from "lucide-react";
 import { useState, useMemo } from "react";
-
-const roleLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  admin: { label: "관리자", color: "text-red-500 bg-red-500/10", icon: <Shield className="h-3.5 w-3.5" /> },
-  sub_admin: { label: "부관리자", color: "text-amber-500 bg-amber-500/10", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-  user: { label: "일반 사용자", color: "text-slate-500 bg-slate-500/10", icon: <User className="h-3.5 w-3.5" /> },
-};
+import { useApp } from "@/contexts/AppContext";
 
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const utils = trpc.useUtils();
+  const { t } = useApp();
   const { data: users, isLoading } = trpc.admin.users.list.useQuery();
+
+  const roleLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    admin: { label: t("user.admin"), color: "text-red-500 bg-red-500/10", icon: <Shield className="h-3.5 w-3.5" /> },
+    sub_admin: { label: t("user.subAdmin"), color: "text-amber-500 bg-amber-500/10", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
+    user: { label: t("user.normalUser"), color: "text-slate-500 bg-slate-500/10", icon: <User className="h-3.5 w-3.5" /> },
+  };
+
   const updateRole = trpc.admin.users.updateRole.useMutation({
     onSuccess: (result) => {
-      if (result.success) {
-        toast.success("역할이 변경되었습니다.");
-        utils.admin.users.list.invalidate();
-      } else {
-        toast.error(result.error || "역할 변경에 실패했습니다.");
-      }
+      if (result.success) { toast.success(t("admin.save") + " ✓"); utils.admin.users.list.invalidate(); }
+      else { toast.error(result.error || t("admin.error")); }
     },
     onError: (err) => toast.error(err.message),
   });
@@ -40,8 +35,7 @@ export default function UsersPage() {
   const filteredUsers = useMemo(() => {
     if (!users) return [];
     return users.filter((u) => {
-      const matchesSearch =
-        !searchQuery ||
+      const matchesSearch = !searchQuery ||
         u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.openId.toLowerCase().includes(searchQuery.toLowerCase());
@@ -53,29 +47,22 @@ export default function UsersPage() {
   const roleCounts = useMemo(() => {
     if (!users) return { admin: 0, sub_admin: 0, user: 0 };
     return users.reduce(
-      (acc, u) => {
-        acc[u.role as keyof typeof acc] = (acc[u.role as keyof typeof acc] || 0) + 1;
-        return acc;
-      },
+      (acc, u) => { acc[u.role as keyof typeof acc] = (acc[u.role as keyof typeof acc] || 0) + 1; return acc; },
       { admin: 0, sub_admin: 0, user: 0 }
     );
   }, [users]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <UsersIcon className="h-6 w-6 text-primary" />
-            사용자 관리
+            <UsersIcon className="h-6 w-6 text-primary" /> {t("user.title")}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            사용자 역할을 관리합니다. 부관리자는 뉴스와 소통 파트너만 관리할 수 있습니다.
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{t("user.subtitle")}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => utils.admin.users.list.invalidate()}>
-          <RefreshCw className="h-4 w-4 mr-2" /> 새로고침
+          <RefreshCw className="h-4 w-4 mr-2" /> {t("admin.refresh")}
         </Button>
       </div>
 
@@ -96,47 +83,40 @@ export default function UsersPage() {
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="이름, 이메일, OpenID 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+          <input type="text" placeholder={t("admin.search") + "..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20" />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="역할 필터" />
-          </SelectTrigger>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder={t("admin.status")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="admin">관리자</SelectItem>
-            <SelectItem value="sub_admin">부관리자</SelectItem>
-            <SelectItem value="user">일반 사용자</SelectItem>
+            <SelectItem value="all">{t("admin.all")}</SelectItem>
+            <SelectItem value="admin">{t("user.admin")}</SelectItem>
+            <SelectItem value="sub_admin">{t("user.subAdmin")}</SelectItem>
+            <SelectItem value="user">{t("user.normalUser")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Permission Guide */}
       <div className="rounded-lg border bg-muted/30 p-4">
-        <h3 className="text-sm font-semibold mb-2">역할별 권한 안내</h3>
+        <h3 className="text-sm font-semibold mb-2">{t("user.permGuide")}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-2 pr-4 font-medium">기능</th>
-                <th className="text-center py-2 px-3 font-medium">관리자</th>
-                <th className="text-center py-2 px-3 font-medium">부관리자</th>
-                <th className="text-center py-2 px-3 font-medium">일반 사용자</th>
+                <th className="text-left py-2 pr-4 font-medium">{t("user.feature")}</th>
+                <th className="text-center py-2 px-3 font-medium">{t("user.admin")}</th>
+                <th className="text-center py-2 px-3 font-medium">{t("user.subAdmin")}</th>
+                <th className="text-center py-2 px-3 font-medium">{t("user.normalUser")}</th>
               </tr>
             </thead>
             <tbody className="text-muted-foreground">
-              <tr className="border-b"><td className="py-1.5 pr-4">대시보드</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">❌</td></tr>
-              <tr className="border-b"><td className="py-1.5 pr-4">공지사항 관리</td><td className="text-center">✅</td><td className="text-center">❌</td><td className="text-center">❌</td></tr>
-              <tr className="border-b"><td className="py-1.5 pr-4">뉴스 관리</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">❌</td></tr>
-              <tr className="border-b"><td className="py-1.5 pr-4">소통 파트너 관리</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">❌</td></tr>
-              <tr className="border-b"><td className="py-1.5 pr-4">미디어 (R2)</td><td className="text-center">✅</td><td className="text-center">❌</td><td className="text-center">❌</td></tr>
-              <tr><td className="py-1.5 pr-4">사용자 관리</td><td className="text-center">✅</td><td className="text-center">❌</td><td className="text-center">❌</td></tr>
+              <tr className="border-b"><td className="py-1.5 pr-4">{t("admin.sidebar.dashboard")}</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">---</td></tr>
+              <tr className="border-b"><td className="py-1.5 pr-4">{t("admin.sidebar.announcements")}</td><td className="text-center">✅</td><td className="text-center">---</td><td className="text-center">---</td></tr>
+              <tr className="border-b"><td className="py-1.5 pr-4">{t("admin.sidebar.news")}</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">---</td></tr>
+              <tr className="border-b"><td className="py-1.5 pr-4">{t("admin.sidebar.partners")}</td><td className="text-center">✅</td><td className="text-center">✅</td><td className="text-center">---</td></tr>
+              <tr className="border-b"><td className="py-1.5 pr-4">{t("admin.sidebar.media")}</td><td className="text-center">✅</td><td className="text-center">---</td><td className="text-center">---</td></tr>
+              <tr><td className="py-1.5 pr-4">{t("admin.sidebar.users")}</td><td className="text-center">✅</td><td className="text-center">---</td><td className="text-center">---</td></tr>
             </tbody>
           </table>
         </div>
@@ -144,18 +124,18 @@ export default function UsersPage() {
 
       {/* Users Table */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">로딩 중...</div>
+        <div className="text-center py-12 text-muted-foreground">{t("admin.loading")}</div>
       ) : (
         <div className="rounded-lg border overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
                 <th className="text-left py-3 px-4 font-medium">ID</th>
-                <th className="text-left py-3 px-4 font-medium">이름</th>
-                <th className="text-left py-3 px-4 font-medium">이메일</th>
-                <th className="text-left py-3 px-4 font-medium">현재 역할</th>
-                <th className="text-left py-3 px-4 font-medium">마지막 로그인</th>
-                <th className="text-left py-3 px-4 font-medium">역할 변경</th>
+                <th className="text-left py-3 px-4 font-medium">{t("user.name")}</th>
+                <th className="text-left py-3 px-4 font-medium">{t("user.email")}</th>
+                <th className="text-left py-3 px-4 font-medium">{t("user.currentRole")}</th>
+                <th className="text-left py-3 px-4 font-medium">{t("user.lastLogin")}</th>
+                <th className="text-left py-3 px-4 font-medium">{t("user.changeRole")}</th>
               </tr>
             </thead>
             <tbody>
@@ -167,7 +147,7 @@ export default function UsersPage() {
                     <td className="py-3 px-4 font-mono text-xs text-muted-foreground">{u.id}</td>
                     <td className="py-3 px-4 font-medium">
                       {u.name || "-"}
-                      {isSelf && <span className="ml-2 text-xs text-primary">(나)</span>}
+                      {isSelf && <span className="ml-2 text-xs text-primary">({t("user.me")})</span>}
                     </td>
                     <td className="py-3 px-4 text-muted-foreground">{u.email || "-"}</td>
                     <td className="py-3 px-4">
@@ -180,21 +160,14 @@ export default function UsersPage() {
                     </td>
                     <td className="py-3 px-4">
                       {isSelf ? (
-                        <span className="text-xs text-muted-foreground">변경 불가</span>
+                        <span className="text-xs text-muted-foreground">{t("user.cannotChange")}</span>
                       ) : (
-                        <Select
-                          value={u.role}
-                          onValueChange={(newRole) => {
-                            updateRole.mutate({ userId: u.id, role: newRole as "user" | "admin" | "sub_admin" });
-                          }}
-                        >
-                          <SelectTrigger className="w-[130px] h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
+                        <Select value={u.role} onValueChange={(newRole) => { updateRole.mutate({ userId: u.id, role: newRole as "user" | "admin" | "sub_admin" }); }}>
+                          <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="user">일반 사용자</SelectItem>
-                            <SelectItem value="sub_admin">부관리자</SelectItem>
-                            <SelectItem value="admin">관리자</SelectItem>
+                            <SelectItem value="user">{t("user.normalUser")}</SelectItem>
+                            <SelectItem value="sub_admin">{t("user.subAdmin")}</SelectItem>
+                            <SelectItem value="admin">{t("user.admin")}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -204,9 +177,7 @@ export default function UsersPage() {
               })}
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-muted-foreground">
-                    {searchQuery || roleFilter !== "all" ? "검색 결과가 없습니다." : "등록된 사용자가 없습니다."}
-                  </td>
+                  <td colSpan={6} className="text-center py-8 text-muted-foreground">{t("admin.noData")}</td>
                 </tr>
               )}
             </tbody>

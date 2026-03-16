@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { type Lang, type CoreLang, CORE_LANGS, getDefaultLang, saveLangPreference, T } from "@/lib/i18n";
+import { ADMIN_T } from "@/lib/i18n-admin";
 
 interface AppContextType {
   lang: Lang;
@@ -52,7 +53,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: string) => {
-      const entry = T[key];
+      const entry = T[key] || ADMIN_T[key];
       if (!entry) return key;
       // For extended languages, fallback to English
       const coreLang: CoreLang = (CORE_LANGS as readonly string[]).includes(lang) ? (lang as CoreLang) : "en";

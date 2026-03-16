@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { KeyRound, Eye, EyeOff, Check, Shield } from "lucide-react";
+import { useApp } from "@/contexts/AppContext";
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -14,6 +15,7 @@ export default function ChangePassword() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { t } = useApp();
 
   const isValid = currentPassword.length >= 1 && newPassword.length >= 6 && newPassword === confirmPassword;
 
@@ -21,11 +23,11 @@ export default function ChangePassword() {
     e.preventDefault();
     if (!isValid) return;
     if (newPassword !== confirmPassword) {
-      toast.error("새 비밀번호가 일치하지 않습니다");
+      toast.error(t("pw.mismatch"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("새 비밀번호는 6자 이상이어야 합니다");
+      toast.error(t("pw.minLength"));
       return;
     }
 
@@ -39,15 +41,15 @@ export default function ChangePassword() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("비밀번호가 성공적으로 변경되었습니다");
+        toast.success(t("pw.success"));
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       } else {
-        toast.error(data.error || "비밀번호 변경에 실패했습니다");
+        toast.error(data.error || t("pw.error"));
       }
     } catch (err) {
-      toast.error("서버 오류가 발생했습니다");
+      toast.error(t("pw.serverError"));
     } finally {
       setLoading(false);
     }
@@ -56,8 +58,8 @@ export default function ChangePassword() {
   return (
     <div className="max-w-md mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">비밀번호 변경</h1>
-        <p className="text-muted-foreground mt-1">관리자 계정의 비밀번호를 변경합니다</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("pw.title")}</h1>
+        <p className="text-muted-foreground mt-1">{t("pw.subtitle")}</p>
       </div>
 
       <Card className="bg-card/50 border-border/50">
@@ -67,22 +69,22 @@ export default function ChangePassword() {
               <Shield className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg">보안 설정</CardTitle>
-              <CardDescription>안전한 비밀번호로 변경하세요</CardDescription>
+              <CardTitle className="text-lg">{t("pw.security")}</CardTitle>
+              <CardDescription>{t("pw.securityDesc")}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="current">현재 비밀번호</Label>
+              <Label htmlFor="current">{t("pw.current")}</Label>
               <div className="relative">
                 <Input
                   id="current"
                   type={showCurrent ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="현재 비밀번호 입력"
+                  placeholder={t("pw.currentPlaceholder")}
                   className="pr-10"
                 />
                 <button
@@ -96,14 +98,14 @@ export default function ChangePassword() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="new">새 비밀번호</Label>
+              <Label htmlFor="new">{t("pw.new")}</Label>
               <div className="relative">
                 <Input
                   id="new"
                   type={showNew ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="새 비밀번호 (6자 이상)"
+                  placeholder={t("pw.newPlaceholder")}
                   className="pr-10"
                 />
                 <button
@@ -115,19 +117,19 @@ export default function ChangePassword() {
                 </button>
               </div>
               {newPassword.length > 0 && newPassword.length < 6 && (
-                <p className="text-xs text-destructive">6자 이상 입력해주세요</p>
+                <p className="text-xs text-destructive">{t("pw.minLength")}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm">새 비밀번호 확인</Label>
+              <Label htmlFor="confirm">{t("pw.confirm")}</Label>
               <div className="relative">
                 <Input
                   id="confirm"
                   type={showConfirm ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="새 비밀번호 다시 입력"
+                  placeholder={t("pw.confirmPlaceholder")}
                   className="pr-10"
                 />
                 <button
@@ -139,16 +141,16 @@ export default function ChangePassword() {
                 </button>
               </div>
               {confirmPassword.length > 0 && newPassword !== confirmPassword && (
-                <p className="text-xs text-destructive">비밀번호가 일치하지 않습니다</p>
+                <p className="text-xs text-destructive">{t("pw.mismatch")}</p>
               )}
               {confirmPassword.length > 0 && newPassword === confirmPassword && newPassword.length >= 6 && (
-                <p className="text-xs text-green-500 flex items-center gap-1"><Check className="h-3 w-3" /> 비밀번호 일치</p>
+                <p className="text-xs text-green-500 flex items-center gap-1"><Check className="h-3 w-3" /> {t("pw.match")}</p>
               )}
             </div>
 
             <Button type="submit" className="w-full gap-2" disabled={!isValid || loading}>
               <KeyRound className="h-4 w-4" />
-              {loading ? "변경 중..." : "비밀번호 변경"}
+              {loading ? t("pw.changing") : t("pw.submit")}
             </Button>
           </form>
         </CardContent>
