@@ -545,6 +545,10 @@ export const T: Record<string, Record<CoreLang, string>> = {
   "sim.tax.afterTax": { ko: "세후 순수익", en: "After-Tax Net Gain", zh: "税后净收益", ja: "税引後純利益", vi: "Lợi nhuận sau thuế", th: "กำไรสุทธิหลังหักภาษี" },
   "sim.tax.note": { ko: "한국 가상자산 과세 기준: 연간 수익 250만원 기본공제 후 22%(소득세 20% + 지방세 2%) 적용. 환율 1 USD = 1,350 KRW 기준. 실제 세금은 개인 상황과 세법 변경에 따라 달라질 수 있으므로 세무 전문가와 상담하시기 바랍니다.", en: "Based on Korean crypto tax: 22% (20% income tax + 2% local tax) on gains exceeding 2.5M KRW basic deduction. Exchange rate: 1 USD = 1,350 KRW. Actual taxes may vary based on individual circumstances and tax law changes. Please consult a tax professional.", zh: "基于韩国加密货币税：超过250万韩元基本扣除后按22%（20%所得税+2%地方税）征收。汇率：1 USD = 1,350 KRW。实际税款可能因个人情况和税法变更而异，请咨询税务专家。", ja: "韓国の仮想資産課税基準：年間収益250万ウォン基本控除後22%（所得税20%+地方税2%）適用。為替レート1 USD = 1,350 KRW基準。実際の税金は個人の状況や税法の変更により異なる場合があります。税務専門家にご相談ください。", vi: "Dựa trên thuế tiền điện tử Hàn Quốc: 22% (20% thuế thu nhập + 2% thuế địa phương) trên lợi nhuận vượt quá 2.5 triệu KRW khấu trừ cơ bản. Tỷ giá: 1 USD = 1,350 KRW. Thuế thực tế có thể thay đổi. Vui lòng tham khảo chuyên gia thuế.", th: "ตามภาษีคริปโตเกาหลี: 22% (ภาษีเงินได้ 20% + ภาษีท้องถิ่น 2%) สำหรับกำไรที่เกิน 2.5 ล้านวอนหักลดหย่อนพื้นฐาน อัตราแลกเปลี่ยน: 1 USD = 1,350 KRW ภาษีจริงอาจแตกต่างกัน กรุณาปรึกษาผู้เชี่ยวชาญด้านภาษี" },
 
+  // Simulator fee notice
+  "sim.feeNotice1": { ko: "플랫폼 수수료 20% 미제외 금액입니다", en: "Amounts shown before 20% platform fee deduction", zh: "金额未扣除20%平台手续费", ja: "プラットフォーム手数料20%未控除の金額です", vi: "Số tiền chưa trừ phí nền tảng 20%", th: "จำนวนเงินก่อนหักค่าธรรมเนียมแพลตฟอร์ม 20%" },
+  "sim.feeNotice2": { ko: "플랫폼 수수료는 변동 될 수 있습니다.", en: "Platform fees are subject to change.", zh: "平台手续费可能会变动。", ja: "プラットフォーム手数料は変動する場合があります。", vi: "Phí nền tảng có thể thay đổi.", th: "ค่าธรรมเนียมแพลตฟอร์มอาจเปลี่ยนแปลงได้" },
+
   // Nav simulator
   "nav.simulator": { ko: "시뮬레이터", en: "Simulator", zh: "模拟器", ja: "シミュレーター", vi: "Mô phỏng", th: "จำลอง" },
 

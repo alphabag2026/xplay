@@ -231,16 +231,15 @@ describe("myContact.register", () => {
     ).rejects.toThrow();
   });
 
-  it("rejects empty phone", async () => {
+  it("allows empty phone (phone is optional)", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
-    await expect(
-      caller.myContact.register({
-        name: "홍길동",
-        phone: "",
-      })
-    ).rejects.toThrow();
+    const result = await caller.myContact.register({
+      name: "홍길동",
+      phone: "",
+    });
+    expect(result.success).toBe(true);
   });
 });
 

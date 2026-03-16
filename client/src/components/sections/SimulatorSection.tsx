@@ -320,10 +320,10 @@ export default function SimulatorSection() {
       {/* Fee Notice */}
       <div className="mt-4 text-center space-y-1">
         <p className="text-[11px]" style={{ color: "rgba(226,232,240,0.4)" }}>
-          플랫폼 수수료 20% 미제외 금액입니다
+          {t("sim.feeNotice1")}
         </p>
         <p className="text-[10px]" style={{ color: "rgba(226,232,240,0.3)" }}>
-          플랫폼 수수료는 변동 될 수 있습니다.
+          {t("sim.feeNotice2")}
         </p>
       </div>
     </SectionWrapper>

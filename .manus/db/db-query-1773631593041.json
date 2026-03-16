@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, sortOrder, SUBSTRING(question, 1, 50) as q FROM faqItems",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT id, sortOrder, SUBSTRING(question, 1, 50) as q FROM faqItems",
+  "rows": [
+    {
+      "id": "1",
+      "sortOrder": "0",
+      "q": "{\"ko\":\"XPLAY는 안전한가요? 자금은 어떻게 보호되나요?\",\"en\":\"Is XPLA"
+    },
+    {
+      "id": "2",
+      "sortOrder": "1",
+      "q": "{\"ko\":\"최소 투자 금액은 얼마인가요?\",\"en\":\"What is the minimum"
+    },
+    {
+      "id": "3",
+      "sortOrder": "2",
+      "q": "{\"ko\":\"출금은 얼마나 걸리나요?\",\"en\":\"How long does withdraw"
+    },
+    {
+      "id": "4",
+      "sortOrder": "3",
+      "q": "{\"ko\":\"레퍼럴 보너스는 어떻게 작동하나요?\",\"en\":\"How does the ref"
+    },
+    {
+      "id": "5",
+      "sortOrder": "4",
+      "q": "{\"ko\":\"BTC 예측 게임에서 잃으면 어떻게 되나요?\",\"en\":\"What happen"
+    },
+    {
+      "id": "6",
+      "sortOrder": "5",
+      "q": "{\"ko\":\"XPLAY를 시작하려면 어떤 지갑이 필요한가요?\",\"en\":\"What wall"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsortOrder\tq\n1\t0\t{\"ko\":\"XPLAY는 안전한가요? 자금은 어떻게 보호되나요?\",\"en\":\"Is XPLA\n2\t1\t{\"ko\":\"최소 투자 금액은 얼마인가요?\",\"en\":\"What is the minimum\n3\t2\t{\"ko\":\"출금은 얼마나 걸리나요?\",\"en\":\"How long does withdraw\n4\t3\t{\"ko\":\"레퍼럴 보너스는 어떻게 작동하나요?\",\"en\":\"How does the ref\n5\t4\t{\"ko\":\"BTC 예측 게임에서 잃으면 어떻게 되나요?\",\"en\":\"What happen\n6\t5\t{\"ko\":\"XPLAY를 시작하려면 어떤 지갑이 필요한가요?\",\"en\":\"What wall\n",
+  "stderr": "",
+  "execution_time_ms": 1632
+}

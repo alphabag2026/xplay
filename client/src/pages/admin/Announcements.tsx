@@ -112,8 +112,8 @@ export default function AdminAnnouncements() {
             {polishMutation.isPending ? "다듬는 중..." : "AI 내용 다듬기"}
           </Button>
         </div>
-        <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="공지 내용을 작성하세요..." rows={12}
-          className="min-h-[200px] text-sm leading-relaxed" />
+        <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="공지 내용을 작성하세요..." rows={20}
+          className="min-h-[400px] text-sm leading-relaxed resize-y" />
       </div>
 
       {/* Image Upload */}
@@ -250,7 +250,7 @@ export default function AdminAnnouncements() {
 
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader><DialogTitle>새 공지 작성</DialogTitle></DialogHeader>
           <AnnouncementForm mode="create" />
           <DialogFooter className="gap-2">
@@ -270,7 +270,7 @@ export default function AdminAnnouncements() {
 
       {/* Edit Dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
           <DialogHeader><DialogTitle>공지 수정</DialogTitle></DialogHeader>
           <AnnouncementForm mode="edit" />
           <DialogFooter className="gap-2">

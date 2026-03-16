@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, sortOrder, question FROM faqItems ORDER BY sortOrder",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT id, sortOrder, question FROM faqItems ORDER BY sortOrder",
+  "rows": [
+    {
+      "id": "1",
+      "sortOrder": "0",
+      "question": "{\"ko\":\"XPLAY는 안전한가요? 자금은 어떻게 보호되나요?\",\"en\":\"Is XPLAY safe? How are funds protected?\",\"zh\":\"XPLAY安全吗？资金如何保护？\",\"ja\":\"XPLAYは安全ですか？資金はどう保護されますか？\",\"vi\":\"XPLAY có an toàn không? Tiền được bảo vệ thế nào?\",\"th\":\"XPLAY ปลอดภัยไหม? เงินถูกปกป้องอย่างไร?\"}"
+    },
+    {
+      "id": "2",
+      "sortOrder": "1",
+      "question": "{\"ko\":\"최소 투자 금액은 얼마인가요?\",\"en\":\"What is the minimum investment amount?\",\"zh\":\"最低投资金额是多少？\",\"ja\":\"最低投資額はいくらですか？\",\"vi\":\"Số tiền đầu tư tối thiểu là bao nhiêu?\",\"th\":\"จำนวนเงินลงทุนขั้นต่ำเท่าไหร่?\"}"
+    },
+    {
+      "id": "3",
+      "sortOrder": "2",
+      "question": "{\"ko\":\"출금은 얼마나 걸리나요?\",\"en\":\"How long does withdrawal take?\",\"zh\":\"提现需要多长时间？\",\"ja\":\"出金にはどのくらいかかりますか？\",\"vi\":\"Rút tiền mất bao lâu?\",\"th\":\"ถอนเงินใช้เวลานานเท่าไหร่?\"}"
+    },
+    {
+      "id": "4",
+      "sortOrder": "3",
+      "question": "{\"ko\":\"레퍼럴 보너스는 어떻게 작동하나요?\",\"en\":\"How does the referral bonus work?\",\"zh\":\"推荐奖金如何运作？\",\"ja\":\"リファラルボーナスはどう機能しますか？\",\"vi\":\"Thưởng giới thiệu hoạt động thế nào?\",\"th\":\"โบนัสแนะนำทำงานอย่างไร?\"}"
+    },
+    {
+      "id": "5",
+      "sortOrder": "4",
+      "question": "{\"ko\":\"BTC 예측 게임에서 잃으면 어떻게 되나요?\",\"en\":\"What happens if I lose in the BTC prediction game?\",\"zh\":\"BTC预测游戏输了怎么办？\",\"ja\":\"BTC予測ゲームで負けたらどうなりますか？\",\"vi\":\"Nếu thua trong game dự đoán BTC thì sao?\",\"th\":\"ถ้าแพ้ในเกมทำนาย BTC จะเป็นอย่างไร?\"}"
+    },
+    {
+      "id": "6",
+      "sortOrder": "5",
+      "question": "{\"ko\":\"XPLAY를 시작하려면 어떤 지갑이 필요한가요?\",\"en\":\"What wallet do I need to start with XPLAY?\",\"zh\":\"开始使用XPLAY需要什么钱包？\",\"ja\":\"XPLAYを始めるにはどのウォレットが必要ですか？\",\"vi\":\"Cần ví gì để bắt đầu với XPLAY?\",\"th\":\"ต้องใช้กระเป๋าอะไรเพื่อเริ่มใช้ XPLAY?\"}"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsortOrder\tquestion\n1\t0\t{\"ko\":\"XPLAY는 안전한가요? 자금은 어떻게 보호되나요?\",\"en\":\"Is XPLAY safe? How are funds protected?\",\"zh\":\"XPLAY安全吗？资金如何保护？\",\"ja\":\"XPLAYは安全ですか？資金はどう保護されますか？\",\"vi\":\"XPLAY có an toàn không? Tiền được bảo vệ thế nào?\",\"th\":\"XPLAY ปลอดภัยไหม? เงินถูกปกป้องอย่างไร?\"}\n2\t1\t{\"ko\":\"최소 투자 금액은 얼마인가요?\",\"en\":\"What is the minimum investment amount?\",\"zh\":\"最低投资金额是多少？\",\"ja\":\"最低投資額はいくらですか？\",\"vi\":\"Số tiền đầu tư tối thiểu là bao nhiêu?\",\"th\":\"จำนวนเงินลงทุนขั้นต่ำเท่าไหร่?\"}\n3\t2\t{\"ko\":\"출금은 얼마나 걸리나요?\",\"en\":\"How long does withdrawal take?\",\"zh\":\"提现需要多长时间？\",\"ja\":\"出金にはどのくらいかかりますか？\",\"vi\":\"Rút tiền mất bao lâu?\",\"th\":\"ถอนเงินใช้เวลานานเท่าไหร่?\"}\n4\t3\t{\"ko\":\"레퍼럴 보너스는 어떻게 작동하나요?\",\"en\":\"How does the referral bonus work?\",\"zh\":\"推荐奖金如何运作？\",\"ja\":\"リファラルボーナスはどう機能しますか？\",\"vi\":\"Thưởng giới thiệu hoạt động thế nào?\",\"th\":\"โบนัสแนะนำทำงานอย่างไร?\"}\n5\t4\t{\"ko\":\"BTC 예측 게임에서 잃으면 어떻게 되나요?\",\"en\":\"What happens if I lose in the BTC prediction game?\",\"zh\":\"BTC预测游戏输了怎么办？\",\"ja\":\"BTC予測ゲームで負けたらどうなりますか？\",\"vi\":\"Nếu thua trong game dự đoán BTC thì sao?\",\"th\":\"ถ้าแพ้ในเกมทำนาย BTC จะเป็นอย่างไร?\"}\n6\t5\t{\"ko\":\"XPLAY를 시작하려면 어떤 지갑이 필요한가요?\",\"en\":\"What wallet do I need to start with XPLAY?\",\"zh\":\"开始使用XPLAY需要什么钱包？\",\"ja\":\"XPLAYを始めるにはどのウォレットが必要ですか？\",\"vi\":\"Cần ví gì để bắt đầu với XPLAY?\",\"th\":\"ต้องใช้กระเป๋าอะไรเพื่อเริ่มใช้ XPLAY?\"}\n",
+  "stderr": "",
+  "execution_time_ms": 1572
+}
