@@ -47,6 +47,10 @@ jobs:
             # 텔레그램 봇도 재시작
             docker compose restart xplay-telegram-bot 2>/dev/null || true
             
+            # 관리자 비밀번호 설정 (passwordHash가 null인 경우)
+            echo "🔑 관리자 비밀번호 확인..."
+            node scripts/ensure-admin-pw.mjs || true
+            
             # 상태 확인
             sleep 10
             docker compose ps
