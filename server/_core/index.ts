@@ -10,6 +10,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { telegramRouter } from "../telegramWebhook";
 import { startScheduler } from "../scheduler";
+import { ensureAdminPassword } from "../ensureAdminPassword";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -66,6 +67,8 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    // Ensure admin users have passwords set
+    ensureAdminPassword();
     // Start the scheduled announcement publisher
     startScheduler();
   });
