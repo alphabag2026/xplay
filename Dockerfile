@@ -35,11 +35,10 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 # Copy package files and install production deps only
 COPY package.json pnpm-lock.yaml ./
 COPY patches/ ./patches/
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 
 # Copy built assets from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/client/dist ./client/dist
 COPY --from=builder /app/drizzle ./drizzle
 
 # Copy telegram bot script
