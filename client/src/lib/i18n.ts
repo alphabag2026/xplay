@@ -656,4 +656,12 @@ export const T: Record<string, Record<CoreLang, string>> = {
 
   "footer.disclaimer": { ko: "본 사이트는 프로젝트에서 제공하는 자료를 중심으로 분석 및 구성된 내용을 중심으로 제공됩니다. 모든 법적 및 투자 책임은 당사자들에게 있습니다.", en: "This site provides content based on analysis and organization of materials provided by the project. All legal and investment responsibilities lie with the parties involved.", zh: "本网站提供基于项目提供的资料进行分析和组织的内容。所有法律和投资责任由当事人承担。", ja: "本サイトはプロジェクトから提供された資料を中心に分析・構成された内容を提供します。すべての法的および投資責任は当事者にあります。", vi: "Trang web này cung cấp nội dung dựa trên phân tích và tổ chức tài liệu do dự án cung cấp. Mọi trách nhiệm pháp lý và đầu tư thuộc về các bên liên quan.", th: "เว็บไซต์นี้ให้บริการเนื้อหาที่วิเคราะห์และจัดระเบียบจากข้อมูลโครงการ ความรับผิดชอบทางกฎหมายและการลงทุนเป็นของผู้เกี่ยวข้อง" },
   "footer.infoweb4": { ko: "infoweb4를 통해 프로젝트 등록하기", en: "Register your project via infoweb4", zh: "通过infoweb4注册项目", ja: "infoweb4でプロジェクトを登録", vi: "Đăng ký dự án qua infoweb4", th: "ลงทะเบียนโครงการผ่าน infoweb4" },
+  "footer.infoweb4Desc": { ko: "infoweb4는 프로젝트 자동화로 프로젝트 및 리더들이 원하는 프로젝트 소개 페이지 및 글로벌 20개 이상의 프로젝트 언어 번역과 소개 페이지를 구상해드립니다.", en: "infoweb4 provides project automation to create project introduction pages and translate them into 20+ global languages for project leaders.", zh: "infoweb4通过项目自动化，为项目及领导者创建项目介绍页面，并翻译成20多种全球语言。", ja: "infoweb4はプロジェクト自動化でプロジェクト紹介ページを作成し、20以上のグローバル言語に翻訳します。", vi: "infoweb4 tự động hóa dự án, tạo trang giới thiệu dự án và dịch sang hơn 20 ngôn ngữ toàn cầu cho các nhà lãnh đạo dự án.", th: "infoweb4 ให้บริการอัตโนมัติโครงการ สร้างหน้าแนะนำโครงการและแปลเป็นภาษาสากลมากกว่า 20 ภาษา" },
+  "footer.infoweb4Btn": { ko: "infoweb4 바로가기", en: "Go to infoweb4", zh: "前往 infoweb4", ja: "infoweb4へ", vi: "Truy cập infoweb4", th: "ไปที่ infoweb4" },
+
+  "push.banner.title": { ko: "🔔 알림 설정", en: "🔔 Notifications", zh: "🔔 通知设置", ja: "🔔 通知設定", vi: "🔔 Thông báo", th: "🔔 การแจ้งเตือน" },
+  "push.banner.desc": { ko: "공지사항과 뉴스를 실시간으로 받아보세요", en: "Get real-time announcements and news updates", zh: "实时接收公告和新闻更新", ja: "お知らせとニュースをリアルタイムで受け取る", vi: "Nhận thông báo và tin tức cập nhật theo thời gian thực", th: "รับประกาศและข่าวสารแบบเรียลไทม์" },
+  "push.banner.allow": { ko: "알림 허용", en: "Allow", zh: "允许通知", ja: "許可する", vi: "Cho phép", th: "อนุญาต" },
+  "push.banner.dismiss": { ko: "다음에", en: "Later", zh: "稍后", ja: "後で", vi: "Để sau", th: "ภายหลัง" },
+  "push.banner.subscribed": { ko: "✅ 알림이 활성화되었습니다", en: "✅ Notifications enabled", zh: "✅ 通知已开启", ja: "✅ 通知が有効です", vi: "✅ Đã bật thông báo", th: "✅ เปิดการแจ้งเตือนแล้ว" },
 };

@@ -32,6 +32,8 @@ import {
   getFaqItems, getAllFaqItems, getFaqItemById, createFaqItem, updateFaqItem, deleteFaqItem,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { sendPushToAll } from "./webPush";
+import { savePushSubscription, deletePushSubscription, getPushSubscriptionCount } from "./db";
 import { r2Upload, r2Delete, r2List, r2HealthCheck, generateFileKey } from "./r2Storage";
 import { eq, and, or, isNull } from "drizzle-orm";
 import { resources } from "../drizzle/schema";
@@ -492,6 +494,16 @@ export const appRouter = router({
             scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
           });
           await logAction(ctx, "create", "announcement", id, `제목: ${input.title}${input.status === "scheduled" ? ` (예약: ${input.scheduledAt})` : ""}`);
+          // Send push notification for published announcements
+          if (!input.status || input.status === "published") {
+            sendPushToAll({
+              title: `📢 ${input.title}`,
+              body: input.content.replace(/<[^>]*>/g, "").substring(0, 120),
+              url: "/",
+              icon: "/favicon.ico",
+              tag: `announcement-${id}`,
+            }).catch(err => console.error("[WebPush] Failed to send announcement push:", err));
+          }
           return { success: true, id };
         }),
 
@@ -641,6 +653,14 @@ export const appRouter = router({
             authorName: input.authorName ?? "XPLAY Admin",
           });
           await logAction(ctx, "create", "news", id, `뉴스: ${input.title}`);
+          // Send push notification for new news
+          sendPushToAll({
+            title: `📰 ${input.title}`,
+            body: input.description ? input.description.substring(0, 120) : input.url,
+            url: input.url,
+            icon: "/favicon.ico",
+            tag: `news-${id}`,
+          }).catch(err => console.error("[WebPush] Failed to send news push:", err));
           return { success: true, id };
         }),
 
@@ -1238,6 +1258,54 @@ export const appRouter = router({
         await logAction(ctx, "delete", "faq", input.id);
         return { success: true };
       }),
+  }),
+
+  // ========== Push Notifications ==========
+  push: router({
+    subscribe: publicProcedure
+      .input(z.object({
+        endpoint: z.string().url(),
+        p256dh: z.string().min(1),
+        auth: z.string().min(1),
+        userAgent: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await savePushSubscription({
+          endpoint: input.endpoint,
+          p256dh: input.p256dh,
+          auth: input.auth,
+          userAgent: input.userAgent ?? null,
+        });
+        return { success: true, id: result.id, isNew: result.isNew };
+      }),
+    unsubscribe: publicProcedure
+      .input(z.object({ endpoint: z.string().url() }))
+      .mutation(async ({ input }) => {
+        await deletePushSubscription(input.endpoint);
+        return { success: true };
+      }),
+    /** Admin: send test push to all subscribers */
+    sendTest: adminProcedure
+      .input(z.object({
+        title: z.string().min(1).max(200),
+        body: z.string().min(1).max(500),
+        url: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await sendPushToAll({
+          title: input.title,
+          body: input.body,
+          url: input.url,
+          icon: "/favicon.ico",
+        });
+        await logAction(ctx, "send", "push_notification", undefined, `Sent to ${result.sent} subscribers`);
+        return result;
+      }),
+    /** Admin: get subscriber count */
+    subscriberCount: adminProcedure.query(async () => {
+      const count = await getPushSubscriptionCount();
+      return { count };
+    }),
   }),
 });
 

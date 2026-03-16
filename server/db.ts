@@ -878,3 +878,43 @@ export async function deleteFaqItem(id: number) {
   if (!db) throw new Error("Database not available");
   await db.delete(faqItems).where(eq(faqItems.id, id));
 }
+
+
+// ========== Push Subscriptions ==========
+
+export async function savePushSubscription(data: { endpoint: string; p256dh: string; auth: string; userAgent?: string | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Upsert: if endpoint already exists, update keys
+  const existing = await db.select().from(pushSubscriptions).where(eq(pushSubscriptions.endpoint, data.endpoint)).limit(1);
+  if (existing.length > 0) {
+    await db.update(pushSubscriptions).set({ p256dh: data.p256dh, auth: data.auth, userAgent: data.userAgent ?? null }).where(eq(pushSubscriptions.endpoint, data.endpoint));
+    return { id: existing[0].id, isNew: false };
+  }
+  const result = await db.insert(pushSubscriptions).values({
+    endpoint: data.endpoint,
+    p256dh: data.p256dh,
+    auth: data.auth,
+    userAgent: data.userAgent ?? null,
+  });
+  return { id: Number(result[0].insertId), isNew: true };
+}
+
+export async function getAllPushSubscriptions() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(pushSubscriptions).orderBy(pushSubscriptions.id);
+}
+
+export async function deletePushSubscription(endpoint: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
+}
+
+export async function getPushSubscriptionCount() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.select({ id: pushSubscriptions.id }).from(pushSubscriptions);
+  return result.length;
+}

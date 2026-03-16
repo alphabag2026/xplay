@@ -49,6 +49,7 @@ import AnnouncementBoard from "@/components/sections/AnnouncementBoard";
 import CommunicationPartners from "@/components/sections/CommunicationPartners";
 import LeaderReferralSection from "@/components/sections/LeaderReferralSection";
 import UrgentBanner from "@/components/UrgentBanner";
+import PushNotificationBanner from "@/components/PushNotificationBanner";
 
 export default function Home() {
   return (
@@ -74,6 +75,7 @@ export default function Home() {
       <CommunicationPartners />
       <LeaderReferralSection />
       <Footer />
+      <PushNotificationBanner />
     </div>
   );
 }

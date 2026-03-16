@@ -26,7 +26,6 @@ const I18N: Record<string, Record<string, string>> = {
   "board.noAnnouncements": { ko: "아직 공지사항이 없습니다", en: "No announcements yet", zh: "暂无公告", ja: "お知らせはまだありません", vi: "Chưa có thông báo", th: "ยังไม่มีประกาศ" },
   "board.close": { ko: "닫기", en: "Close", zh: "关闭", ja: "閉じる", vi: "Đóng", th: "ปิด" },
   "board.readMore": { ko: "자세히 보기", en: "Read More", zh: "查看详情", ja: "詳細を見る", vi: "Xem thêm", th: "อ่านเพิ่มเติม" },
-  "board.telegramNote": { ko: "텔레그램 봇으로 공지를 등록할 수 있습니다", en: "Announcements can be posted via Telegram bot", zh: "可通过Telegram机器人发布公告", ja: "Telegramボットで公知を登録できます", vi: "Có thể đăng thông báo qua bot Telegram", th: "สามารถโพสต์ประกาศผ่านบอท Telegram" },
   "board.searchPlaceholder": { ko: "공지사항 검색...", en: "Search announcements...", zh: "搜索公告...", ja: "お知らせを検索...", vi: "Tìm kiếm thông báo...", th: "ค้นหาประกาศ..." },
   "board.comments": { ko: "댓글", en: "Comments", zh: "评论", ja: "コメント", vi: "Bình luận", th: "ความคิดเห็น" },
   "board.writeComment": { ko: "댓글을 입력하세요...", en: "Write a comment...", zh: "写评论...", ja: "コメントを入力...", vi: "Viết bình luận...", th: "เขียนความคิดเห็น..." },

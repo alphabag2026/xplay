@@ -177,7 +177,7 @@ export default function Footer() {
             infoweb4
           </p>
           <p className="text-[11px] mb-4 leading-relaxed" style={{ color: "rgba(226,232,240,0.5)" }}>
-            infoweb4는 프로젝트 자동화로 프로젝트 및 리더들이 원하는 프로젝트 소개 페이지 및 글로벌 20개 이상의 프로젝트 언어 번역과 소개 페이지를 구상해드립니다.
+            {t("footer.infoweb4Desc")}
           </p>
           <a
             href="https://addinfo.infoweb4.vip"
@@ -201,7 +201,7 @@ export default function Footer() {
             }}
           >
             <Rocket size={12} />
-            infoweb4 바로가기
+            {t("footer.infoweb4Btn")}
           </a>
         </div>
       </div>
