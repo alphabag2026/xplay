@@ -213,6 +213,9 @@ export default function AdminAnnouncements() {
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0"><ImageIcon className="h-3 w-3 inline mr-0.5" />{t("admin.image")}</Badge>
                       )}
                     </div>
+                    {ann.content && (
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{ann.content.slice(0, 150)}{ann.content.length > 150 ? "..." : ""}</p>
+                    )}
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-muted-foreground">{ann.authorName}</span>
                       <span className="text-xs text-muted-foreground">{new Date(ann.createdAt).toLocaleDateString()}</span>

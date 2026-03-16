@@ -1,0 +1,34 @@
+{
+  "query": "SELECT 'faqItems' as tbl, COUNT(*) as cnt FROM faqItems UNION ALL SELECT 'resources', COUNT(*) FROM resources UNION ALL SELECT 'tutorials', COUNT(*) FROM tutorials UNION ALL SELECT 'announcements', COUNT(*) FROM announcements UNION ALL SELECT 'newsLinks', COUNT(*) FROM newsLinks UNION ALL SELECT 'liveFeedConfig', COUNT(*) FROM liveFeedConfig;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT 'faqItems' as tbl, COUNT(*) as cnt FROM faqItems UNION ALL SELECT 'resources', COUNT(*) FROM resources UNION ALL SELECT 'tutorials', COUNT(*) FROM tutorials UNION ALL SELECT 'announcements', COUNT(*) FROM announcements UNION ALL SELECT 'newsLinks', COUNT(*) FROM newsLinks UNION ALL SELECT 'liveFeedConfig', COUNT(*) FROM liveFeedConfig;",
+  "rows": [
+    {
+      "tbl": "faqItems",
+      "cnt": "6"
+    },
+    {
+      "tbl": "tutorials",
+      "cnt": "1"
+    },
+    {
+      "tbl": "announcements",
+      "cnt": "1"
+    },
+    {
+      "tbl": "resources",
+      "cnt": "10"
+    },
+    {
+      "tbl": "newsLinks",
+      "cnt": "0"
+    },
+    {
+      "tbl": "liveFeedConfig",
+      "cnt": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "tbl\tcnt\nfaqItems\t6\ntutorials\t1\nannouncements\t1\nresources\t10\nnewsLinks\t0\nliveFeedConfig\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1665
+}

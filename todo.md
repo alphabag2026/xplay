@@ -283,3 +283,9 @@
 
 ## 관리자 대시보드 공지사항 내용 미표시 버그
 - [x] 관리자 대시보드 Recent Announcements에서 공지사항 내용(content)이 표시되도록 수정 — content 미리보기 (100자 + line-clamp-2) 추가
+
+## Vultr DB 데이터 동기화 및 UI 수정
+- [x] 공지사항 관리자 페이지(Announcements.tsx)에서 내용(content) 미리보기 추가 (150자 + line-clamp-2)
+- [x] FAQ 답변 입력란 확인 (정상 작동 - LangMapEditor multiline Textarea 사용)
+- [x] Manus DB → Vultr DB 데이터 마이그레이션 스크립트 작성 (export-data-for-vultr.mjs + sync-data-to-vultr.mjs)
+- [ ] 최신 코드 Vultr 배포 및 검증

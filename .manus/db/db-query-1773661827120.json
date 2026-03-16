@@ -1,0 +1,26 @@
+{
+  "query": "SELECT 'faqItems' as tbl, COUNT(*) as cnt FROM faqItems UNION ALL SELECT 'resources', COUNT(*) FROM resources UNION ALL SELECT 'tutorials', COUNT(*) FROM tutorials UNION ALL SELECT 'announcements', COUNT(*) FROM announcements;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user ZhmXq2fuwbq2e6E.2ec0516257d7 --database 45mU6xhgdRUAikfBjGs2KY --execute SELECT 'faqItems' as tbl, COUNT(*) as cnt FROM faqItems UNION ALL SELECT 'resources', COUNT(*) FROM resources UNION ALL SELECT 'tutorials', COUNT(*) FROM tutorials UNION ALL SELECT 'announcements', COUNT(*) FROM announcements;",
+  "rows": [
+    {
+      "tbl": "tutorials",
+      "cnt": "1"
+    },
+    {
+      "tbl": "faqItems",
+      "cnt": "6"
+    },
+    {
+      "tbl": "resources",
+      "cnt": "10"
+    },
+    {
+      "tbl": "announcements",
+      "cnt": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "tbl\tcnt\ntutorials\t1\nfaqItems\t6\nresources\t10\nannouncements\t1\n",
+  "stderr": "",
+  "execution_time_ms": 1513
+}
