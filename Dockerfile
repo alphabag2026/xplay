@@ -44,6 +44,9 @@ COPY --from=builder /app/drizzle ./drizzle
 # Copy telegram bot script
 COPY telegram-bot.mjs ./
 
+# Copy utility scripts
+COPY scripts/ ./scripts/
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1

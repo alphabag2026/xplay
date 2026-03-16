@@ -49,7 +49,7 @@ jobs:
             
             # 관리자 비밀번호 설정 (passwordHash가 null인 경우)
             echo "🔑 관리자 비밀번호 확인..."
-            node scripts/ensure-admin-pw.mjs || true
+            docker compose exec -T xplay-web node scripts/ensure-admin-pw.mjs || true
             
             # 상태 확인
             sleep 10
