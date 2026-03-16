@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import {
   InsertUser, users,
   announcements, InsertAnnouncement,
@@ -19,16 +20,41 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: MySql2Database | null = null;
+let _pool: mysql.Pool | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL) return null;
+
+  // If we have a cached db, verify the connection is still alive
+  if (_db && _pool) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      await _pool.query("SELECT 1");
+      return _db;
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      console.warn("[Database] Connection lost, reconnecting...");
       _db = null;
+      try { await _pool.end(); } catch {}
+      _pool = null;
     }
+  }
+
+  // Create a new connection pool with keep-alive settings
+  try {
+    _pool = mysql.createPool({
+      uri: process.env.DATABASE_URL,
+      waitForConnections: true,
+      connectionLimit: 10,
+      idleTimeout: 60000,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
+    });
+    _db = drizzle(_pool) as unknown as MySql2Database;
+    console.log("[Database] Connected successfully");
+  } catch (error) {
+    console.warn("[Database] Failed to connect:", error);
+    _db = null;
+    _pool = null;
   }
   return _db;
 }

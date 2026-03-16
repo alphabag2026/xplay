@@ -11,7 +11,7 @@ interface AppContextType {
   ctaLink: string;
 }
 
-const AppContext = createContext<AppContextType | null>(null);
+export const AppContext = createContext<AppContextType | null>(null);
 
 const DEFAULT_CTA = "https://app.xplaybot.com/";
 

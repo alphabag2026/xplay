@@ -1,7 +1,11 @@
 import { trpc } from "@/lib/trpc";
-import { useApp } from "@/contexts/AppContext";
-import { useState, useEffect, useRef } from "react";
-import { X, Video, ExternalLink } from "lucide-react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { X, ExternalLink } from "lucide-react";
+
+// Import the raw context object to avoid the throw in useApp()
+// This way we can safely handle the case when AppProvider is not available
+// (e.g., during HMR invalidation or ErrorBoundary recovery)
+import { AppContext } from "@/contexts/AppContext";
 
 const MEETING_ICONS: Record<string, string> = {
   zoom: "📹",
@@ -20,7 +24,10 @@ const MEETING_LABELS: Record<string, Record<string, string>> = {
 };
 
 export default function UrgentBanner() {
-  const { lang } = useApp();
+  // Use useContext directly instead of useApp() to avoid throwing when AppProvider is missing
+  const appCtx = useContext(AppContext);
+  const lang = appCtx?.lang ?? "en";
+
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
 
