@@ -302,7 +302,8 @@ export async function getPartners() {
   if (!db) return [];
   return db.select().from(communicationPartners)
     .where(eq(communicationPartners.isActive, true))
-    .orderBy(communicationPartners.sortOrder);
+    .orderBy(desc(communicationPartners.createdAt))
+    .limit(1);
 }
 
 export async function getAllPartners() {

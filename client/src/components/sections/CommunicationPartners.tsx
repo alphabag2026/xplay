@@ -1,7 +1,8 @@
 /*
  * CommunicationPartners — Referral Contact Cards + Public Contact Registration + CS Support
  * Contact registration NO LONGER requires login — just name + various contact methods.
- * When a user registers their contact, their referrer's contact is replaced with theirs.
+ * Only 1 partner is displayed (latest registered). Card is displayed larger.
+ * After registration, partner list auto-refreshes.
  */
 
 import { useApp } from "@/contexts/AppContext";
@@ -59,9 +60,9 @@ function CopyBtn({ value, label }: { value: string; label: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button onClick={handleCopy} className="p-1 rounded transition-colors" title={`Copy ${label}`}
+    <button onClick={handleCopy} className="p-1.5 rounded transition-colors" title={`Copy ${label}`}
       style={{ color: copied ? "#22c55e" : "rgba(226,232,240,0.4)" }}>
-      {copied ? <Check size={11} /> : <Copy size={11} />}
+      {copied ? <Check size={14} /> : <Copy size={14} />}
     </button>
   );
 }
@@ -91,6 +92,7 @@ const COMMUNITY_CONFIGS: { key: keyof CommunityLinks; label: string; icon: strin
   { key: "social", label: "소셜", icon: "👥", color: "#f97316" },
 ];
 
+// ===== ENLARGED Partner Card (single partner, full width) =====
 function PartnerCard({ partner }: { partner: PartnerItem }) {
   const initials = partner.name.split(/[\s()（）]+/).filter(Boolean).map(w => w[0]).join("").substring(0, 2).toUpperCase();
   
@@ -102,41 +104,42 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-      className="rounded-xl overflow-hidden relative"
-      style={{ background: "rgba(10,14,26,0.7)", border: "1px solid rgba(0,245,255,0.1)" }}>
-      <div className="p-4 sm:p-5">
-        <div className="flex items-center gap-3 mb-3">
+      className="rounded-2xl overflow-hidden relative w-full max-w-2xl mx-auto"
+      style={{ background: "linear-gradient(145deg, rgba(10,14,26,0.85), rgba(15,20,40,0.9))", border: "1px solid rgba(0,245,255,0.15)", boxShadow: "0 4px 30px rgba(0,245,255,0.06)" }}>
+      <div className="p-6 sm:p-8">
+        {/* Header - Avatar + Name */}
+        <div className="flex items-center gap-4 mb-5">
           {partner.avatarUrl ? (
-            <img src={partner.avatarUrl} alt={partner.name} className="w-12 h-12 rounded-full object-cover" />
+            <img src={partner.avatarUrl} alt={partner.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover" style={{ border: "2px solid rgba(0,245,255,0.2)" }} />
           ) : (
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15))", border: "1px solid rgba(0,245,255,0.2)", color: "#00f5ff" }}>
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold"
+              style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15))", border: "2px solid rgba(0,245,255,0.2)", color: "#00f5ff" }}>
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold truncate" style={{ color: "rgba(226,232,240,0.95)", fontFamily: "'Space Grotesk', sans-serif" }}>{partner.name}</h3>
-            {partner.description && <p className="text-xs truncate" style={{ color: "rgba(226,232,240,0.5)" }}>{partner.description}</p>}
+            <h3 className="text-lg sm:text-xl font-bold truncate" style={{ color: "rgba(226,232,240,0.95)", fontFamily: "'Space Grotesk', sans-serif" }}>{partner.name}</h3>
+            {partner.description && <p className="text-sm mt-1" style={{ color: "rgba(226,232,240,0.5)" }}>{partner.description}</p>}
           </div>
         </div>
 
-        {/* Messenger buttons with copy */}
-        <div className="flex flex-wrap gap-2 mb-2">
+        {/* Messenger buttons with copy - larger */}
+        <div className="flex flex-wrap gap-2.5 mb-3">
           {MESSENGER_CONFIGS.map(cfg => {
             const value = partner[cfg.key] as string | null;
             if (!value) return null;
             const url = cfg.getUrl(value);
             return (
-              <div key={cfg.key} className="inline-flex items-center gap-1 rounded-lg text-[11px] font-semibold"
+              <div key={cfg.key} className="inline-flex items-center gap-1 rounded-xl text-sm font-semibold"
                 style={{ background: cfg.bgColor, border: `1px solid ${cfg.borderColor}` }}>
                 {url ? (
                   <a href={url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2"
                     style={{ color: cfg.color }}>
                     <span>{cfg.icon}</span> {cfg.label}
                   </a>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1.5" style={{ color: cfg.color }}>
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-2" style={{ color: cfg.color }}>
                     <span>{cfg.icon}</span> {cfg.label}
                   </span>
                 )}
@@ -148,16 +151,16 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
 
         {/* Community links */}
         {Object.keys(community).some(k => community[k as keyof CommunityLinks]) && (
-          <div className="flex flex-wrap gap-2 mt-2 pt-2" style={{ borderTop: "1px solid rgba(0,245,255,0.06)" }}>
+          <div className="flex flex-wrap gap-2.5 mt-3 pt-3" style={{ borderTop: "1px solid rgba(0,245,255,0.06)" }}>
             {COMMUNITY_CONFIGS.map(cfg => {
               const url = community[cfg.key];
               if (!url) return null;
               return (
                 <a key={cfg.key} href={url.startsWith("http") ? url : `https://${url}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
                   style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.12)", color: cfg.color }}>
                   <span>{cfg.icon}</span> {cfg.label}
-                  <ExternalLink size={9} />
+                  <ExternalLink size={10} />
                 </a>
               );
             })}
@@ -169,9 +172,19 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
 }
 
 // ========== Public Contact Registration Modal (no login required) ==========
-function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: string; bt: (k: string) => string }) {
+function MyContactModal({ onClose, onRegistered, lang, bt }: { onClose: () => void; onRegistered: () => void; lang: string; bt: (k: string) => string }) {
+  const utils = trpc.useUtils();
   const registerMutation = trpc.myContact.register.useMutation({
-    onSuccess: () => { setSaved(true); setTimeout(onClose, 2000); },
+    onSuccess: () => {
+      setSaved(true);
+      // Invalidate partner list so it auto-refreshes
+      utils.partners.list.invalidate();
+      // Call onRegistered callback
+      setTimeout(() => {
+        onRegistered();
+        onClose();
+      }, 1500);
+    },
   });
 
   const [saved, setSaved] = useState(false);
@@ -237,7 +250,7 @@ function MyContactModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
           <div className="p-8 text-center">
             <CheckCircle size={48} className="mx-auto mb-3" style={{ color: "#00f5ff" }} />
             <p className="font-bold" style={{ color: "rgba(226,232,240,0.95)" }}>등록 완료!</p>
-            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>연락처가 등록되었습니다. 추천자의 연락처가 내 연락처로 교체됩니다.</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>연락처가 등록되었습니다. 자동으로 새로고침됩니다.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
@@ -351,10 +364,10 @@ function CsSupportModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
       className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
       onClick={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-md rounded-xl overflow-hidden max-h-[85vh] overflow-y-auto"
+        className="w-full max-w-md rounded-xl overflow-hidden max-h-[90vh] overflow-y-auto"
         style={{ background: "rgba(15,20,35,0.98)", border: "1px solid rgba(168,85,247,0.2)" }}
         onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-[rgba(168,85,247,0.15)]">
+        <div className="flex items-center justify-between p-4 border-b border-[rgba(168,85,247,0.1)]">
           <div className="flex items-center gap-2">
             <Headphones size={18} style={{ color: "#a855f7" }} />
             <h3 className="font-bold text-sm" style={{ color: "rgba(226,232,240,0.95)" }}>{bt("cs.title")}</h3>
@@ -365,33 +378,27 @@ function CsSupportModal({ onClose, lang, bt }: { onClose: () => void; lang: stri
         </div>
 
         {submitted ? (
-          <div className="p-8 text-center space-y-3">
-            <CheckCircle size={48} className="mx-auto" style={{ color: "#a855f7" }} />
+          <div className="p-8 text-center">
+            <CheckCircle size={48} className="mx-auto mb-3" style={{ color: "#a855f7" }} />
             <p className="font-bold" style={{ color: "rgba(226,232,240,0.95)" }}>{bt("cs.success")}</p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)" }}>
-              <span className="text-xs" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.ticketNo")}:</span>
-              <span className="font-mono font-bold" style={{ color: "#a855f7" }}>{ticketNo}</span>
-            </div>
-            <p className="text-xs" style={{ color: "rgba(226,232,240,0.4)" }}>이 번호로 문의 상태를 확인할 수 있습니다.</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(226,232,240,0.5)" }}>{bt("cs.ticketNo")}: {ticketNo}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
-            <p className="text-xs" style={{ color: "rgba(226,232,240,0.5)" }}>{bt("cs.subtitle")}</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.name")} *</label>
-                <input className={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="이름" />
-              </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.contact")}</label>
-                <input className={inputStyle} value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} placeholder="이메일/전화/텔레그램" />
-              </div>
+            <p className="text-xs mb-2" style={{ color: "rgba(226,232,240,0.4)" }}>{bt("cs.subtitle")}</p>
+            <div>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.name")} *</label>
+              <input className={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required placeholder="이름" />
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.contact")}</label>
+              <input className={inputStyle} value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} placeholder="연락처 (전화번호, 이메일 등)" />
             </div>
             <div>
               <label className="text-xs font-medium mb-1 block" style={{ color: "rgba(226,232,240,0.6)" }}>{bt("cs.category")}</label>
               <select className={inputStyle} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-                {CATEGORIES.map(c => (
-                  <option key={c.value} value={c.value}>{c.labels[lang as keyof typeof c.labels] || c.labels.en}</option>
+                {CATEGORIES.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.labels[lang as keyof typeof cat.labels] || cat.labels.en}</option>
                 ))}
               </select>
             </div>
@@ -431,6 +438,10 @@ export default function CommunicationPartners() {
   const { data: apiPartners } = trpc.partners.list.useQuery(undefined, { retry: 1, refetchInterval: 60000 });
   const partners: PartnerItem[] = apiPartners && apiPartners.length > 0 ? apiPartners : [];
 
+  const handleRegistered = () => {
+    // Partner list will auto-refresh via invalidation in the modal
+  };
+
   return (
     <SectionWrapper id="partners">
       <SectionTitle badge={bt("partner.badge")} title={bt("partner.title")} subtitle={bt("partner.subtitle")} />
@@ -439,25 +450,23 @@ export default function CommunicationPartners() {
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           <button onClick={() => setShowMyContact(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base font-bold transition-all"
             style={{ background: "linear-gradient(135deg, rgba(0,245,255,0.1), rgba(0,245,255,0.05))", border: "1px solid rgba(0,245,255,0.25)", color: "#00f5ff" }}>
-            <UserPlus size={16} />
+            <UserPlus size={18} />
             {bt("partner.registerBtn")}
           </button>
           <button onClick={() => setShowCs(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base font-bold transition-all"
             style={{ background: "linear-gradient(135deg, rgba(168,85,247,0.1), rgba(168,85,247,0.05))", border: "1px solid rgba(168,85,247,0.25)", color: "#a855f7" }}>
-            <Headphones size={16} />
+            <Headphones size={18} />
             {bt("partner.csBtn")}
           </button>
         </div>
 
-        {/* Partner Cards */}
+        {/* Partner Card - single, large */}
         {partners.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {partners.map(partner => (
-              <PartnerCard key={partner.id} partner={partner} />
-            ))}
+          <div>
+            <PartnerCard partner={partners[0]} />
           </div>
         ) : (
           <div className="text-center py-12">
@@ -472,7 +481,7 @@ export default function CommunicationPartners() {
 
       {/* Modals */}
       <AnimatePresence>
-        {showMyContact && <MyContactModal onClose={() => setShowMyContact(false)} lang={lang} bt={bt} />}
+        {showMyContact && <MyContactModal onClose={() => setShowMyContact(false)} onRegistered={handleRegistered} lang={lang} bt={bt} />}
         {showCs && <CsSupportModal onClose={() => setShowCs(false)} lang={lang} bt={bt} />}
       </AnimatePresence>
     </SectionWrapper>

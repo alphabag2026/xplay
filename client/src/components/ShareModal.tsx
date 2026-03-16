@@ -119,8 +119,26 @@ export default function ShareModal({ open, onClose }: ShareModalProps) {
       bg: "rgba(254,229,0,0.1)",
       border: "rgba(254,229,0,0.25)",
       onClick: () => {
-        const kakaoUrl = `https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-        window.open(kakaoUrl, "_blank");
+        // Use kakaotalk:// scheme for mobile, fallback to web share
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          // Try native KakaoTalk share via intent/scheme
+          const kakaoScheme = `kakaotalk://msg/text/${encodeURIComponent(fullMsg)}`;
+          const timeout = setTimeout(() => {
+            // Fallback: copy to clipboard and prompt user
+            navigator.clipboard.writeText(fullMsg).then(() => {
+              alert('카카오톡 링크가 클립보드에 복사되었습니다. 카카오톡에서 붙여넣기 해주세요.');
+            });
+          }, 1500);
+          window.location.href = kakaoScheme;
+          // If KakaoTalk opened, clear the timeout
+          window.addEventListener('blur', () => clearTimeout(timeout), { once: true });
+        } else {
+          // Desktop: copy to clipboard and prompt
+          navigator.clipboard.writeText(fullMsg).then(() => {
+            alert('카카오톡 공유 메시지가 클립보드에 복사되었습니다.\n카카오톡에서 붙여넣기 해주세요.');
+          });
+        }
       },
     },
     {

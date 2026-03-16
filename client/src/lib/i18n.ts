@@ -645,11 +645,11 @@ export const T: Record<string, Record<CoreLang, string>> = {
 
   // Share Warning
   "share.warning.title": { ko: "레퍼럴 확인 필요", en: "Referral Verification", zh: "推荐验证", ja: "リファラル確認", vi: "Xác minh giới thiệu", th: "ตรวจสอบการแนะนำ" },
-  "share.warning.not.own": { ko: "본인의 레퍼럴이 아닙니다!", en: "This is not your referral!", zh: "这不是您的推荐链接！", ja: "あなたのリファラルではありません！", vi: "Đây không phải liên kết giới thiệu của bạn!", th: "นี่ไม่ใช่ลิงก์แนะนำของคุณ!" },
-  "share.warning.desc": { ko: "현재 등록된 레퍼럴은 본인의 것이 아닙니다. 본인의 레퍼럴을 등록하고 전달하세요.", en: "The registered referral is not yours. Please register your own referral and share.", zh: "当前注册的推荐链接不是您的。请注册您自己的推荐链接后分享。", ja: "登録されたリファラルはあなたのものではありません。自分のリファラルを登録して共有してください。", vi: "Liên kết giới thiệu đã đăng ký không phải của bạn. Vui lòng đăng ký liên kết của bạn.", th: "ลิงก์แนะนำที่ลงทะเบียนไม่ใช่ของคุณ กรุณาลงทะเบียนลิงก์ของคุณ" },
+  "share.warning.not.own": { ko: "본인 연락처가 아닙니다", en: "This is not your contact info", zh: "这不是您的联系方式", ja: "あなたの連絡先ではありません", vi: "Đây không phải thông tin liên hệ của bạn", th: "นี่ไม่ใช่ข้อมูลติดต่อของคุณ" },
+  "share.warning.desc": { ko: "이대로 전송하시겠습니까? 아니면 본인연락처를 등록하시겠습니까?", en: "Would you like to send as is, or register your own contact?", zh: "您要直接发送还是注册您自己的联系方式？", ja: "このまま送信しますか？それとも自分の連絡先を登録しますか？", vi: "Bạn muốn gửi như vậy hay đăng ký thông tin liên hệ của mình?", th: "คุณต้องการส่งแบบนี้หรือลงทะเบียนข้อมูลติดต่อของคุณ?" },
   "share.warning.current": { ko: "현재 등록된 레퍼럴", en: "Currently registered referral", zh: "当前注册的推荐链接", ja: "現在登録されたリファラル", vi: "Liên kết giới thiệu hiện tại", th: "ลิงก์แนะนำปัจจุบัน" },
-  "share.warning.register": { ko: "내 레퍼럴 등록하기", en: "Register My Referral", zh: "注册我的推荐链接", ja: "自分のリファラルを登録", vi: "Đăng ký liên kết của tôi", th: "ลงทะเบียนลิงก์ของฉัน" },
-  "share.warning.ignore": { ko: "무시하고 진행", en: "Ignore & Proceed", zh: "忽略并继续", ja: "無視して進む", vi: "Bỏ qua & Tiếp tục", th: "ข้ามและดำเนินการต่อ" },
+  "share.warning.register": { ko: "본인연락처 등록하기", en: "Register My Contact", zh: "注册我的联系方式", ja: "自分の連絡先を登録", vi: "Đăng ký liên hệ của tôi", th: "ลงทะเบียนข้อมูลติดต่อของฉัน" },
+  "share.warning.ignore": { ko: "이대로 전송하기", en: "Send as is", zh: "直接发送", ja: "このまま送信", vi: "Gửi như vậy", th: "ส่งแบบนี้" },
   "share.register.title": { ko: "내 레퍼럴 등록", en: "Register My Referral", zh: "注册我的推荐链接", ja: "自分のリファラル登録", vi: "Đăng ký liên kết của tôi", th: "ลงทะเบียนลิงก์ของฉัน" },
   "share.register.desc": { ko: "본인의 XPLAY 레퍼럴 링크를 입력하세요. 이 링크가 공유 시 포함됩니다.", en: "Enter your XPLAY referral link. This will be included when sharing.", zh: "请输入您的XPLAY推荐链接。分享时将包含此链接。", ja: "あなたのXPLAYリファラルリンクを入力してください。共有時に含まれます。", vi: "Nhập liên kết giới thiệu XPLAY của bạn. Liên kết này sẽ được bao gồm khi chia sẻ.", th: "กรอกลิงก์แนะนำ XPLAY ของคุณ ลิงก์นี้จะรวมอยู่เมื่อแชร์" },
   "share.register.save": { ko: "등록 후 공유하기", en: "Register & Share", zh: "注册并分享", ja: "登録して共有", vi: "Đăng ký & Chia sẻ", th: "ลงทะเบียน & แชร์" },
