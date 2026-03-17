@@ -96,8 +96,8 @@ export const REFERRAL_TIERS = [
   { tier: 1, directRefs: 1, generation: "1세대", liquidity: "100 U", reward: "10%" },
   { tier: 2, directRefs: 2, generation: "2세대", liquidity: "500 U", reward: "5%" },
   { tier: 3, directRefs: 3, generation: "3세대", liquidity: "1,000 U", reward: "3%" },
-  { tier: 4, directRefs: 4, generation: "4세대", liquidity: "1,500 U", reward: "1%" },
-  { tier: 5, directRefs: 5, generation: "5세대", liquidity: "2,000 U", reward: "1%" },
+  { tier: 4, directRefs: 3, generation: "4세대", liquidity: "1,000 U", reward: "1%" },
+  { tier: 5, directRefs: 4, generation: "5세대", liquidity: "1,500 U", reward: "1%" },
   { tier: 6, directRefs: 6, generation: "6세대", liquidity: "3,000 U", reward: "1%" },
 ];
 
